@@ -1,0 +1,48 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var useLocal = string.Equals(
+        Configuration["UiAssets:DevExpress:UseLocal"],
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    var version = Configuration["UiAssets:DevExpress:Version"];
+    if (string.IsNullOrWhiteSpace(version))
+    {
+        version = "24.1.6";
+    }
+
+    var cdnBaseUrl = Configuration["UiAssets:DevExpress:CdnBaseUrl"];
+    if (string.IsNullOrWhiteSpace(cdnBaseUrl))
+    {
+        cdnBaseUrl = "https://cdn3.devexpress.com/jslib";
+    }
+
+    var localBasePath = Configuration["UiAssets:DevExpress:LocalBasePath"];
+    if (string.IsNullOrWhiteSpace(localBasePath))
+    {
+        localBasePath = $"/lib/devexpress/{version}";
+    }
+
+    var normalizedCdnBaseUrl = cdnBaseUrl.Contains("{version}", StringComparison.OrdinalIgnoreCase)
+        ? cdnBaseUrl.Replace("{version}", version, StringComparison.OrdinalIgnoreCase).TrimEnd('/')
+        : $"{cdnBaseUrl.TrimEnd('/')}/{version}";
+    var normalizedLocalBasePath = localBasePath.TrimEnd('/');
+    var jqueryCdnUrl = Configuration["UiAssets:DevExpress:JqueryCdnUrl"];
+    if (string.IsNullOrWhiteSpace(jqueryCdnUrl))
+    {
+        jqueryCdnUrl = "https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js";
+    }
+    var jquerySource = useLocal
+        ? $"{normalizedLocalBasePath}/js/jquery.min.js"
+        : jqueryCdnUrl;
+    var dxAllSource = useLocal
+        ? $"{normalizedLocalBasePath}/js/dx.all.js"
+        : $"{normalizedCdnBaseUrl}/js/dx.all.js";
+    var dxRuMessagesSource = useLocal
+        ? $"{normalizedLocalBasePath}/js/localization/dx.messages.ru.js"
+        : $"{normalizedCdnBaseUrl}/js/localization/dx.messages.ru.js";
+}
+<script src="@jquerySource"></script>
+<script src="@dxAllSource"></script>
+<script src="@dxRuMessagesSource"></script>
+<script src="~/js/app-locale-ru.js"></script>

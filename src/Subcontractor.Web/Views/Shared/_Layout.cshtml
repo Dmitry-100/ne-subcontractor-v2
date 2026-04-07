@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Управление субподрядом</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    @RenderSection("Head", required: false)
+</head>
+<body>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+        var isDashboard = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Index", StringComparison.OrdinalIgnoreCase);
+        var isProjects = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Projects", StringComparison.OrdinalIgnoreCase);
+        var isLots = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Lots", StringComparison.OrdinalIgnoreCase);
+        var isProcedures = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Procedures", StringComparison.OrdinalIgnoreCase);
+        var isContracts = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Contracts", StringComparison.OrdinalIgnoreCase);
+        var isContractors = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Contractors", StringComparison.OrdinalIgnoreCase);
+        var isAdmin = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+        var isImports = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Imports", StringComparison.OrdinalIgnoreCase);
+        var isSla = currentController.Equals("Home", StringComparison.OrdinalIgnoreCase)
+            && currentAction.Equals("Sla", StringComparison.OrdinalIgnoreCase);
+    }
+    <header class="app-header">
+        <div class="app-header__brand">
+            <strong>Управление субподрядом</strong>
+        </div>
+        <nav class="app-header__nav">
+            <a asp-controller="Home" asp-action="Index" class="@(isDashboard ? "is-active" : string.Empty)">Дашборд</a>
+            <a asp-controller="Home" asp-action="Projects" class="@(isProjects ? "is-active" : string.Empty)">Проекты</a>
+            <a asp-controller="Home" asp-action="Lots" class="@(isLots ? "is-active" : string.Empty)">Лоты</a>
+            <a asp-controller="Home" asp-action="Procedures" class="@(isProcedures ? "is-active" : string.Empty)">Процедуры</a>
+            <a asp-controller="Home" asp-action="Contracts" class="@(isContracts ? "is-active" : string.Empty)">Договоры</a>
+            <a asp-controller="Home" asp-action="Contractors" class="@(isContractors ? "is-active" : string.Empty)">Подрядчики</a>
+            <a asp-controller="Home" asp-action="Imports" class="@(isImports ? "is-active" : string.Empty)">Импорт</a>
+            <a asp-controller="Home" asp-action="Sla" class="@(isSla ? "is-active" : string.Empty)">Контроль сроков</a>
+            <a asp-controller="Home" asp-action="Admin" class="@(isAdmin ? "is-active" : string.Empty)">Администрирование</a>
+        </nav>
+    </header>
+    <main class="app-main">
+        @RenderBody()
+    </main>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

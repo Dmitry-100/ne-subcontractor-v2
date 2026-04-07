@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Проекты";
+    var projectsApiEndpoint = Url.Content("~/api/projects");
+    var projectsExportEndpoint = Url.Content("~/api/exports/projects");
+}
+
+@section Head {
+    <partial name="_DevExpressHead" />
+}
+
+<section class="projects shell-panel" data-projects-module data-api-endpoint="@projectsApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Проекты</h1>
+        <p>Реестр проектов с возможностью создания, изменения и удаления записей.</p>
+        <p class="registry-hint">Состав доступных записей зависит от роли текущего пользователя и его прав доступа.</p>
+    </header>
+
+    <div class="projects-toolbar">
+        <a class="registry-api-link" href="@projectsExportEndpoint" target="_blank" rel="noopener">Экспорт CSV</a>
+        <a class="registry-api-link" href="@projectsApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="projects-status" data-projects-status>Загрузка...</p>
+    <div id="projects-grid" class="projects-grid" data-projects-grid></div>
+</section>
+
+@section Scripts {
+    <partial name="_DevExpressScripts" />
+    <script src="~/js/projects-grid.js"></script>
+}

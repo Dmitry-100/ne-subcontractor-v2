@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Администрирование";
+    var usersApiEndpoint = Url.Content("~/api/admin/users");
+    var rolesApiEndpoint = Url.Content("~/api/admin/roles");
+    var referenceApiRoot = Url.Content("~/api/reference-data");
+}
+
+@section Head {
+    <partial name="_DevExpressHead" />
+}
+
+<section class="admin shell-panel"
+         data-admin-module
+         data-users-api-endpoint="@usersApiEndpoint"
+         data-roles-api-endpoint="@rolesApiEndpoint"
+         data-reference-api-root="@referenceApiRoot">
+    <header class="shell-panel__header">
+        <h1>Администрирование</h1>
+        <p>Управление пользователями, ролями и справочными данными системы.</p>
+        <p class="registry-hint">Из этого раздела администратор назначает роли пользователям и поддерживает актуальность справочников.</p>
+    </header>
+
+    <div class="admin-toolbar">
+        <a class="registry-api-link" href="@usersApiEndpoint" target="_blank" rel="noopener">Открыть API пользователей</a>
+        <a class="registry-api-link" href="@rolesApiEndpoint" target="_blank" rel="noopener">Открыть API ролей</a>
+    </div>
+
+    <section class="admin-users">
+        <div class="admin-section-header">
+            <h2>Пользователи</h2>
+            <div class="admin-users-controls">
+                <label class="admin-field admin-field--grow">
+                    <span class="field-label">
+                        Поиск на сервере
+                        <partial name="_FieldHelp" model='"Поиск по логину, ФИО или электронной почте пользователя в серверном каталоге."' />
+                    </span>
+                    <input type="search" data-admin-users-search placeholder="логин, ФИО, email..." />
+                </label>
+                <button type="button" class="admin-action-button" data-admin-users-search-apply>Применить</button>
+                <button type="button"
+                        class="admin-action-button admin-action-button--secondary"
+                        data-admin-users-search-reset>
+                    Сбросить
+                </button>
+            </div>
+        </div>
+        <p class="admin-status" data-admin-users-status>Загрузка пользователей...</p>
+        <div class="admin-users-grid" data-admin-users-grid></div>
+    </section>
+
+    <section class="admin-roles">
+        <h2>Каталог ролей</h2>
+        <p class="admin-status" data-admin-roles-status>Загрузка ролей...</p>
+        <div class="admin-roles-grid" data-admin-roles-grid></div>
+    </section>
+
+    <section class="admin-reference">
+        <div class="admin-section-header">
+            <h2>Справочные данные</h2>
+            <div class="admin-reference-controls">
+                <label class="admin-field admin-field--grow">
+                    <span class="field-label">
+                        Код типа
+                        <partial name="_FieldHelp" model='"Код группы справочника, который нужно открыть. Например: типы закупки, маршруты согласования или уровни аналитики."' />
+                    </span>
+                    <input type="text"
+                           data-admin-reference-type-code
+                           list="admin-reference-type-codes"
+                           value="PURCHASE_TYPE"
+                           placeholder="PURCHASE_TYPE" />
+                </label>
+                <label class="admin-checkbox">
+                    <input type="checkbox" data-admin-reference-active-only />
+                    <span class="field-label">
+                        Только активные
+                        <partial name="_FieldHelp" model='"Если флаг включён, в таблицу попадут только действующие элементы выбранного справочника."' />
+                    </span>
+                </label>
+                <button type="button" class="admin-action-button" data-admin-reference-load>Загрузить</button>
+                <a class="registry-api-link"
+                   href="#"
+                   data-admin-reference-open-api
+                   target="_blank"
+                   rel="noopener">
+                    Открыть API
+                </a>
+            </div>
+        </div>
+        <datalist id="admin-reference-type-codes">
+            <option value="PURCHASE_TYPE"></option>
+            <option value="CONTRACTOR_QUALIFICATION"></option>
+            <option value="APPROVAL_MODE"></option>
+            <option value="APPROVAL_ROUTE"></option>
+            <option value="ANALYTICS_LEVEL_1"></option>
+            <option value="ANALYTICS_LEVEL_2"></option>
+            <option value="ANALYTICS_LEVEL_3"></option>
+            <option value="ANALYTICS_LEVEL_4"></option>
+            <option value="ANALYTICS_LEVEL_5"></option>
+        </datalist>
+        <p class="admin-status" data-admin-reference-status>Загрузка справочника...</p>
+        <div class="admin-reference-grid" data-admin-reference-grid></div>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_DevExpressScripts" />
+    <script src="~/js/admin-grid.js"></script>
+}

@@ -1,0 +1,156 @@
+@{
+    ViewData["Title"] = "Подрядчики";
+    var contractorsApiEndpoint = Url.Content("~/api/contractors");
+    var contractorsExportEndpoint = Url.Content("~/api/exports/contractors");
+    var ratingModelEndpoint = Url.Content("~/api/contractors/rating/model");
+    var ratingRecalculateEndpoint = Url.Content("~/api/contractors/rating/recalculate");
+    var ratingAnalyticsEndpoint = Url.Content("~/api/contractors/rating/analytics");
+}
+
+@section Head {
+    <partial name="_DevExpressHead" />
+}
+
+<section class="contractors shell-panel"
+         data-contractors-module
+         data-api-endpoint="@contractorsApiEndpoint"
+         data-rating-model-endpoint="@ratingModelEndpoint"
+         data-rating-recalculate-endpoint="@ratingRecalculateEndpoint"
+         data-rating-analytics-endpoint="@ratingAnalyticsEndpoint">
+    <header class="shell-panel__header">
+        <h1>Подрядчики</h1>
+        <p>Реестр подрядчиков с моделью рейтинга, экспертной оценкой и аналитикой динамики.</p>
+        <p class="registry-hint">Пересчёт рейтинга учитывает историю исполнения, коммерческую дисциплину, претензии, загрузку и экспертную оценку.</p>
+    </header>
+
+    <div class="contractors-toolbar">
+        <a class="registry-api-link" href="@contractorsExportEndpoint" target="_blank" rel="noopener">Экспорт CSV</a>
+        <a class="registry-api-link" href="@contractorsApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="contractors-status" data-contractors-status>Загрузка...</p>
+    <div class="contractors-grid" data-contractors-grid></div>
+
+    <section class="contractors-rating-workspace">
+        <h2>Рейтинг подрядчиков</h2>
+        <p class="contractors-selected" data-contractors-selected>Выберите подрядчика в таблице для просмотра истории и ручной оценки.</p>
+
+        <div class="contractors-actions">
+            <button type="button" class="contractors-action-button contractors-action-button--secondary" data-contractors-refresh>Обновить список</button>
+            <button type="button" class="contractors-action-button contractors-action-button--secondary" data-contractors-recalculate-all>Пересчитать рейтинг (все активные)</button>
+            <button type="button" class="contractors-action-button" data-contractors-recalculate-selected disabled>Пересчитать выбранного</button>
+        </div>
+        <p class="contractors-rating-status" data-contractors-rating-status>Операции рейтинга ещё не выполнялись.</p>
+
+        <section class="contractors-rating-model">
+            <h3>
+                <span class="field-label">
+                    Параметры весов модели
+                    <partial name="_FieldHelp" model='"Здесь задаются веса факторов рейтинга. Чем выше вес, тем сильнее соответствующий фактор влияет на итоговую оценку подрядчика."' />
+                </span>
+            </h3>
+            <div class="contractors-form-grid">
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Код версии
+                        <partial name="_FieldHelp" model='"Короткий уникальный код версии модели. Нужен для истории изменений и аудита пересчётов."' />
+                    </span>
+                    <input type="text" data-contractors-model-version-code placeholder="R-YYYYMMDD-HHMM" />
+                </label>
+                <label class="contractors-field contractors-field--grow">
+                    <span class="field-label">
+                        Название модели
+                        <partial name="_FieldHelp" model='"Понятное человеку наименование версии модели, по которому её легко узнать в аналитике и истории."' />
+                    </span>
+                    <input type="text" data-contractors-model-name placeholder="Рейтинговая модель v2" />
+                </label>
+                <label class="contractors-field contractors-field--grow">
+                    <span class="field-label">
+                        Комментарий
+                        <partial name="_FieldHelp" model='"Краткое описание изменений в новой версии модели: что скорректировано и зачем."' />
+                    </span>
+                    <input type="text" data-contractors-model-notes placeholder="Описание изменений модели..." />
+                </label>
+            </div>
+            <div class="contractors-form-grid">
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Вес: дисциплина исполнения
+                        <partial name="_FieldHelp" model='"Доля влияния своевременного и качественного исполнения работ на итоговый рейтинг."' />
+                    </span>
+                    <input type="number" step="0.01" min="0" max="1" data-contractors-weight-delivery />
+                </label>
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Вес: коммерческая дисциплина
+                        <partial name="_FieldHelp" model='"Влияние коммерческой дисциплины подрядчика: корректность документов, соблюдение договорных условий и расчётов."' />
+                    </span>
+                    <input type="number" step="0.01" min="0" max="1" data-contractors-weight-commercial />
+                </label>
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Вес: претензионная дисциплина
+                        <partial name="_FieldHelp" model='"Влияние претензий, спорных ситуаций и качества их урегулирования на рейтинг подрядчика."' />
+                    </span>
+                    <input type="number" step="0.01" min="0" max="1" data-contractors-weight-claim />
+                </label>
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Вес: экспертная оценка ГИПа
+                        <partial name="_FieldHelp" model='"Влияние ручной экспертной оценки руководителя проекта на итоговый рейтинг."' />
+                    </span>
+                    <input type="number" step="0.01" min="0" max="1" data-contractors-weight-manual />
+                </label>
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Вес: штраф загрузки
+                        <partial name="_FieldHelp" model='"Понижающий фактор за высокую загрузку подрядчика. Нужен, чтобы не перегружать исполнителя новыми задачами."' />
+                    </span>
+                    <input type="number" step="0.01" min="0" max="1" data-contractors-weight-workload />
+                </label>
+            </div>
+            <div class="contractors-actions">
+                <button type="button" class="contractors-action-button" data-contractors-save-model>Сохранить новую версию модели</button>
+                <button type="button" class="contractors-action-button contractors-action-button--secondary" data-contractors-reload-model>Обновить модель</button>
+            </div>
+        </section>
+
+        <section class="contractors-rating-manual">
+            <h3>Ручная оценка ГИПа</h3>
+            <div class="contractors-form-grid">
+                <label class="contractors-field">
+                    <span class="field-label">
+                        Оценка (0..5)
+                        <partial name="_FieldHelp" model='"Экспертная оценка подрядчика по шкале от 0 до 5. Учитывается при следующем пересчёте рейтинга."' />
+                    </span>
+                    <input type="number" step="0.1" min="0" max="5" data-contractors-manual-score />
+                </label>
+                <label class="contractors-field contractors-field--grow">
+                    <span class="field-label">
+                        Комментарий
+                        <partial name="_FieldHelp" model='"Пояснение, почему выставлена именно такая экспертная оценка. Помогает при последующем анализе изменений."' />
+                    </span>
+                    <input type="text" data-contractors-manual-comment placeholder="Обоснование экспертной оценки..." />
+                </label>
+                <button type="button" class="contractors-action-button" data-contractors-manual-save disabled>Применить оценку и пересчитать</button>
+            </div>
+        </section>
+
+        <section class="contractors-rating-history">
+            <h3>История рейтинга выбранного подрядчика</h3>
+            <p class="contractors-rating-status" data-contractors-history-status>История пока не загружена.</p>
+            <div class="contractors-history-grid" data-contractors-history-grid></div>
+        </section>
+
+        <section class="contractors-rating-analytics">
+            <h3>Аналитика подрядчиков</h3>
+            <p class="contractors-rating-status" data-contractors-analytics-status>Аналитика пока не загружена.</p>
+            <div class="contractors-analytics-grid" data-contractors-analytics-grid></div>
+        </section>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_DevExpressScripts" />
+    <script src="~/js/contractors-grid.js"></script>
+}

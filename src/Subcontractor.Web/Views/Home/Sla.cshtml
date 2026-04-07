@@ -1,0 +1,95 @@
+@{
+    ViewData["Title"] = "Контроль сроков";
+    var rulesApiEndpoint = Url.Content("~/api/sla/rules");
+    var violationsApiEndpoint = Url.Content("~/api/sla/violations");
+    var runApiEndpoint = Url.Content("~/api/sla/run");
+}
+
+<section class="shell-panel" data-sla-module data-rules-api="@rulesApiEndpoint" data-violations-api="@violationsApiEndpoint" data-run-api="@runApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Контроль сроков и уведомления</h1>
+        <p>Правила SLA по типам закупки, контроль нарушений и фиксация причин отклонений.</p>
+    </header>
+
+    <div class="dashboard-toolbar">
+        <button type="button" class="dashboard-refresh" data-sla-run>Запустить проверку SLA</button>
+        <button type="button" class="dashboard-refresh" data-sla-refresh-violations>Обновить нарушения</button>
+        <label class="registry-search" style="min-width:180px">
+            <span class="field-label">
+                Показывать закрытые
+                <partial name="_FieldHelp" model='"Если флаг включён, в таблице будут показаны не только открытые, но и уже закрытые нарушения SLA."' />
+            </span>
+            <input type="checkbox" data-sla-include-resolved />
+        </label>
+    </div>
+
+    <p class="dashboard-status" data-sla-status>Загрузка SLA...</p>
+
+    <section class="dashboard-panel" style="margin-bottom:14px">
+        <h2>
+            <span class="field-label">
+                Правила SLA по типам закупки
+                <partial name="_FieldHelp" model='"Для каждого типа закупки можно задать срок предупреждения до наступления контрольной даты и включить или выключить правило."' />
+            </span>
+        </h2>
+        <div class="dashboard-toolbar">
+            <button type="button" class="dashboard-refresh" data-sla-add-rule>Добавить правило</button>
+            <button type="button" class="dashboard-refresh" data-sla-save-rules>Сохранить правила</button>
+            <button type="button" class="dashboard-refresh" data-sla-reload-rules>Перезагрузить</button>
+        </div>
+        <div class="registry-table-wrap">
+            <table class="registry-table">
+                <thead>
+                <tr>
+                    <th>
+                        <span class="field-label">
+                            Код типа закупки
+                            <partial name="_FieldHelp" model='"Системный код типа закупки, к которому относится правило контроля сроков."' />
+                        </span>
+                    </th>
+                    <th>
+                        <span class="field-label">
+                            Дней до предупреждения
+                            <partial name="_FieldHelp" model='"За сколько дней до контрольной даты система должна начать сигнализировать о риске нарушения срока."' />
+                        </span>
+                    </th>
+                    <th>Активно</th>
+                    <th>Описание</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody data-sla-rules-body></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="dashboard-panel">
+        <h2>
+            <span class="field-label">
+                Нарушения SLA
+                <partial name="_FieldHelp" model='"Таблица показывает предупреждения и просрочки по срокам. Здесь можно указать код причины и комментарий по каждому нарушению."' />
+            </span>
+        </h2>
+        <div class="registry-table-wrap">
+            <table class="registry-table">
+                <thead>
+                <tr>
+                    <th>Серьёзность</th>
+                    <th>Срок</th>
+                    <th>Объект</th>
+                    <th>Эл. почта</th>
+                    <th>Причина (код)</th>
+                    <th>Комментарий</th>
+                    <th>Статус</th>
+                    <th>Действие</th>
+                </tr>
+                </thead>
+                <tbody data-sla-violations-body></tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+@section Scripts {
+    <script src="~/js/sla-page.js"></script>
+}

@@ -1,0 +1,224 @@
+@{
+    ViewData["Title"] = "Импорт исходных данных";
+    var batchesApiEndpoint = Url.Content("~/api/imports/source-data/batches");
+    var templateEndpoint = Url.Content("~/api/imports/source-data/batches/template");
+    var xmlInboxApiEndpoint = Url.Content("~/api/imports/source-data/xml/inbox");
+    var lotRecommendationsApiEndpoint = Url.Content("~/api/lots/recommendations/import-batches");
+}
+
+<section class="imports shell-panel"
+         data-imports-module
+         data-batches-api-endpoint="@batchesApiEndpoint"
+         data-template-api-endpoint="@templateEndpoint"
+         data-xml-inbox-api-endpoint="@xmlInboxApiEndpoint"
+         data-lot-recommendations-api-endpoint="@lotRecommendationsApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Импорт исходных данных</h1>
+        <p>Рабочее место оператора для загрузки файлов, проверки данных и отслеживания импортных пакетов.</p>
+        <p class="registry-hint">Загрузите файл Excel или CSV, сопоставьте колонки и отправьте пакет на проверку. Валидация выполняется в фоне.</p>
+    </header>
+
+    <div class="imports-toolbar">
+        <a class="registry-api-link" href="@batchesApiEndpoint" target="_blank" rel="noopener">Открыть API пакетов</a>
+        <a class="registry-api-link" href="@templateEndpoint" target="_blank" rel="noopener">Скачать шаблон CSV</a>
+    </div>
+
+    <div class="imports-layout">
+        <section class="imports-panel">
+            <h2>Мастер загрузки</h2>
+            <div class="imports-form">
+                <label class="imports-field">
+                    <span class="field-label">
+                        Файл источника (Excel/CSV)
+                        <partial name="_FieldHelp" model='"Файл с исходными строками для импорта. Поддерживаются форматы Excel и CSV."' />
+                    </span>
+                    <input type="file"
+                           data-imports-file
+                           accept=".csv,text/csv,.txt,text/plain,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel" />
+                </label>
+                <label class="imports-field">
+                    <span class="field-label">
+                        Комментарий
+                        <partial name="_FieldHelp" model='"Служебное пояснение к загрузке: источник файла, период, автор или особые замечания. Отображается в аудите пакета."' />
+                    </span>
+                    <textarea data-imports-notes rows="3" placeholder="Опциональный комментарий для аудита пакета..."></textarea>
+                </label>
+                <div class="imports-actions">
+                    <button type="button" class="imports-button" data-imports-parse>Разобрать файл</button>
+                    <button type="button" class="imports-button imports-button--secondary" data-imports-reset>Сбросить</button>
+                    <button type="button" class="imports-button" data-imports-upload disabled>Загрузить пакет</button>
+                </div>
+            </div>
+
+            <p class="imports-status" data-imports-upload-status>Выберите файл источника и нажмите «Разобрать файл».</p>
+            <section class="imports-mapping" data-imports-mapping hidden>
+                <h3>Сопоставление колонок</h3>
+                <label class="imports-checkbox">
+                    <input type="checkbox" data-imports-has-header checked />
+                    <span class="field-label">
+                        Первая строка содержит заголовки
+                        <partial name="_FieldHelp" model='"Включайте этот флаг, если первая строка файла содержит названия колонок, а не данные."' />
+                    </span>
+                </label>
+                <div class="imports-mapping-grid" data-imports-mapping-grid></div>
+                <div class="imports-actions">
+                    <button type="button" class="imports-button imports-button--secondary" data-imports-apply-mapping>Применить сопоставление</button>
+                </div>
+                <p class="imports-status" data-imports-mapping-status></p>
+            </section>
+            <p class="imports-summary" data-imports-parse-summary hidden></p>
+
+            <div class="imports-table-wrap" data-imports-preview-wrap hidden>
+                <table class="imports-table" data-imports-preview-table>
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <section class="imports-workflow">
+                <h3>
+                    <span class="field-label">
+                        XML-очередь из Express Planning
+                        <partial name="_FieldHelp" model='"Блок приёма XML-документов из внешней системы. Документы ставятся в очередь и обрабатываются отдельно от табличного импорта."' />
+                    </span>
+                </h3>
+                <div class="imports-form">
+                    <label class="imports-field">
+                        <span class="field-label">
+                            Система-источник
+                            <partial name="_FieldHelp" model='"Код или название внешней системы, из которой получен XML-документ. Нужен для трассировки происхождения данных."' />
+                        </span>
+                        <input type="text" data-imports-xml-source value="ExpressPlanning" />
+                    </label>
+                    <label class="imports-field">
+                        <span class="field-label">
+                            Внешний идентификатор документа
+                            <partial name="_FieldHelp" model='"Идентификатор документа во внешней системе. Помогает найти исходную запись и избежать повторной загрузки."' />
+                        </span>
+                        <input type="text" data-imports-xml-external-id placeholder="Опциональный внешний id..." />
+                    </label>
+                    <label class="imports-field">
+                        <span class="field-label">
+                            Имя XML-файла
+                            <partial name="_FieldHelp" model='"Имя файла или документа, под которым XML будет сохранён в очереди обработки."' />
+                        </span>
+                        <input type="text" data-imports-xml-file-name placeholder="express-plan-2026-09-21.xml" />
+                    </label>
+                    <label class="imports-field">
+                        <span class="field-label">
+                            XML-содержимое
+                            <partial name="_FieldHelp" model='"Полный текст XML-документа. После постановки в очередь система проверит структуру и обработает содержимое."' />
+                        </span>
+                        <textarea rows="8" data-imports-xml-content placeholder="Вставьте XML-содержимое..."></textarea>
+                    </label>
+                    <div class="imports-actions">
+                        <button type="button" class="imports-button" data-imports-xml-queue>Поставить XML в очередь</button>
+                        <button type="button" class="imports-button imports-button--secondary" data-imports-xml-refresh>Обновить XML-очередь</button>
+                    </div>
+                    <p class="imports-status" data-imports-xml-status>Операции с XML ещё не выполнялись.</p>
+                </div>
+
+                <div class="imports-table-wrap">
+                    <table class="imports-table imports-table--compact" data-imports-xml-table>
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <section class="imports-panel">
+            <h2>Пакеты импорта</h2>
+            <div class="imports-actions">
+                <button type="button" class="imports-button imports-button--secondary" data-imports-refresh>Обновить список</button>
+            </div>
+            <p class="imports-status" data-imports-batches-status>Загрузка пакетов...</p>
+
+            <div class="imports-table-wrap">
+                <table class="imports-table" data-imports-batches-table>
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <article class="imports-details" data-imports-details hidden>
+                <h3 data-imports-details-title>Детали пакета</h3>
+                <p class="imports-summary" data-imports-details-summary></p>
+                <div class="imports-actions">
+                    <button type="button" class="imports-button imports-button--secondary" data-imports-download-invalid-report disabled>Скачать отчёт по невалидным строкам</button>
+                    <button type="button" class="imports-button imports-button--secondary" data-imports-download-full-report disabled>Скачать полный отчёт валидации</button>
+                    <button type="button" class="imports-button imports-button--secondary" data-imports-download-lot-reconciliation-report disabled>Скачать отчёт трассировки лотирования</button>
+                </div>
+
+                <section class="imports-workflow">
+                    <h3>Действия процесса</h3>
+                    <div class="imports-form">
+                        <label class="imports-field">
+                            <span class="field-label">
+                                Целевой статус
+                                <partial name="_FieldHelp" model='"Статус, в который нужно перевести выбранный импортный пакет. Набор значений зависит от его текущего состояния."' />
+                            </span>
+                            <select class="imports-mapping-select" data-imports-target-status></select>
+                        </label>
+                        <label class="imports-field">
+                            <span class="field-label">
+                                Причина
+                                <partial name="_FieldHelp" model='"Пояснение к изменению статуса. Особенно важно при отклонении или возврате пакета на предыдущий этап."' />
+                            </span>
+                            <textarea rows="2" data-imports-transition-reason placeholder="Обязательна для перехода в статус «Отклонён»..."></textarea>
+                        </label>
+                        <div class="imports-actions">
+                            <button type="button" class="imports-button" data-imports-apply-transition disabled>Применить переход</button>
+                            <button type="button" class="imports-button imports-button--secondary" data-imports-history-refresh disabled>Обновить историю</button>
+                        </div>
+                        <p class="imports-status" data-imports-transition-status>Выберите пакет для выполнения действия процесса.</p>
+                    </div>
+                </section>
+
+                <section class="imports-workflow">
+                    <h3>Рекомендации по лотам</h3>
+                    <div class="imports-actions">
+                        <button type="button" class="imports-button imports-button--secondary" data-imports-lot-build disabled>Построить рекомендации</button>
+                        <button type="button" class="imports-button" data-imports-lot-apply disabled>Создать черновые лоты</button>
+                    </div>
+                    <p class="imports-status" data-imports-lot-status>Выберите пакет для построения рекомендаций.</p>
+                    <div class="imports-two-panel">
+                        <div class="imports-table-wrap">
+                            <p class="imports-summary">Рекомендуемые группы</p>
+                            <table class="imports-table imports-table--compact" data-imports-lot-groups-table>
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="imports-table-wrap">
+                            <p class="imports-summary">Выбранные группы (параметры черновых лотов)</p>
+                            <table class="imports-table imports-table--compact" data-imports-lot-selected-table>
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="imports-table-wrap" data-imports-invalid-wrap hidden>
+                    <table class="imports-table imports-table--compact" data-imports-invalid-table>
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="imports-table-wrap" data-imports-history-wrap hidden>
+                    <table class="imports-table imports-table--compact" data-imports-history-table>
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_SheetJsScript" />
+    <script src="~/js/imports-page.js"></script>
+}

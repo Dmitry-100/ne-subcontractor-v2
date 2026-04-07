@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <RootNamespace>Subcontractor.BackgroundJobs</RootNamespace>
+    <AssemblyName>Subcontractor.BackgroundJobs</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Subcontractor.Application\Subcontractor.Application.csproj" />
+    <ProjectReference Include="..\Subcontractor.Infrastructure\Subcontractor.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
+

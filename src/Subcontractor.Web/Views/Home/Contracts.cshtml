@@ -1,0 +1,209 @@
+@{
+    ViewData["Title"] = "Договоры";
+    var contractsApiEndpoint = Url.Content("~/api/contracts");
+    var contractsExportEndpoint = Url.Content("~/api/exports/contracts");
+    var monitoringControlPointsTemplateEndpoint = Url.Content("~/api/contracts/monitoring/templates/control-points");
+    var monitoringMdrTemplateEndpoint = Url.Content("~/api/contracts/monitoring/templates/mdr-cards");
+}
+
+@section Head {
+    <partial name="_DevExpressHead" />
+}
+
+<section class="contracts shell-panel" data-contracts-module data-api-endpoint="@contractsApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Договоры</h1>
+        <p>Реестр договоров с переходами статусов, созданием черновиков и планированием исполнения.</p>
+        <p class="registry-hint">Для каждого договора доступны история переходов, этапы исполнения, контрольные точки и карточки MDR.</p>
+    </header>
+
+    <div class="contracts-toolbar">
+        <a class="registry-api-link" href="@contractsExportEndpoint" target="_blank" rel="noopener">Экспорт CSV</a>
+        <a class="registry-api-link" href="@contractsApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="contracts-status" data-contracts-status>Загрузка...</p>
+    <div class="contracts-grid" data-contracts-grid></div>
+
+    <section class="contracts-workflow">
+        <h2>Переход статуса</h2>
+        <p class="contracts-selected" data-contracts-selected>Выберите договор в таблице, чтобы управлять статусом.</p>
+        <div class="contracts-actions">
+            <label class="contracts-field">
+                <span class="field-label">
+                    Целевой статус
+                    <partial name="_FieldHelp" model='"Статус, в который будет переведён выбранный договор. Доступные варианты зависят от текущего этапа жизненного цикла."' />
+                </span>
+                <select data-contracts-target disabled></select>
+            </label>
+            <label class="contracts-field contracts-field--grow">
+                <span class="field-label">
+                    Причина
+                    <partial name="_FieldHelp" model='"Комментарий к переходу. Обязателен при возврате на предыдущий статус и сохраняется в историю договора."' />
+                </span>
+                <input type="text" data-contracts-reason placeholder="Причина перехода..." />
+            </label>
+            <button type="button" class="contracts-action-button" data-contracts-apply disabled>Применить переход</button>
+            <button type="button"
+                    class="contracts-action-button contracts-action-button--secondary"
+                    data-contracts-history-refresh
+                    disabled>
+                Обновить историю
+            </button>
+        </div>
+        <p class="contracts-transition-status" data-contracts-transition-status>Переходы ещё не выполнялись.</p>
+        <div class="contracts-history-grid" data-contracts-history-grid></div>
+    </section>
+
+    <section class="contracts-draft">
+        <h2>Создать черновик из процедуры</h2>
+        <div class="contracts-draft-form">
+            <label class="contracts-field contracts-field--grow">
+                <span class="field-label">
+                    Идентификатор процедуры
+                    <partial name="_FieldHelp" model='"GUID выбранной закупочной процедуры, из которой создаётся черновик договора. Значение можно взять из реестра процедур."' />
+                </span>
+                <input type="text" data-contracts-draft-procedure-id placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+            </label>
+            <label class="contracts-field">
+                <span class="field-label">
+                    Номер договора
+                    <partial name="_FieldHelp" model='"Внутренний или проектный номер договора. Если оставить поле пустым, система создаст черновик без номера."' />
+                </span>
+                <input type="text" data-contracts-draft-number placeholder="DRAFT-..." />
+            </label>
+            <label class="contracts-field">
+                <span class="field-label">
+                    Дата подписания
+                    <partial name="_FieldHelp" model='"Фактическая дата подписания сторонами. Для черновика поле можно заполнить позже."' />
+                </span>
+                <input type="date" data-contracts-draft-signing-date />
+            </label>
+            <label class="contracts-field">
+                <span class="field-label">
+                    Дата начала
+                    <partial name="_FieldHelp" model='"Дата начала действия договора или начала исполнения работ по нему."' />
+                </span>
+                <input type="date" data-contracts-draft-start-date />
+            </label>
+            <label class="contracts-field">
+                <span class="field-label">
+                    Дата окончания
+                    <partial name="_FieldHelp" model='"Плановая дата завершения договора. Используется в контроле сроков и мониторинге просрочек."' />
+                </span>
+                <input type="date" data-contracts-draft-end-date />
+            </label>
+            <button type="button" class="contracts-action-button" data-contracts-draft-create>Создать черновик</button>
+        </div>
+        <p class="contracts-draft-status" data-contracts-draft-status>Операции с черновиком ещё не выполнялись.</p>
+    </section>
+
+    <section class="contracts-execution">
+        <h2>Планирование исполнения</h2>
+        <p class="contracts-selected" data-contracts-execution-selected>Выберите договор в таблице, чтобы управлять этапами.</p>
+        <div class="contracts-actions">
+            <button type="button"
+                    class="contracts-action-button contracts-action-button--secondary"
+                    data-contracts-execution-refresh
+                    disabled>
+                Обновить исполнение
+            </button>
+        </div>
+        <p class="contracts-execution-summary" data-contracts-execution-summary>Метрики исполнения ещё не загружены.</p>
+        <p class="contracts-execution-status" data-contracts-execution-status>Выберите договор в статусе «Подписан» или «Действует» для редактирования этапов.</p>
+        <div class="contracts-execution-grid" data-contracts-execution-grid></div>
+    </section>
+
+    <section class="contracts-monitoring">
+        <h2>
+            <span class="field-label">
+                Мониторинг КП и MDR
+                <partial name="_FieldHelp" model='"Блок мониторинга объединяет контрольные точки, этапы и отчётные карточки MDR. Здесь фиксируются плановые, прогнозные и фактические значения исполнения договора."' />
+            </span>
+        </h2>
+        <p class="contracts-selected" data-contracts-monitoring-selected>Выберите договор в таблице, чтобы работать с данными мониторинга.</p>
+        <div class="contracts-actions">
+            <button type="button"
+                    class="contracts-action-button contracts-action-button--secondary"
+                    data-contracts-monitoring-refresh
+                    disabled>
+                Обновить мониторинг
+            </button>
+            <button type="button" class="contracts-action-button" data-contracts-monitoring-save disabled>Сохранить мониторинг</button>
+            <a class="registry-api-link" href="@monitoringControlPointsTemplateEndpoint" target="_blank" rel="noopener">Шаблон КП (CSV)</a>
+            <a class="registry-api-link" href="@monitoringMdrTemplateEndpoint" target="_blank" rel="noopener">Шаблон MDR (CSV)</a>
+        </div>
+        <div class="contracts-actions">
+            <label class="contracts-field contracts-field--grow">
+                <span class="field-label">
+                    Файл импорта MDR с прогнозом и фактом
+                    <partial name="_FieldHelp" model='"Файл Excel или CSV со строками MDR. Система сопоставляет значения плана, прогноза и факта с выбранным договором."' />
+                </span>
+                <input type="file"
+                       data-contracts-mdr-import-file
+                       accept=".csv,text/csv,.txt,text/plain,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel" />
+            </label>
+            <label class="contracts-field">
+                <span class="field-label">
+                    Конфликты импорта
+                    <partial name="_FieldHelp" model='"Определяет поведение системы при конфликте данных. В строгом режиме изменения не применяются, в режиме пропуска конфликтные строки игнорируются."' />
+                </span>
+                <select data-contracts-mdr-import-mode>
+                    <option value="strict">Строгий режим</option>
+                    <option value="skip">Пропуск конфликтов</option>
+                </select>
+            </label>
+            <button type="button" class="contracts-action-button" data-contracts-mdr-import-apply disabled>Импортировать в MDR</button>
+            <button type="button" class="contracts-action-button contracts-action-button--secondary" data-contracts-mdr-import-reset disabled>Сбросить файл</button>
+        </div>
+        <p class="contracts-monitoring-substatus" data-contracts-mdr-import-status>Импорт MDR ещё не выполнялся.</p>
+        <p class="contracts-monitoring-status" data-contracts-monitoring-status>Мониторинг ещё не загружен.</p>
+        <div class="contracts-monitoring-layout">
+            <section class="contracts-monitoring-card">
+                <h3>
+                    <span class="field-label">
+                        Контрольные точки (КП)
+                        <partial name="_FieldHelp" model='"Крупные контрольные события по договору. Для каждой точки можно вести ответственного, сроки и процент выполнения."' />
+                    </span>
+                </h3>
+                <div class="contracts-monitoring-grid" data-contracts-monitoring-control-points-grid></div>
+                <p class="contracts-monitoring-substatus" data-contracts-monitoring-control-point-selected>Выберите контрольную точку для просмотра этапов.</p>
+            </section>
+            <section class="contracts-monitoring-card">
+                <h3>
+                    <span class="field-label">
+                        Этапы контрольной точки
+                        <partial name="_FieldHelp" model='"Детализация выбранной контрольной точки по отдельным шагам исполнения, срокам и фактическому прогрессу."' />
+                    </span>
+                </h3>
+                <div class="contracts-monitoring-grid" data-contracts-monitoring-stages-grid></div>
+            </section>
+            <section class="contracts-monitoring-card">
+                <h3>
+                    <span class="field-label">
+                        Карточки MDR
+                        <partial name="_FieldHelp" model='"Отчётные карточки по договору на конкретную дату. Каждая карточка агрегирует строки плана, прогноза и факта."' />
+                    </span>
+                </h3>
+                <div class="contracts-monitoring-grid" data-contracts-monitoring-mdr-cards-grid></div>
+                <p class="contracts-monitoring-substatus" data-contracts-monitoring-mdr-card-selected>Выберите карточку MDR для просмотра строк.</p>
+            </section>
+            <section class="contracts-monitoring-card">
+                <h3>
+                    <span class="field-label">
+                        Строки карточки MDR
+                        <partial name="_FieldHelp" model='"Детализированные показатели карточки MDR: код строки, единица измерения, план, прогноз, факт и отклонения."' />
+                    </span>
+                </h3>
+                <div class="contracts-monitoring-grid" data-contracts-monitoring-mdr-rows-grid></div>
+            </section>
+        </div>
+        <p class="contracts-monitoring-hint">Данные редактируются в таблицах и сохраняются пакетно кнопкой «Сохранить мониторинг».</p>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_SheetJsScript" />
+    <partial name="_DevExpressScripts" />
+    <script src="~/js/contracts-grid.js"></script>
+}

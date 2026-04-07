@@ -1,0 +1,175 @@
+@{
+    ViewData["Title"] = "Дашборд";
+    var dashboardApiEndpoint = Url.Content("~/api/dashboard/summary");
+    var analyticsApiEndpoint = Url.Content("~/api/analytics/kpi");
+}
+
+<section class="dashboard shell-panel"
+         data-dashboard-module
+         data-api-endpoint="@dashboardApiEndpoint"
+         data-analytics-endpoint="@analyticsApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Управление субподрядом</h1>
+        <p>Сводный экран системы: статусы по основным сущностям, контроль сроков, задачи пользователей и показатели процесса.</p>
+    </header>
+
+    <div class="dashboard-toolbar">
+        <button type="button" class="dashboard-refresh" data-dashboard-refresh>Обновить дашборд</button>
+        <a class="registry-api-link" href="@dashboardApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="dashboard-status" data-dashboard-status>Загрузка дашборда...</p>
+
+    <div class="dashboard-metrics">
+        <article class="dashboard-metric">
+            <h2>Проекты</h2>
+            <p data-dashboard-counter="projectsTotal">0</p>
+        </article>
+        <article class="dashboard-metric">
+            <h2>Лоты</h2>
+            <p data-dashboard-counter="lotsTotal">0</p>
+        </article>
+        <article class="dashboard-metric">
+            <h2>Процедуры</h2>
+            <p data-dashboard-counter="proceduresTotal">0</p>
+        </article>
+        <article class="dashboard-metric">
+            <h2>Договоры</h2>
+            <p data-dashboard-counter="contractsTotal">0</p>
+        </article>
+    </div>
+
+    <div class="dashboard-panels">
+        <section class="dashboard-panel">
+            <h2>Структура статусов</h2>
+            <div class="dashboard-status-columns">
+                <div>
+                    <h3>Лоты</h3>
+                    <ul class="dashboard-status-list" data-dashboard-status-list="lots"></ul>
+                </div>
+                <div>
+                    <h3>Процедуры</h3>
+                    <ul class="dashboard-status-list" data-dashboard-status-list="procedures"></ul>
+                </div>
+                <div>
+                    <h3>Договоры</h3>
+                    <ul class="dashboard-status-list" data-dashboard-status-list="contracts"></ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-panel">
+            <h2>Контроль просрочек</h2>
+            <ul class="dashboard-overdue-list">
+                <li><strong data-dashboard-overdue="proceduresCount">0</strong> процедур просрочено по срокам.</li>
+                <li><strong data-dashboard-overdue="contractsCount">0</strong> договоров просрочено по дате окончания.</li>
+                <li><strong data-dashboard-overdue="milestonesCount">0</strong> просроченных этапов договоров.</li>
+            </ul>
+        </section>
+
+        <section class="dashboard-panel">
+            <h2>Базовые показатели</h2>
+            <ul class="dashboard-kpi-list">
+                <li>Доля завершённых процедур: <strong data-dashboard-kpi="procedureCompletionRatePercent">н/д</strong></li>
+                <li>Доля закрытых договоров: <strong data-dashboard-kpi="contractClosureRatePercent">н/д</strong></li>
+                <li>Доля завершённых этапов: <strong data-dashboard-kpi="milestoneCompletionRatePercent">н/д</strong></li>
+            </ul>
+        </section>
+
+        <section class="dashboard-panel">
+            <h2>Импортный конвейер</h2>
+            <ul class="dashboard-import-list">
+                <li>Исходные данные: загружено в очередь <strong data-dashboard-import="sourceUploadedCount">0</strong></li>
+                <li>Исходные данные: в обработке <strong data-dashboard-import="sourceProcessingCount">0</strong></li>
+                <li>Исходные данные: готово к лотированию <strong data-dashboard-import="sourceReadyForLottingCount">0</strong></li>
+                <li>Исходные данные: с ошибками валидации <strong data-dashboard-import="sourceValidatedWithErrorsCount">0</strong></li>
+                <li>Исходные данные: ошибка обработки <strong data-dashboard-import="sourceFailedCount">0</strong></li>
+                <li>Исходные данные: отклонено <strong data-dashboard-import="sourceRejectedCount">0</strong></li>
+                <li>Исходные данные: невалидных строк <strong data-dashboard-import="sourceInvalidRowsCount">0</strong></li>
+                <li>XML-очередь: получено <strong data-dashboard-import="xmlReceivedCount">0</strong></li>
+                <li>XML-очередь: в обработке <strong data-dashboard-import="xmlProcessingCount">0</strong></li>
+                <li>XML-очередь: обработано <strong data-dashboard-import="xmlCompletedCount">0</strong></li>
+                <li>XML-очередь: ошибка <strong data-dashboard-import="xmlFailedCount">0</strong></li>
+                <li>XML-очередь: повторно поставлено в очередь <strong data-dashboard-import="xmlRetriedPendingCount">0</strong></li>
+                <li>Трассировка: групп в apply-операциях <strong data-dashboard-import="traceAppliedGroupsCount">0</strong></li>
+                <li>Трассировка: успешно создано групп <strong data-dashboard-import="traceCreatedGroupsCount">0</strong></li>
+                <li>Трассировка: пропущено групп <strong data-dashboard-import="traceSkippedGroupsCount">0</strong></li>
+                <li>Трассировка: создано уникальных лотов <strong data-dashboard-import="traceCreatedLotsCount">0</strong></li>
+            </ul>
+        </section>
+
+        <section class="dashboard-panel dashboard-panel--analytics">
+            <h2>Аналитика показателей</h2>
+            <p class="dashboard-analytics-status" data-dashboard-analytics-status>Аналитический контур загружается...</p>
+            <ul class="dashboard-kpi-list">
+                <li>Лоты: Черновик / В закупке / Законтрактовано: <strong data-dashboard-analytics="lotFunnel">0 / 0 / 0</strong></li>
+                <li>Подрядчики: активных / перегруженных: <strong data-dashboard-analytics="contractorLoad">0 / 0</strong></li>
+                <li>Средняя загрузка подрядчиков: <strong data-dashboard-analytics="averageContractorLoad">н/д</strong></li>
+                <li>Средний рейтинг подрядчиков: <strong data-dashboard-analytics="averageContractorRating">н/д</strong></li>
+                <li>SLA: открытые предупреждения / просрочки: <strong data-dashboard-analytics="slaOpen">0 / 0</strong></li>
+                <li>Контрактование: действует / закрыто: <strong data-dashboard-analytics="contractingTotals">0 / 0</strong></li>
+                <li>MDR покрытие фактами: <strong data-dashboard-analytics="mdrFactCoverage">н/д</strong></li>
+                <li>Доля субподряда по человеко-часам: <strong data-dashboard-analytics="subcontractingShare">н/д</strong></li>
+            </ul>
+            <h3>Топ подрядчиков по рейтингу</h3>
+            <ul class="dashboard-top-contractors" data-dashboard-top-contractors></ul>
+        </section>
+    </div>
+
+    <section class="dashboard-panel dashboard-panel--tasks">
+        <h2>Мои задачи</h2>
+        <ul class="dashboard-tasks" data-dashboard-tasks></ul>
+    </section>
+
+    <header class="shell-panel__header dashboard-links-header">
+        <h2>Быстрая навигация</h2>
+        <p>Откройте нужный раздел для работы с реестрами, процессами и сервисными модулями.</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <article class="card">
+            <h2>Проекты</h2>
+            <p>Реестр проектов с созданием, редактированием и просмотром ответственных лиц.</p>
+            <a asp-controller="Home" asp-action="Projects" class="card-link">Открыть проекты</a>
+        </article>
+        <article class="card">
+            <h2>Лоты</h2>
+            <p>Реестр лотов с переходами статусов и журналом изменений.</p>
+            <a asp-controller="Home" asp-action="Lots" class="card-link">Открыть лоты</a>
+        </article>
+        <article class="card">
+            <h2>Процедуры</h2>
+            <p>Закупочные процедуры с маршрутами статусов и подбором кандидатов.</p>
+            <a asp-controller="Home" asp-action="Procedures" class="card-link">Открыть процедуры</a>
+        </article>
+        <article class="card">
+            <h2>Договоры</h2>
+            <p>Договоры с жизненным циклом, этапами исполнения и блоком мониторинга.</p>
+            <a asp-controller="Home" asp-action="Contracts" class="card-link">Открыть договоры</a>
+        </article>
+        <article class="card">
+            <h2>Подрядчики</h2>
+            <p>Рейтинг подрядчиков, экспертная оценка и аналитика изменений.</p>
+            <a asp-controller="Home" asp-action="Contractors" class="card-link">Открыть подрядчиков</a>
+        </article>
+        <article class="card">
+            <h2>Администрирование</h2>
+            <p>Назначение ролей пользователям и ведение справочников системы.</p>
+            <a asp-controller="Home" asp-action="Admin" class="card-link">Открыть администрирование</a>
+        </article>
+        <article class="card">
+            <h2>Импорт</h2>
+            <p>Загрузка исходных данных, проверка пакетов и трассировка ошибок.</p>
+            <a asp-controller="Home" asp-action="Imports" class="card-link">Открыть импорт</a>
+        </article>
+        <article class="card">
+            <h2>Контроль сроков</h2>
+            <p>Правила SLA, нарушения сроков, причины отклонений и запуск мониторинга.</p>
+            <a asp-controller="Home" asp-action="Sla" class="card-link">Открыть контроль сроков</a>
+        </article>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/dashboard-page.js"></script>
+}

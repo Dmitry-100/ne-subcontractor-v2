@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.vscode/
+TestResults/
+*.user
+*.suo
+*.db
+.DS_Store
+.dotnet/
+.dotnet_cli/

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Subcontractor.Domain</RootNamespace>
+    <AssemblyName>Subcontractor.Domain</AssemblyName>
+  </PropertyGroup>
+</Project>
+

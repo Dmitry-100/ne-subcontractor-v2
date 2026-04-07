@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Процедуры";
+    var proceduresApiEndpoint = Url.Content("~/api/procedures");
+    var proceduresExportEndpoint = Url.Content("~/api/exports/procedures");
+}
+
+@section Head {
+    <partial name="_DevExpressHead" />
+}
+
+<section class="procedures shell-panel" data-procedures-module data-api-endpoint="@proceduresApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Закупочные процедуры</h1>
+        <p>Реестр закупочных процедур с переходами статусов, журналом изменений и подбором кандидатов.</p>
+        <p class="registry-hint">Все действия выполняются в контексте выбранной процедуры и зависят от её текущего этапа.</p>
+    </header>
+
+    <div class="procedures-toolbar">
+        <a class="registry-api-link" href="@proceduresExportEndpoint" target="_blank" rel="noopener">Экспорт CSV</a>
+        <a class="registry-api-link" href="@proceduresApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="procedures-status" data-procedures-status>Загрузка...</p>
+    <div class="procedures-grid" data-procedures-grid></div>
+
+    <section class="procedures-workflow">
+        <h2>Переход статуса</h2>
+        <p class="procedures-selected" data-procedures-selected>Выберите процедуру в таблице, чтобы выполнить переход.</p>
+        <div class="procedures-actions">
+            <label class="procedures-field">
+                <span class="field-label">
+                    Целевой статус
+                    <partial name="_FieldHelp" model='"Статус, в который будет переведена выбранная процедура. Доступные варианты формируются автоматически по текущему этапу."' />
+                </span>
+                <select data-procedures-target disabled></select>
+            </label>
+            <label class="procedures-field procedures-field--grow">
+                <span class="field-label">
+                    Причина
+                    <partial name="_FieldHelp" model='"Комментарий к переходу. Обязателен при откате назад и при отмене процедуры; сохраняется в историю изменений."' />
+                </span>
+                <input type="text" data-procedures-reason placeholder="Причина перехода..." />
+            </label>
+            <button type="button" class="procedures-action-button" data-procedures-apply disabled>Применить переход</button>
+            <button type="button" class="procedures-action-button procedures-action-button--secondary" data-procedures-history-refresh disabled>Обновить историю</button>
+        </div>
+        <p class="procedures-transition-status" data-procedures-transition-status>Переходы ещё не выполнялись.</p>
+        <div class="procedures-history-grid" data-procedures-history-grid></div>
+    </section>
+
+    <section class="procedures-shortlist-workspace">
+        <h2>
+            <span class="field-label">
+                Автоподбор списка кандидатов
+                <partial name="_FieldHelp" model='"Система формирует рекомендованный список подрядчиков по данным о надёжности, рейтинге и параметрам процедуры. Результат можно применить в карточку процедуры."' />
+            </span>
+        </h2>
+        <p class="procedures-selected" data-procedures-shortlist-selected>Выберите процедуру в таблице, чтобы сформировать рекомендации по списку кандидатов.</p>
+        <div class="procedures-actions">
+            <label class="procedures-field">
+                <span class="field-label">
+                    Макс. в списке
+                    <partial name="_FieldHelp" model='"Максимальное число подрядчиков, которое система включит в рекомендуемый список кандидатов."' />
+                </span>
+                <input type="number" min="1" max="30" step="1" value="5" data-procedures-shortlist-max-included />
+            </label>
+            <label class="procedures-field procedures-field--grow">
+                <span class="field-label">
+                    Причина применения или корректировки
+                    <partial name="_FieldHelp" model='"Пояснение, почему выбран именно этот список кандидатов. Записывается в журнал корректировок списка кандидатов."' />
+                </span>
+                <input type="text"
+                       data-procedures-shortlist-adjustment-reason
+                       placeholder="Причина сохранения списка кандидатов..."
+                       value="Автоподбор списка кандидатов" />
+            </label>
+            <button type="button"
+                    class="procedures-action-button procedures-action-button--secondary"
+                    data-procedures-shortlist-build
+                    disabled>
+                Сформировать рекомендации
+            </button>
+            <button type="button" class="procedures-action-button" data-procedures-shortlist-apply disabled>Применить рекомендации</button>
+            <button type="button"
+                    class="procedures-action-button procedures-action-button--secondary"
+                    data-procedures-shortlist-adjustments-refresh
+                    disabled>
+                Обновить журнал
+            </button>
+        </div>
+        <p class="procedures-shortlist-status" data-procedures-shortlist-status>Рекомендации ещё не сформированы.</p>
+        <div class="procedures-shortlist-grid" data-procedures-shortlist-grid></div>
+        <h3>Журнал корректировок списка кандидатов</h3>
+        <p class="procedures-shortlist-status" data-procedures-shortlist-adjustments-status>Журнал корректировок пока не загружен.</p>
+        <div class="procedures-shortlist-adjustments-grid" data-procedures-shortlist-adjustments-grid></div>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_DevExpressScripts" />
+    <script src="~/js/procedures-grid.js"></script>
+}

@@ -1,0 +1,34 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var useLocal = string.Equals(
+        Configuration["UiAssets:DevExpress:UseLocal"],
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    var version = Configuration["UiAssets:DevExpress:Version"];
+    if (string.IsNullOrWhiteSpace(version))
+    {
+        version = "24.1.6";
+    }
+
+    var cdnBaseUrl = Configuration["UiAssets:DevExpress:CdnBaseUrl"];
+    if (string.IsNullOrWhiteSpace(cdnBaseUrl))
+    {
+        cdnBaseUrl = "https://cdn3.devexpress.com/jslib";
+    }
+
+    var localBasePath = Configuration["UiAssets:DevExpress:LocalBasePath"];
+    if (string.IsNullOrWhiteSpace(localBasePath))
+    {
+        localBasePath = $"/lib/devexpress/{version}";
+    }
+
+    var normalizedCdnBaseUrl = cdnBaseUrl.Contains("{version}", StringComparison.OrdinalIgnoreCase)
+        ? cdnBaseUrl.Replace("{version}", version, StringComparison.OrdinalIgnoreCase).TrimEnd('/')
+        : $"{cdnBaseUrl.TrimEnd('/')}/{version}";
+    var normalizedLocalBasePath = localBasePath.TrimEnd('/');
+    var cssSource = useLocal
+        ? $"{normalizedLocalBasePath}/css/dx.light.css"
+        : $"{normalizedCdnBaseUrl}/css/dx.light.css";
+}
+<link rel="stylesheet" href="@cssSource" />

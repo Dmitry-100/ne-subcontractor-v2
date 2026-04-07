@@ -1,0 +1,39 @@
+@model Subcontractor.Web.Models.RegistryPageViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="registry shell-panel" data-registry data-api-endpoint="@Model.ApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>@Model.Title</h1>
+        <p>@Model.Description</p>
+        <p class="registry-hint">@Model.Hint</p>
+    </header>
+
+    <div class="registry-toolbar">
+        <label class="registry-search">
+            <span>Поиск</span>
+            <input type="search" placeholder="Введите текст для фильтрации..." data-registry-search />
+        </label>
+        <button type="button" class="registry-refresh" data-registry-refresh>Обновить</button>
+        <a href="@Model.ApiEndpoint" class="registry-api-link" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="registry-status" data-registry-status>Загрузка...</p>
+
+    <div class="registry-table-wrap" data-registry-table-wrap hidden>
+        <table class="registry-table" data-registry-table>
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <details class="registry-raw" data-registry-raw-wrap hidden>
+        <summary>Сырые данные ответа</summary>
+        <pre data-registry-raw></pre>
+    </details>
+</section>
+
+@section Scripts {
+    <script src="~/js/registry-page.js"></script>
+}

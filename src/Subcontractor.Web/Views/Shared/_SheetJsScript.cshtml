@@ -1,0 +1,28 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var useLocal = string.Equals(
+        Configuration["UiAssets:SheetJs:UseLocal"],
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    var version = Configuration["UiAssets:SheetJs:Version"];
+    if (string.IsNullOrWhiteSpace(version))
+    {
+        version = "0.18.5";
+    }
+
+    var cdnUrl = Configuration["UiAssets:SheetJs:CdnUrl"];
+    if (string.IsNullOrWhiteSpace(cdnUrl))
+    {
+        cdnUrl = $"https://cdn.jsdelivr.net/npm/xlsx@{version}/dist/xlsx.full.min.js";
+    }
+
+    var localPath = Configuration["UiAssets:SheetJs:LocalPath"];
+    if (string.IsNullOrWhiteSpace(localPath))
+    {
+        localPath = $"/lib/xlsx/{version}/xlsx.full.min.js";
+    }
+
+    var scriptSource = useLocal ? localPath : cdnUrl;
+}
+<script src="@scriptSource"></script>

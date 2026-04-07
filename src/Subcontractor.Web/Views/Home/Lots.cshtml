@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Лоты";
+    var lotsApiEndpoint = Url.Content("~/api/lots");
+    var lotsExportEndpoint = Url.Content("~/api/exports/lots");
+}
+
+@section Head {
+    <partial name="_DevExpressHead" />
+}
+
+<section class="lots shell-panel" data-lots-module data-api-endpoint="@lotsApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Лоты</h1>
+        <p>Реестр лотов с изменением карточки, переходами статусов и историей процесса.</p>
+        <p class="registry-hint">При возврате на предыдущий статус система требует указать причину и сохраняет её в журнале.</p>
+    </header>
+
+    <div class="lots-toolbar">
+        <a class="registry-api-link" href="@lotsExportEndpoint" target="_blank" rel="noopener">Экспорт CSV</a>
+        <a class="registry-api-link" href="@lotsApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
+    </div>
+
+    <p class="lots-status" data-lots-status>Загрузка...</p>
+    <div class="lots-grid" data-lots-grid></div>
+
+    <section class="lots-workflow">
+        <h2>
+            <span class="field-label">
+                Действия процесса
+                <partial name="_FieldHelp" model='"В этом блоке выполняются переходы по жизненному циклу лота. Доступность кнопок зависит от текущего статуса выбранного лота."' />
+            </span>
+        </h2>
+        <p class="lots-selected" data-lots-selected>Выберите лот в таблице, чтобы управлять статусом.</p>
+        <div class="lots-actions">
+            <button type="button" class="lots-action-button" data-lots-next disabled>Следующий статус</button>
+            <button type="button" class="lots-action-button lots-action-button--secondary" data-lots-rollback disabled>Откатить</button>
+            <button type="button" class="lots-action-button lots-action-button--secondary" data-lots-history-refresh disabled>Обновить историю</button>
+        </div>
+        <p class="lots-transition-status" data-lots-transition-status>Действия процесса ещё не выполнялись.</p>
+        <div class="lots-history-grid" data-lots-history-grid></div>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_DevExpressScripts" />
+    <script src="~/js/lots-grid.js"></script>
+}
