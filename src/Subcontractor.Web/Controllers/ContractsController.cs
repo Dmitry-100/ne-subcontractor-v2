@@ -21,16 +21,35 @@ public sealed class ContractsController : ApiControllerBase
 
     [HttpGet]
     [Authorize(Policy = PolicyCodes.ContractsRead)]
-    public async Task<ActionResult<IReadOnlyList<ContractListItemDto>>> List(
+    public async Task<IActionResult> List(
         [FromQuery] string? search,
         [FromQuery] ContractStatus? status,
         [FromQuery] Guid? lotId,
         [FromQuery] Guid? procedureId,
         [FromQuery] Guid? contractorId,
+        [FromQuery] int? skip,
+        [FromQuery] int? take,
+        [FromQuery] bool requireTotalCount,
         CancellationToken cancellationToken)
     {
-        var result = await _contractsService.ListAsync(search, status, lotId, procedureId, contractorId, cancellationToken);
-        return Ok(result);
+        var shouldUsePageQuery = requireTotalCount || skip.HasValue || take.HasValue;
+        if (!shouldUsePageQuery)
+        {
+            var result = await _contractsService.ListAsync(search, status, lotId, procedureId, contractorId, cancellationToken);
+            return Ok(result);
+        }
+
+        var page = await _contractsService.ListPageAsync(
+            search,
+            status,
+            lotId,
+            procedureId,
+            contractorId,
+            skip ?? 0,
+            take ?? 15,
+            cancellationToken);
+
+        return Ok(page);
     }
 
     [HttpGet("{id:guid}")]

@@ -56,8 +56,8 @@ public sealed class GlobalExceptionMiddleware
         var problem = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
-            Title = "Unexpected server error.",
-            Detail = "An unexpected error occurred. Use correlation ID when contacting support.",
+            Title = "Непредвиденная ошибка сервера.",
+            Detail = "Произошла непредвиденная ошибка. При обращении в поддержку укажите correlationId.",
             Type = "https://httpstatuses.com/500",
             Instance = context.Request.Path
         };

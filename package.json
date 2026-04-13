@@ -1,0 +1,32 @@
+{
+  "name": "subcontractor-v2-frontend-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:js-bundles": "node scripts/build-js-bundles.mjs",
+    "check:dotnet-outdated-budget": "bash scripts/ci/check-dotnet-outdated-budget.sh",
+    "check:js-bundles": "node scripts/build-js-bundles.mjs --check",
+    "check:host-topology": "bash scripts/ci/check-host-topology-policy.sh",
+    "check:js-module-size": "bash scripts/ci/check-js-module-size.sh",
+    "check:perf-evidence": "bash scripts/ci/check-performance-evidence-pack.sh",
+    "perf:evidence-pack": "bash scripts/ci/run-performance-evidence-pack.sh",
+    "perf:staging-evidence": "bash scripts/ci/run-staging-evidence-pack.sh",
+    "perf:staging-evidence:full": "STAGING_RUN_DEPENDENCY_GUARDS=1 bash scripts/ci/run-staging-evidence-pack.sh",
+    "perf:staging-evidence:full:local-sql": "STAGING_RUN_DEPENDENCY_GUARDS=1 PERF_CAPTURE_SQL_EVIDENCE=1 SQL_EVIDENCE_SERVER=localhost SQL_EVIDENCE_DATABASE=SubcontractorV2 SQL_EVIDENCE_USERNAME=sa SQL_EVIDENCE_PASSWORD=YourStr0ng!Passw0rd SQLCMD_MODE=docker SQLCMD_DOCKER_CONTAINER=subcontractor-v2-sql bash scripts/ci/run-staging-evidence-pack.sh",
+    "perf:http": "bash scripts/perf/measure-http-metrics.sh",
+    "perf:browser": "node scripts/perf/measure-browser-metrics.mjs",
+    "perf:telemetry": "bash scripts/perf/capture-http-cache-compression-telemetry.sh",
+    "perf:contour": "bash scripts/perf/run-performance-contour.sh",
+    "perf:contour:long-run": "bash scripts/ci/run-performance-contour-long-run.sh",
+    "perf:trend": "node scripts/perf/generate-performance-trend-report.mjs",
+    "perf:pin-baseline": "bash scripts/perf/pin-performance-baseline.sh",
+    "perf:compare": "node scripts/perf/compare-performance-manifests.mjs",
+    "perf:budget": "node scripts/perf/check-performance-budget.mjs",
+    "perf:budget:latest": "node scripts/perf/check-performance-budget.mjs --manifest artifacts/perf/perf-contour-latest.json --report-md artifacts/perf/perf-budget-latest.md",
+    "test:js": "node --test \"tests/js/*.test.js\"",
+    "test:smoke": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.54.2"
+  }
+}

@@ -25,7 +25,7 @@ public sealed class SourceDataImportsControllerTests
         var notFound = Assert.IsType<NotFoundObjectResult>(result.Result);
         var problem = Assert.IsType<ProblemDetails>(notFound.Value);
         Assert.Equal(StatusCodes.Status404NotFound, problem.Status);
-        Assert.Equal("Resource not found.", problem.Title);
+        Assert.Equal("Ресурс не найден.", problem.Title);
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public sealed class SourceDataImportsControllerTests
         var notFound = Assert.IsType<NotFoundObjectResult>(result.Result);
         var problem = Assert.IsType<ProblemDetails>(notFound.Value);
         Assert.Equal(StatusCodes.Status404NotFound, problem.Status);
-        Assert.Equal("Resource not found.", problem.Title);
+        Assert.Equal("Ресурс не найден.", problem.Title);
     }
 
     [Fact]

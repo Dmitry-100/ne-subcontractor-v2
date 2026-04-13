@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subcontractor.Tests.Unit", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subcontractor.Tests.Integration", "tests\Subcontractor.Tests.Integration\Subcontractor.Tests.Integration.csproj", "{CBB956B7-B799-44C8-8944-A775B2BF0D9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subcontractor.Tests.SqlServer", "tests\Subcontractor.Tests.SqlServer\Subcontractor.Tests.SqlServer.csproj", "{396DE160-5CB3-4BA6-9E54-BD5EEA9B51F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{CBB956B7-B799-44C8-8944-A775B2BF0D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBB956B7-B799-44C8-8944-A775B2BF0D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBB956B7-B799-44C8-8944-A775B2BF0D9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{396DE160-5CB3-4BA6-9E54-BD5EEA9B51F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{396DE160-5CB3-4BA6-9E54-BD5EEA9B51F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{396DE160-5CB3-4BA6-9E54-BD5EEA9B51F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{396DE160-5CB3-4BA6-9E54-BD5EEA9B51F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CE8B263A-D924-4809-9D28-138C323E07F3} = {340C8B81-76DF-410A-9850-17C0FF1F5E2D}
@@ -74,5 +80,6 @@ Global
 		{0D367AA5-93A3-443E-A9FF-9D92B99E7184} = {340C8B81-76DF-410A-9850-17C0FF1F5E2D}
 		{3AEF1B1E-7ECE-428F-AC54-A6C3C7BDE568} = {52CD5049-80A5-4132-9182-B7174EEBFDCB}
 		{CBB956B7-B799-44C8-8944-A775B2BF0D9C} = {52CD5049-80A5-4132-9182-B7174EEBFDCB}
+		{396DE160-5CB3-4BA6-9E54-BD5EEA9B51F6} = {52CD5049-80A5-4132-9182-B7174EEBFDCB}
 	EndGlobalSection
 EndGlobal

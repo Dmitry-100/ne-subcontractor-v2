@@ -147,14 +147,17 @@ public sealed class SlaMonitoringServiceTests
         DateTimeOffset now,
         FakeNotificationEmailSender emailSender)
     {
+        var options = Options.Create(new SlaMonitoringOptions
+        {
+            DefaultWarningDaysBeforeDue = 2
+        });
+        var candidateQueryService = new SlaViolationCandidateQueryService(db, options);
         return new SlaMonitoringService(
             db,
             new FixedDateTimeProvider(now),
             emailSender,
-            Options.Create(new SlaMonitoringOptions
-            {
-                DefaultWarningDaysBeforeDue = 2
-            }));
+            candidateQueryService,
+            options);
     }
 
     private sealed class FakeNotificationEmailSender : INotificationEmailSender

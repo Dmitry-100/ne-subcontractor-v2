@@ -105,11 +105,14 @@ public sealed class SlaControllerTests
 
     private static SlaController CreateController(Infrastructure.Persistence.AppDbContext db, DateTimeOffset now)
     {
+        var options = Options.Create(new SlaMonitoringOptions());
+        var candidateQueryService = new SlaViolationCandidateQueryService(db, options);
         var service = new SlaMonitoringService(
             db,
             new FixedDateTimeProvider(now),
             new FakeNotificationEmailSender(),
-            Options.Create(new SlaMonitoringOptions()));
+            candidateQueryService,
+            options);
         return new SlaController(service);
     }
 

@@ -21,7 +21,7 @@ public sealed class ReferenceDataControllerTests
         var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
         var problem = Assert.IsType<ProblemDetails>(badRequest.Value);
         Assert.Equal(StatusCodes.Status400BadRequest, problem.Status);
-        Assert.Equal("Validation error.", problem.Title);
+        Assert.Equal("Ошибка валидации.", problem.Title);
         Assert.Contains("Type code is required", problem.Detail, StringComparison.OrdinalIgnoreCase);
     }
 

@@ -4,6 +4,10 @@
         Configuration["UiAssets:SheetJs:UseLocal"],
         "true",
         StringComparison.OrdinalIgnoreCase);
+    var useLocalFallbackWhenCdnFails = !string.Equals(
+        Configuration["UiAssets:SheetJs:UseLocalFallbackWhenCdnFails"],
+        "false",
+        StringComparison.OrdinalIgnoreCase);
 
     var version = Configuration["UiAssets:SheetJs:Version"];
     if (string.IsNullOrWhiteSpace(version))
@@ -16,6 +20,11 @@
     {
         cdnUrl = $"https://cdn.jsdelivr.net/npm/xlsx@{version}/dist/xlsx.full.min.js";
     }
+    var fallbackCdnUrl = Configuration["UiAssets:SheetJs:FallbackCdnUrl"];
+    if (string.IsNullOrWhiteSpace(fallbackCdnUrl))
+    {
+        fallbackCdnUrl = $"https://unpkg.com/xlsx@{version}/dist/xlsx.full.min.js";
+    }
 
     var localPath = Configuration["UiAssets:SheetJs:LocalPath"];
     if (string.IsNullOrWhiteSpace(localPath))
@@ -24,5 +33,15 @@
     }
 
     var scriptSource = useLocal ? localPath : cdnUrl;
+    var onError = useLocalFallbackWhenCdnFails
+        ? $"if(this.dataset.fallbackLevel==='2'){{return;}}if(this.dataset.fallbackLevel==='1'){{this.dataset.fallbackLevel='2';this.src='{localPath}';return;}}this.dataset.fallbackLevel='1';this.src='{fallbackCdnUrl}';"
+        : $"if(this.dataset.fallbackLevel==='1'){{return;}}this.dataset.fallbackLevel='1';this.src='{fallbackCdnUrl}';";
 }
-<script src="@scriptSource"></script>
+@if (useLocal)
+{
+    <script src="@scriptSource" asp-append-version="true"></script>
+}
+else
+{
+    <script src="@scriptSource" onerror="@onError"></script>
+}

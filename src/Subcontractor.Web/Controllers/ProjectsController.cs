@@ -19,10 +19,27 @@ public sealed class ProjectsController : ApiControllerBase
 
     [HttpGet]
     [Authorize(Policy = PolicyCodes.ProjectsRead)]
-    public async Task<ActionResult<IReadOnlyList<ProjectListItemDto>>> List([FromQuery] string? search, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? search,
+        [FromQuery] int? skip,
+        [FromQuery] int? take,
+        [FromQuery] bool requireTotalCount,
+        CancellationToken cancellationToken)
     {
-        var result = await _projectsService.ListAsync(search, cancellationToken);
-        return Ok(result);
+        var shouldUsePageQuery = requireTotalCount || skip.HasValue || take.HasValue;
+        if (!shouldUsePageQuery)
+        {
+            var result = await _projectsService.ListAsync(search, cancellationToken);
+            return Ok(result);
+        }
+
+        var page = await _projectsService.ListPageAsync(
+            search,
+            skip ?? 0,
+            take ?? 15,
+            cancellationToken);
+
+        return Ok(page);
     }
 
     [HttpGet("{id:guid}")]

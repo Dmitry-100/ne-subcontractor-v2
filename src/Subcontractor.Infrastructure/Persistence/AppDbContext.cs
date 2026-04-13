@@ -375,11 +375,15 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<Contract>(entity =>
         {
             entity.HasQueryFilter(x => !x.IsDeleted);
-            entity.HasIndex(x => x.ContractNumber);
+            entity.HasIndex(x => x.ContractNumber)
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
             entity.HasIndex(x => x.Status);
             entity.HasIndex(x => new { x.Status, x.EndDate });
             entity.HasIndex(x => x.LotId);
-            entity.HasIndex(x => x.ProcedureId);
+            entity.HasIndex(x => x.ProcedureId)
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
             entity.HasIndex(x => x.ContractorId);
             entity.Property(x => x.ContractNumber).HasMaxLength(128).IsRequired();
             entity.Property(x => x.AmountWithoutVat).HasColumnType("decimal(18,2)");
@@ -398,7 +402,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
 
         modelBuilder.Entity<ContractMilestone>(entity =>
         {
-            entity.HasQueryFilter(x => !x.Contract.IsDeleted);
+            entity.HasQueryFilter(x => !x.IsDeleted && !x.Contract.IsDeleted);
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => new { x.ContractId, x.SortOrder });
             entity.HasIndex(x => new { x.PlannedDate, x.ProgressPercent });
@@ -410,7 +414,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
 
         modelBuilder.Entity<ContractMonitoringControlPoint>(entity =>
         {
-            entity.HasQueryFilter(x => !x.Contract.IsDeleted);
+            entity.HasQueryFilter(x => !x.IsDeleted && !x.Contract.IsDeleted);
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.ContractId);
             entity.HasIndex(x => new { x.ContractId, x.SortOrder });
@@ -428,7 +432,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
 
         modelBuilder.Entity<ContractMonitoringControlPointStage>(entity =>
         {
-            entity.HasQueryFilter(x => !x.ControlPoint.IsDeleted && !x.ControlPoint.Contract.IsDeleted);
+            entity.HasQueryFilter(x => !x.IsDeleted && !x.ControlPoint.IsDeleted && !x.ControlPoint.Contract.IsDeleted);
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.ControlPointId);
             entity.HasIndex(x => new { x.ControlPointId, x.SortOrder });
@@ -441,7 +445,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
 
         modelBuilder.Entity<ContractMdrCard>(entity =>
         {
-            entity.HasQueryFilter(x => !x.Contract.IsDeleted);
+            entity.HasQueryFilter(x => !x.IsDeleted && !x.Contract.IsDeleted);
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.ContractId);
             entity.HasIndex(x => new { x.ContractId, x.SortOrder });
@@ -457,7 +461,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
 
         modelBuilder.Entity<ContractMdrRow>(entity =>
         {
-            entity.HasQueryFilter(x => !x.Card.IsDeleted && !x.Card.Contract.IsDeleted);
+            entity.HasQueryFilter(x => !x.IsDeleted && !x.Card.IsDeleted && !x.Card.Contract.IsDeleted);
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.CardId);
             entity.HasIndex(x => new { x.CardId, x.SortOrder });

@@ -7,11 +7,113 @@ on:
       - master
       - develop
   pull_request:
+  workflow_dispatch:
+    inputs:
+      performance_profile:
+        description: "Performance contour profile to run (nightly, long-run, all)."
+        required: false
+        type: choice
+        default: nightly
+        options:
+          - nightly
+          - long-run
+          - all
+  schedule:
+    - cron: "30 1 * * *"
+    - cron: "0 3 * * 0"
+
+permissions:
+  contents: read
+
+env:
+  MEANINGFUL_COVERAGE_FLOOR: "50"
 
 jobs:
-  build-and-test:
+  dependency-vulnerability-scan:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: NuGet Vulnerability Scan
+        run: bash scripts/ci/check-dotnet-vulnerabilities.sh Subcontractor.sln
+
+      - name: Upload Vulnerability Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-vulnerability-report
+          path: artifacts/security/nuget-vulnerability-report.json
+
+  dependency-governance-report:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Build Outdated Dependencies Report
+        run: bash scripts/ci/report-dotnet-outdated.sh Subcontractor.sln
+
+      - name: Upload Outdated Dependencies Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-outdated-report
+          path: |
+            artifacts/security/nuget-outdated-report.json
+            artifacts/security/nuget-outdated-summary.txt
+
+  dependency-outdated-budget:
+    runs-on: ubuntu-latest
+    env:
+      OUTDATED_BUDGET_PROD_MAJOR_MAX: "0"
+      OUTDATED_BUDGET_PROD_MINOR_MAX: "0"
+      OUTDATED_BUDGET_PROD_PATCH_MAX: "200"
+      OUTDATED_BUDGET_TOTAL_MAJOR_MAX: "0"
+      OUTDATED_BUDGET_TOTAL_MINOR_MAX: "0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Enforce Outdated Dependency Budget
+        run: bash scripts/ci/check-dotnet-outdated-budget.sh
+
+      - name: Upload Outdated Budget Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-outdated-budget-report
+          path: |
+            artifacts/security/nuget-outdated-report.json
+            artifacts/security/nuget-outdated-summary.txt
+
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,10 +127,580 @@ jobs:
         run: dotnet restore Subcontractor.sln --verbosity minimal
 
       - name: Build
-        run: dotnet build Subcontractor.sln --no-restore -v minimal
+        run: dotnet build Subcontractor.sln --configuration Release --no-restore --verbosity minimal
 
-      - name: Test
-        run: dotnet test Subcontractor.sln --no-build --verbosity minimal
+  unit-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Unit Tests
+        run: dotnet test tests/Subcontractor.Tests.Unit/Subcontractor.Tests.Unit.csproj --configuration Release --no-restore --verbosity minimal
+
+  fast-inmemory-integration:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Fast InMemory Integration Tests
+        run: dotnet test tests/Subcontractor.Tests.Integration/Subcontractor.Tests.Integration.csproj --configuration Release --no-restore --verbosity minimal
+
+  host-topology-policy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Host Topology Policy Guard
+        run: npm run check:host-topology
+
+  frontend-js-unit:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify JS Bundles Are Up-To-Date
+        run: npm run check:js-bundles
+
+      - name: Enforce JS Module Size Guardrails
+        run: npm run check:js-module-size
+
+      - name: Frontend JS Unit Tests
+        run: npm run test:js
+
+  browser-smoke:
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "YourStr0ng!Passw0rd"
+        ports:
+          - 1433:1433
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      BASE_URL: "http://127.0.0.1:5080"
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=SubcontractorV2;User Id=sa;Password=YourStr0ng!Passw0rd;TrustServerCertificate=True;Encrypt=False"
+      Security__BootstrapAdminLogins__0: "local.admin"
+      Security__LocalDevLogin: "local.admin"
+      Security__LocalDevDisplayName: "Local Administrator"
+      Security__LocalDevEmail: "local.admin@localhost"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Build
+        run: dotnet build Subcontractor.sln --configuration Release --no-restore --verbosity minimal
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait For SQL Server Port
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/1433) >/dev/null 2>&1; then
+              echo "SQL Server port is open."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "SQL Server did not start on 127.0.0.1:1433 in time."
+          exit 1
+
+      - name: Apply Migrations
+        run: dotnet run --project src/Subcontractor.DbMigrator/Subcontractor.DbMigrator.csproj --configuration Release --no-build
+
+      - name: Browser Smoke Tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          dotnet run \
+            --project src/Subcontractor.Web/Subcontractor.Web.csproj \
+            --configuration Release \
+            --no-build \
+            --urls "$BASE_URL" > /tmp/subcontractor-web.log 2>&1 &
+          APP_PID=$!
+
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              echo "=== Subcontractor.Web log (tail) ==="
+              tail -n 200 /tmp/subcontractor-web.log || true
+            fi
+
+            kill "$APP_PID" >/dev/null 2>&1 || true
+            wait "$APP_PID" >/dev/null 2>&1 || true
+            return "$status"
+          }
+          trap cleanup EXIT
+
+          for i in {1..90}; do
+            if curl -fsS "$BASE_URL/api/health" >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+
+          curl -fsS "$BASE_URL/api/health" >/dev/null
+          npm run test:smoke
+
+      - name: Upload Playwright Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-report
+          path: |
+            playwright-report
+            test-results
+
+  performance-budget-nightly:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '30 1 * * *') ||
+      (github.event_name == 'workflow_dispatch' &&
+        (github.event.inputs.performance_profile == 'nightly' ||
+         github.event.inputs.performance_profile == 'all' ||
+         github.event.inputs.performance_profile == ''))
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "YourStr0ng!Passw0rd"
+        ports:
+          - 1433:1433
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      BASE_URL: "http://127.0.0.1:5090"
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=SubcontractorV2;User Id=sa;Password=YourStr0ng!Passw0rd;TrustServerCertificate=True;Encrypt=False"
+      Security__BootstrapAdminLogins__0: "local.admin"
+      Security__LocalDevLogin: "local.admin"
+      Security__LocalDevDisplayName: "Local Administrator"
+      Security__LocalDevEmail: "local.admin@localhost"
+      Logging__LogLevel__Default: "Information"
+      PERF_ITERATIONS: "25"
+      PERF_BROWSER_ITERATIONS: "5"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Build
+        run: dotnet build Subcontractor.sln --configuration Release --no-restore --verbosity minimal
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait For SQL Server Port
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/1433) >/dev/null 2>&1; then
+              echo "SQL Server port is open."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "SQL Server did not start on 127.0.0.1:1433 in time."
+          exit 1
+
+      - name: Apply Migrations
+        run: dotnet run --project src/Subcontractor.DbMigrator/Subcontractor.DbMigrator.csproj --configuration Release --no-build
+
+      - name: Run Performance Contour
+        run: bash scripts/ci/run-performance-contour.sh
+
+      - name: Validate Nightly Performance Evidence Pack
+        run: npm run check:perf-evidence
+
+      - name: Publish Nightly Performance Summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "artifacts/perf/perf-budget-latest.md" ]]; then
+            {
+              echo "## Nightly Performance Budget"
+              cat "artifacts/perf/perf-budget-latest.md"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [[ -f "artifacts/perf/perf-regression-latest.md" ]]; then
+            {
+              echo ""
+              echo "## Nightly Regression Diff"
+              cat "artifacts/perf/perf-regression-latest.md"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Performance Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-nightly
+          path: artifacts/perf
+
+  performance-budget-long-run-weekly:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 3 * * 0') ||
+      (github.event_name == 'workflow_dispatch' &&
+        (github.event.inputs.performance_profile == 'long-run' ||
+         github.event.inputs.performance_profile == 'all'))
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "YourStr0ng!Passw0rd"
+        ports:
+          - 1433:1433
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      BASE_URL: "http://127.0.0.1:5091"
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=SubcontractorV2;User Id=sa;Password=YourStr0ng!Passw0rd;TrustServerCertificate=True;Encrypt=False"
+      Security__BootstrapAdminLogins__0: "local.admin"
+      Security__LocalDevLogin: "local.admin"
+      Security__LocalDevDisplayName: "Local Administrator"
+      Security__LocalDevEmail: "local.admin@localhost"
+      Logging__LogLevel__Default: "Information"
+      PERF_OUT_DIR: "artifacts/perf-long-run"
+      PERF_ITERATIONS: "60"
+      PERF_BROWSER_ITERATIONS: "10"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Build
+        run: dotnet build Subcontractor.sln --configuration Release --no-restore --verbosity minimal
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait For SQL Server Port
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/1433) >/dev/null 2>&1; then
+              echo "SQL Server port is open."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "SQL Server did not start on 127.0.0.1:1433 in time."
+          exit 1
+
+      - name: Apply Migrations
+        run: dotnet run --project src/Subcontractor.DbMigrator/Subcontractor.DbMigrator.csproj --configuration Release --no-build
+
+      - name: Run Long-Run Performance Contour
+        run: bash scripts/ci/run-performance-contour-long-run.sh
+
+      - name: Validate Long-Run Performance Evidence Pack
+        run: bash scripts/ci/check-performance-evidence-pack.sh "$PERF_OUT_DIR"
+
+      - name: Publish Long-Run Performance Summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "$PERF_OUT_DIR/perf-budget-latest.md" ]]; then
+            {
+              echo "## Weekly Long-Run Performance Budget"
+              cat "$PERF_OUT_DIR/perf-budget-latest.md"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [[ -f "$PERF_OUT_DIR/perf-regression-latest.md" ]]; then
+            {
+              echo ""
+              echo "## Weekly Long-Run Regression Diff"
+              cat "$PERF_OUT_DIR/perf-regression-latest.md"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Long-Run Performance Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-long-run-weekly
+          path: artifacts/perf-long-run
+
+  sqlserver-integration-core:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/develop'
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "YourStr0ng!Passw0rd"
+        ports:
+          - 1433:1433
+    env:
+      SUBCONTRACTOR_SQL_TESTS: "1"
+      SUBCONTRACTOR_SQL_TEST_SERVER_CONNECTION: "Server=localhost,1433;User Id=sa;Password=YourStr0ng!Passw0rd;TrustServerCertificate=True;Encrypt=False"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Wait For SQL Server Port
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/1433) >/dev/null 2>&1; then
+              echo "SQL Server port is open."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "SQL Server did not start on 127.0.0.1:1433 in time."
+          exit 1
+
+      - name: SQL Server Integration Tests
+        run: dotnet test tests/Subcontractor.Tests.SqlServer/Subcontractor.Tests.SqlServer.csproj --configuration Release --no-restore --verbosity minimal --filter "SqlSuite=Core"
+
+  sqlserver-integration-full:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "YourStr0ng!Passw0rd"
+        ports:
+          - 1433:1433
+    env:
+      SUBCONTRACTOR_SQL_TESTS: "1"
+      SUBCONTRACTOR_SQL_TEST_SERVER_CONNECTION: "Server=localhost,1433;User Id=sa;Password=YourStr0ng!Passw0rd;TrustServerCertificate=True;Encrypt=False"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Wait For SQL Server Port
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/1433) >/dev/null 2>&1; then
+              echo "SQL Server port is open."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "SQL Server did not start on 127.0.0.1:1433 in time."
+          exit 1
+
+      - name: SQL Server Integration Tests (Full)
+        run: dotnet test tests/Subcontractor.Tests.SqlServer/Subcontractor.Tests.SqlServer.csproj --configuration Release --no-restore --verbosity minimal
+
+  dbmigrator-dry-run:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
 
       - name: DbMigrator Dry Run
-        run: dotnet run --project src/Subcontractor.DbMigrator/Subcontractor.DbMigrator.csproj -- --dry-run
+        run: dotnet run --project src/Subcontractor.DbMigrator/Subcontractor.DbMigrator.csproj --configuration Release --no-restore -- --dry-run
+
+  coverage-report:
+    needs:
+      - unit-tests
+      - fast-inmemory-integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Subcontractor.sln --verbosity minimal
+
+      - name: Build
+        run: dotnet build Subcontractor.sln --configuration Release --no-restore --verbosity minimal
+
+      - name: Collect Unit Coverage
+        run: >
+          dotnet test tests/Subcontractor.Tests.Unit/Subcontractor.Tests.Unit.csproj
+          --configuration Release
+          --no-build
+          --verbosity minimal
+          /p:CollectCoverage=true
+          /p:CoverletOutputFormat=cobertura
+          /p:CoverletOutput=${{ github.workspace }}/artifacts/coverage/unit/
+
+      - name: Collect Fast Integration Coverage
+        run: >
+          dotnet test tests/Subcontractor.Tests.Integration/Subcontractor.Tests.Integration.csproj
+          --configuration Release
+          --no-build
+          --verbosity minimal
+          /p:CollectCoverage=true
+          /p:CoverletOutputFormat=cobertura
+          /p:CoverletOutput=${{ github.workspace }}/artifacts/coverage/integration/
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.3.11
+
+      - name: Add .NET tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Build Raw Coverage Report
+        run: >
+          reportgenerator
+          -reports:"artifacts/coverage/**/coverage.cobertura.xml"
+          -targetdir:"artifacts/coverage/raw"
+          -reporttypes:"TextSummary;Cobertura"
+
+      - name: Build Meaningful Coverage Report
+        run: >
+          reportgenerator
+          -reports:"artifacts/coverage/**/coverage.cobertura.xml"
+          -targetdir:"artifacts/coverage/meaningful"
+          -reporttypes:"TextSummary;Cobertura"
+          -filefilters:"-*/Migrations/*;-*.Designer.cs;-*/AppDbContextModelSnapshot.cs"
+
+      - name: Print Coverage Summaries
+        run: |
+          echo "=== RAW COVERAGE ==="
+          cat artifacts/coverage/raw/Summary.txt
+          echo "=== MEANINGFUL COVERAGE ==="
+          cat artifacts/coverage/meaningful/Summary.txt
+
+      - name: Enforce Meaningful Coverage Floor
+        shell: bash
+        run: |
+          COVERAGE_VALUE="$(grep -E '^  Line coverage:' artifacts/coverage/meaningful/Summary.txt | head -n 1 | awk '{print $3}' | tr -d '%')"
+          echo "Meaningful line coverage: ${COVERAGE_VALUE}%"
+          echo "Coverage floor: ${MEANINGFUL_COVERAGE_FLOOR}%"
+          awk -v actual="$COVERAGE_VALUE" -v min="$MEANINGFUL_COVERAGE_FLOOR" 'BEGIN { exit !(actual + 0 >= min + 0) }' || {
+            echo "Meaningful coverage is below required floor."
+            exit 1
+          }
+
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: artifacts/coverage

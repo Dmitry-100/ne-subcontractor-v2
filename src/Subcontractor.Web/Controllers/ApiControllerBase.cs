@@ -8,7 +8,7 @@ public abstract class ApiControllerBase : ControllerBase
     {
         return BadRequest(CreateProblemDetails(
             StatusCodes.Status400BadRequest,
-            title ?? "Validation error.",
+            title ?? "Ошибка валидации.",
             detail));
     }
 
@@ -16,7 +16,7 @@ public abstract class ApiControllerBase : ControllerBase
     {
         return Conflict(CreateProblemDetails(
             StatusCodes.Status409Conflict,
-            title ?? "Business rule conflict.",
+            title ?? "Конфликт бизнес-правил.",
             detail));
     }
 
@@ -24,7 +24,7 @@ public abstract class ApiControllerBase : ControllerBase
     {
         return NotFound(CreateProblemDetails(
             StatusCodes.Status404NotFound,
-            title ?? "Resource not found.",
+            title ?? "Ресурс не найден.",
             detail));
     }
 

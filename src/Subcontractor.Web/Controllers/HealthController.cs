@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Subcontractor.Web.Configuration;
 
 namespace Subcontractor.Web.Controllers;
 
@@ -7,6 +9,7 @@ namespace Subcontractor.Web.Controllers;
 public sealed class HealthController : ControllerBase
 {
     [HttpGet]
+    [OutputCache(PolicyName = WebServiceCollectionExtensions.HealthCheckOutputCachePolicyName)]
     public IActionResult Get()
     {
         return Ok(new
@@ -17,4 +20,3 @@ public sealed class HealthController : ControllerBase
         });
     }
 }
-

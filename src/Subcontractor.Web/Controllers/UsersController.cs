@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Subcontractor.Application.UsersAdministration;
 using Subcontractor.Application.UsersAdministration.Models;
 using Subcontractor.Web.Authorization;
+using Subcontractor.Web.Configuration;
 
 namespace Subcontractor.Web.Controllers;
 
@@ -57,6 +59,7 @@ public sealed class UsersController : ApiControllerBase
 
     [HttpGet("roles")]
     [Authorize(Policy = PolicyCodes.UsersRead)]
+    [OutputCache(PolicyName = WebServiceCollectionExtensions.AdminRolesReadOutputCachePolicyName)]
     public async Task<ActionResult<IReadOnlyList<RoleLookupItemDto>>> ListRoles(CancellationToken cancellationToken)
     {
         var result = await _usersAdministrationService.ListRolesAsync(cancellationToken);

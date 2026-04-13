@@ -397,13 +397,17 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContractNumber");
+                    b.HasIndex("ContractNumber")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.HasIndex("ContractorId");
 
                     b.HasIndex("LotId");
 
-                    b.HasIndex("ProcedureId");
+                    b.HasIndex("ProcedureId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.HasIndex("Status");
 

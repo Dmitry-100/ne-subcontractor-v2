@@ -10,6 +10,13 @@ public interface ILotsService
         LotStatus? status,
         Guid? projectId,
         CancellationToken cancellationToken = default);
+    Task<LotListPageDto> ListPageAsync(
+        string? search,
+        LotStatus? status,
+        Guid? projectId,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default);
 
     Task<LotDetailsDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<LotDetailsDto> CreateAsync(CreateLotRequest request, CancellationToken cancellationToken = default);

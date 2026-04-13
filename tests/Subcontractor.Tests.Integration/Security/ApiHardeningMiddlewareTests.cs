@@ -71,7 +71,7 @@ public sealed class ApiHardeningMiddlewareTests
         var payload = document.RootElement;
 
         Assert.Equal(StatusCodes.Status500InternalServerError, payload.GetProperty("status").GetInt32());
-        Assert.Equal("Unexpected server error.", payload.GetProperty("title").GetString());
+        Assert.Equal("Непредвиденная ошибка сервера.", payload.GetProperty("title").GetString());
         Assert.Equal("corr-500", payload.GetProperty("correlationId").GetString());
     }
 }

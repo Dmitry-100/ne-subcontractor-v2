@@ -4,6 +4,10 @@
         Configuration["UiAssets:DevExpress:UseLocal"],
         "true",
         StringComparison.OrdinalIgnoreCase);
+    var useLocalFallbackWhenCdnFails = !string.Equals(
+        Configuration["UiAssets:DevExpress:UseLocalFallbackWhenCdnFails"],
+        "false",
+        StringComparison.OrdinalIgnoreCase);
 
     var version = Configuration["UiAssets:DevExpress:Version"];
     if (string.IsNullOrWhiteSpace(version))
@@ -16,6 +20,11 @@
     {
         cdnBaseUrl = "https://cdn3.devexpress.com/jslib";
     }
+    var fallbackCdnBaseUrl = Configuration["UiAssets:DevExpress:FallbackCdnBaseUrl"];
+    if (string.IsNullOrWhiteSpace(fallbackCdnBaseUrl))
+    {
+        fallbackCdnBaseUrl = "https://cdn.jsdelivr.net/npm/devextreme-dist@{version}";
+    }
 
     var localBasePath = Configuration["UiAssets:DevExpress:LocalBasePath"];
     if (string.IsNullOrWhiteSpace(localBasePath))
@@ -26,9 +35,23 @@
     var normalizedCdnBaseUrl = cdnBaseUrl.Contains("{version}", StringComparison.OrdinalIgnoreCase)
         ? cdnBaseUrl.Replace("{version}", version, StringComparison.OrdinalIgnoreCase).TrimEnd('/')
         : $"{cdnBaseUrl.TrimEnd('/')}/{version}";
+    var normalizedFallbackCdnBaseUrl = fallbackCdnBaseUrl.Contains("{version}", StringComparison.OrdinalIgnoreCase)
+        ? fallbackCdnBaseUrl.Replace("{version}", version, StringComparison.OrdinalIgnoreCase).TrimEnd('/')
+        : $"{fallbackCdnBaseUrl.TrimEnd('/')}/{version}";
     var normalizedLocalBasePath = localBasePath.TrimEnd('/');
-    var cssSource = useLocal
-        ? $"{normalizedLocalBasePath}/css/dx.light.css"
-        : $"{normalizedCdnBaseUrl}/css/dx.light.css";
+    var primaryCssSource = $"{normalizedCdnBaseUrl}/css/dx.light.css";
+    var fallbackCssSource = $"{normalizedFallbackCdnBaseUrl}/css/dx.light.css";
+    var localCssSource = $"{normalizedLocalBasePath}/css/dx.light.css";
+    var cssSource = useLocal ? localCssSource : primaryCssSource;
+    var cssOnError = useLocalFallbackWhenCdnFails
+        ? $"if(this.dataset.fallbackLevel==='2'){{return;}}if(this.dataset.fallbackLevel==='1'){{this.dataset.fallbackLevel='2';this.href='{localCssSource}';return;}}this.dataset.fallbackLevel='1';this.href='{fallbackCssSource}';"
+        : $"if(this.dataset.fallbackLevel==='1'){{return;}}this.dataset.fallbackLevel='1';this.href='{fallbackCssSource}';";
 }
-<link rel="stylesheet" href="@cssSource" />
+@if (useLocal)
+{
+    <link rel="stylesheet" href="@cssSource" asp-append-version="true" />
+}
+else
+{
+    <link rel="stylesheet" href="@cssSource" onerror="@cssOnError" />
+}

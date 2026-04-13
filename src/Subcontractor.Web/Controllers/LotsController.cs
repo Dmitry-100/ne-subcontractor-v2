@@ -20,14 +20,31 @@ public sealed class LotsController : ApiControllerBase
 
     [HttpGet]
     [Authorize(Policy = PolicyCodes.LotsRead)]
-    public async Task<ActionResult<IReadOnlyList<LotListItemDto>>> List(
+    public async Task<IActionResult> List(
         [FromQuery] string? search,
         [FromQuery] LotStatus? status,
         [FromQuery] Guid? projectId,
+        [FromQuery] int? skip,
+        [FromQuery] int? take,
+        [FromQuery] bool requireTotalCount,
         CancellationToken cancellationToken)
     {
-        var result = await _lotsService.ListAsync(search, status, projectId, cancellationToken);
-        return Ok(result);
+        var shouldUsePageQuery = requireTotalCount || skip.HasValue || take.HasValue;
+        if (!shouldUsePageQuery)
+        {
+            var result = await _lotsService.ListAsync(search, status, projectId, cancellationToken);
+            return Ok(result);
+        }
+
+        var page = await _lotsService.ListPageAsync(
+            search,
+            status,
+            projectId,
+            skip ?? 0,
+            take ?? 15,
+            cancellationToken);
+
+        return Ok(page);
     }
 
     [HttpGet("{id:guid}")]

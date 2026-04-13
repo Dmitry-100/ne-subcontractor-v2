@@ -9,3 +9,10 @@ TestResults/
 .DS_Store
 .dotnet/
 .dotnet_cli/
+node_modules/
+npm-debug.log*
+playwright-report/
+test-results/
+.tools/
+artifacts/
+tests/**/artifacts/

@@ -162,12 +162,12 @@ public sealed class DashboardServiceTests
         Assert.DoesNotContain(summary.MyTasks, x => x.Description.Contains("Current user second", StringComparison.OrdinalIgnoreCase));
 
         var procedureTask = Assert.Single(summary.MyTasks.Where(x => x.Module == "Procedures"));
-        Assert.StartsWith("/procedures?", procedureTask.ActionUrl, StringComparison.Ordinal);
+        Assert.StartsWith("/Home/Procedures?", procedureTask.ActionUrl, StringComparison.Ordinal);
         Assert.Contains("status=OnApproval", procedureTask.ActionUrl, StringComparison.Ordinal);
         Assert.Contains("search=", procedureTask.ActionUrl, StringComparison.Ordinal);
 
         var contractTask = Assert.Single(summary.MyTasks.Where(x => x.Module == "Contracts"));
-        Assert.StartsWith("/contracts?", contractTask.ActionUrl, StringComparison.Ordinal);
+        Assert.StartsWith("/Home/Contracts?", contractTask.ActionUrl, StringComparison.Ordinal);
         Assert.Contains("status=Signed,Active", contractTask.ActionUrl, StringComparison.Ordinal);
         Assert.Contains("search=", contractTask.ActionUrl, StringComparison.Ordinal);
     }

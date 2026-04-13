@@ -20,14 +20,31 @@ public sealed class ProcurementProceduresController : ApiControllerBase
 
     [HttpGet]
     [Authorize(Policy = PolicyCodes.ProceduresRead)]
-    public async Task<ActionResult<IReadOnlyList<ProcedureListItemDto>>> List(
+    public async Task<IActionResult> List(
         [FromQuery] string? search,
         [FromQuery] ProcurementProcedureStatus? status,
         [FromQuery] Guid? lotId,
+        [FromQuery] int? skip,
+        [FromQuery] int? take,
+        [FromQuery] bool requireTotalCount,
         CancellationToken cancellationToken)
     {
-        var result = await _service.ListAsync(search, status, lotId, cancellationToken);
-        return Ok(result);
+        var shouldUsePageQuery = requireTotalCount || skip.HasValue || take.HasValue;
+        if (!shouldUsePageQuery)
+        {
+            var result = await _service.ListAsync(search, status, lotId, cancellationToken);
+            return Ok(result);
+        }
+
+        var page = await _service.ListPageAsync(
+            search,
+            status,
+            lotId,
+            skip ?? 0,
+            take ?? 15,
+            cancellationToken);
+
+        return Ok(page);
     }
 
     [HttpGet("{id:guid}")]

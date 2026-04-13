@@ -1,0 +1,72 @@
+{
+  "browser": {
+    "default": {
+      "requestCountAvgMax": 20,
+      "failedRequestsSameOriginAvgMax": 0,
+      "runtimeConsoleErrorsAvgMax": 0,
+      "runtimePageErrorsAvgMax": 0,
+      "domContentLoadedP50MaxMs": 2200,
+      "loadP50MaxMs": 3000
+    },
+    "pages": {
+      "home": {
+        "domContentLoadedP50MaxMs": 1100,
+        "loadP50MaxMs": 2300
+      },
+      "projects-page": {
+        "domContentLoadedP50MaxMs": 3200,
+        "loadP50MaxMs": 3800
+      },
+      "lots-page": {
+        "loadP50MaxMs": 3000
+      },
+      "procedures-page": {
+        "domContentLoadedP50MaxMs": 2300,
+        "loadP50MaxMs": 3000
+      },
+      "contracts-page": {
+        "domContentLoadedP50MaxMs": 3200,
+        "loadP50MaxMs": 4000
+      },
+      "contractors-page": {
+        "loadP50MaxMs": 3000
+      },
+      "sla-page": {
+        "domContentLoadedP50MaxMs": 1000,
+        "loadP50MaxMs": 1800
+      },
+      "admin-page": {
+        "domContentLoadedP50MaxMs": 2400,
+        "loadP50MaxMs": 2800
+      }
+    }
+  },
+  "http": {
+    "default": {
+      "p95MaxMs": 60,
+      "nonSuccessAllowed": 0,
+      "p95TrimTopCount": 1
+    },
+    "endpoints": {
+      "dashboard-summary-api": {
+        "p95MaxMs": 80
+      }
+    }
+  },
+  "regression": {
+    "browser": {
+      "default": {
+        "requestCountRegressionPctMax": 40,
+        "domContentLoadedP50RegressionPctMax": 80,
+        "loadP50RegressionPctMax": 60
+      }
+    },
+    "http": {
+      "default": {
+        "p95RegressionPctMax": 35,
+        "p95RegressionBaselineMinMs": 20,
+        "p95RegressionAbsDeltaMaxMs": 10
+      }
+    }
+  }
+}

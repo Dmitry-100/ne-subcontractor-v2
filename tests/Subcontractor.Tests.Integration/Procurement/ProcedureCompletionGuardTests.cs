@@ -28,8 +28,60 @@ public sealed class ProcedureCompletionGuardTests
 
         var procedure = await db.Set<ProcurementProcedure>().AsNoTracking().SingleAsync(x => x.Id == procedureId);
         var lot = await db.Set<Lot>().AsNoTracking().SingleAsync(x => x.Id == lotId);
+        var completedTransitionsCount = await db.Set<ProcurementProcedureStatusHistory>()
+            .AsNoTracking()
+            .CountAsync(x => x.ProcedureId == procedureId && x.ToStatus == ProcurementProcedureStatus.Completed);
+        var contractedLotTransitionsCount = await db.Set<LotStatusHistory>()
+            .AsNoTracking()
+            .CountAsync(x => x.LotId == lotId && x.ToStatus == LotStatus.Contracted);
+
         Assert.Equal(ProcurementProcedureStatus.DecisionMade, procedure.Status);
         Assert.Equal(LotStatus.ContractorSelected, lot.Status);
+        Assert.Equal(0, completedTransitionsCount);
+        Assert.Equal(0, contractedLotTransitionsCount);
+    }
+
+    [Fact]
+    public async Task TransitionToCompleted_WithContractBoundToDifferentLot_ShouldThrow_AndPersistNothing()
+    {
+        await using var db = TestDbContextFactory.Create("proc-user");
+        var (procedureLotId, procedureId) = await SeedDecisionMadeProcedureAsync(db);
+
+        var foreignLot = new Lot
+        {
+            Code = "LOT-002",
+            Name = "Foreign lot",
+            Status = LotStatus.InProcurement
+        };
+
+        await db.Set<Lot>().AddAsync(foreignLot);
+        await db.Set<Contract>().AddAsync(CreateContract(foreignLot.Id, procedureId, "CTR-003"));
+        await db.SaveChangesAsync();
+
+        var service = new ProcurementProceduresService(db, new TestCurrentUserService("proc-user"));
+        var request = new ProcedureStatusTransitionRequest
+        {
+            TargetStatus = ProcurementProcedureStatus.Completed
+        };
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => service.TransitionAsync(procedureId, request));
+        Assert.Equal("Bound contract lot does not match procedure lot.", error.Message);
+
+        var procedure = await db.Set<ProcurementProcedure>().AsNoTracking().SingleAsync(x => x.Id == procedureId);
+        var procedureLot = await db.Set<Lot>().AsNoTracking().SingleAsync(x => x.Id == procedureLotId);
+        var untouchedForeignLot = await db.Set<Lot>().AsNoTracking().SingleAsync(x => x.Id == foreignLot.Id);
+        var completedTransitionsCount = await db.Set<ProcurementProcedureStatusHistory>()
+            .AsNoTracking()
+            .CountAsync(x => x.ProcedureId == procedureId && x.ToStatus == ProcurementProcedureStatus.Completed);
+        var procedureLotContractedTransitionsCount = await db.Set<LotStatusHistory>()
+            .AsNoTracking()
+            .CountAsync(x => x.LotId == procedureLotId && x.ToStatus == LotStatus.Contracted);
+
+        Assert.Equal(ProcurementProcedureStatus.DecisionMade, procedure.Status);
+        Assert.Equal(LotStatus.ContractorSelected, procedureLot.Status);
+        Assert.Equal(LotStatus.InProcurement, untouchedForeignLot.Status);
+        Assert.Equal(0, completedTransitionsCount);
+        Assert.Equal(0, procedureLotContractedTransitionsCount);
     }
 
     [Fact]

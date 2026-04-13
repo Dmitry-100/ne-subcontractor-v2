@@ -1,0 +1,390 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+    --ibm-layer-00: #ffffff;
+    --ibm-layer-01: #f4f4f4;
+    --ibm-layer-hover: #e8e8e8;
+    --ibm-border-subtle: #c6c6c6;
+    --ibm-text-primary: #161616;
+    --ibm-text-secondary: #525252;
+    --ibm-link: #0f62fe;
+    --ibm-link-hover: #0043ce;
+    --ibm-btn: #0f62fe;
+    --ibm-btn-hover: #0353e9;
+    --ibm-btn-active: #002d9c;
+    --ibm-danger: #da1e28;
+    --ibm-focus: #0f62fe;
+}
+
+body.app-body {
+    background: var(--ibm-layer-00);
+    color: var(--ibm-text-primary);
+    font-family: "IBM Plex Sans", "Segoe UI", Tahoma, sans-serif;
+}
+
+.app-header {
+    background: #161616;
+    border-bottom: 1px solid #393939;
+    color: #f4f4f4;
+    min-height: 48px;
+    padding: 10px 20px;
+}
+
+.app-header__brand strong {
+    font-size: 1.03rem;
+    font-weight: 600;
+    letter-spacing: 0.08px;
+}
+
+.app-header__nav {
+    gap: 2px;
+}
+
+.app-header__nav a {
+    border-radius: 0;
+    color: #c6c6c6;
+    font-size: 0.9rem;
+    padding: 7px 12px;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.app-header__nav a:hover,
+.app-header__nav a.is-active {
+    background: #262626;
+    color: #ffffff;
+}
+
+.app-main {
+    max-width: 1480px;
+    padding: 24px 28px;
+}
+
+.shell-panel {
+    background: var(--ibm-layer-00);
+    border: 1px solid var(--ibm-border-subtle);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 20px;
+}
+
+.shell-panel__header h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.shell-panel__header p,
+.registry-hint {
+    color: var(--ibm-text-secondary);
+    font-size: 0.9rem;
+    letter-spacing: 0.16px;
+}
+
+.field-label {
+    color: var(--ibm-text-primary);
+}
+
+.field-help summary {
+    background: #edf5ff;
+    border: 1px solid #78a9ff;
+    color: var(--ibm-link);
+}
+
+.field-help[open] summary,
+.field-help summary:hover,
+.field-help summary:focus-visible {
+    background: var(--ibm-link);
+    border-color: var(--ibm-link);
+    color: #ffffff;
+}
+
+.field-help__popup {
+    border: 1px solid var(--ibm-border-subtle);
+    border-radius: 0;
+    box-shadow: 0 8px 24px rgba(22, 22, 22, 0.12);
+    color: var(--ibm-text-secondary);
+}
+
+.dashboard-refresh,
+.registry-refresh,
+.imports-button,
+.lots-action-button,
+.procedures-action-button,
+.contracts-action-button,
+.contractors-action-button,
+.admin-action-button {
+    background: var(--ibm-btn);
+    border: 1px solid transparent;
+    border-radius: 0;
+    color: #ffffff;
+    min-height: 38px;
+    padding: 8px 14px;
+}
+
+.dashboard-refresh:hover,
+.registry-refresh:hover,
+.imports-button:hover,
+.lots-action-button:hover,
+.procedures-action-button:hover,
+.contracts-action-button:hover,
+.contractors-action-button:hover,
+.admin-action-button:hover {
+    background: var(--ibm-btn-hover);
+}
+
+.dashboard-refresh:active,
+.registry-refresh:active,
+.imports-button:active,
+.lots-action-button:active,
+.procedures-action-button:active,
+.contracts-action-button:active,
+.contractors-action-button:active,
+.admin-action-button:active {
+    background: var(--ibm-btn-active);
+}
+
+.registry-api-link,
+.imports-button--secondary,
+.lots-action-button--secondary,
+.procedures-action-button--secondary,
+.contracts-action-button--secondary,
+.contractors-action-button--secondary,
+.admin-action-button--secondary {
+    background: transparent;
+    border: 1px solid var(--ibm-link);
+    border-radius: 0;
+    color: var(--ibm-link);
+}
+
+.registry-api-link:hover,
+.imports-button--secondary:hover,
+.lots-action-button--secondary:hover,
+.procedures-action-button--secondary:hover,
+.contracts-action-button--secondary:hover,
+.contractors-action-button--secondary:hover,
+.admin-action-button--secondary:hover {
+    background: #edf5ff;
+    color: var(--ibm-link-hover);
+}
+
+.dashboard-refresh:focus-visible,
+.registry-refresh:focus-visible,
+.registry-api-link:focus-visible,
+.imports-button:focus-visible,
+.lots-action-button:focus-visible,
+.procedures-action-button:focus-visible,
+.contracts-action-button:focus-visible,
+.contractors-action-button:focus-visible,
+.admin-action-button:focus-visible {
+    outline: 2px solid var(--ibm-focus);
+    outline-offset: 2px;
+}
+
+.registry-search input,
+.registry-search select,
+.projects-toolbar input,
+.lots-actions input,
+.lots-actions select,
+.procedures-field input,
+.procedures-field select,
+.contracts-field input,
+.contracts-field select,
+.contracts-field textarea,
+.contractors-field input,
+.contractors-field select,
+.contractors-field textarea,
+.imports-field input,
+.imports-field select,
+.imports-field textarea,
+.admin-field input,
+.admin-field select,
+.admin-field textarea,
+.registry-table td input[type="text"],
+.registry-table td input[type="number"],
+.imports-table td input[type="text"] {
+    background: var(--ibm-layer-01);
+    border: 1px solid transparent;
+    border-bottom: 2px solid var(--ibm-border-subtle);
+    border-radius: 0;
+    color: var(--ibm-text-primary);
+}
+
+.registry-search input:focus,
+.registry-search select:focus,
+.projects-toolbar input:focus,
+.lots-actions input:focus,
+.lots-actions select:focus,
+.procedures-field input:focus,
+.procedures-field select:focus,
+.contracts-field input:focus,
+.contracts-field select:focus,
+.contracts-field textarea:focus,
+.contractors-field input:focus,
+.contractors-field select:focus,
+.contractors-field textarea:focus,
+.imports-field input:focus,
+.imports-field select:focus,
+.imports-field textarea:focus,
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus,
+.registry-table td input[type="text"]:focus,
+.registry-table td input[type="number"]:focus,
+.imports-table td input[type="text"]:focus {
+    border-bottom-color: var(--ibm-link);
+    outline: none;
+}
+
+.dashboard-metric,
+.dashboard-panel,
+.card,
+.imports-panel,
+.admin-users,
+.admin-roles,
+.admin-reference,
+.lots-workflow,
+.procedures-workflow,
+.procedures-shortlist-workspace,
+.contracts-workflow,
+.contracts-draft,
+.contracts-execution,
+.contracts-monitoring,
+.contractors-rating-model,
+.contractors-rating-manual,
+.contractors-rating-history,
+.contractors-rating-analytics,
+.contracts-monitoring-card {
+    background: var(--ibm-layer-01);
+    border: 1px solid var(--ibm-border-subtle);
+    border-radius: 0;
+}
+
+.dashboard-grid {
+    gap: 1px;
+}
+
+.card {
+    transition: background-color 0.16s ease-in-out;
+}
+
+.card:hover {
+    background: var(--ibm-layer-hover);
+}
+
+.card-link {
+    color: var(--ibm-link);
+}
+
+.card-link:hover {
+    color: var(--ibm-link-hover);
+}
+
+.dashboard-status,
+.projects-status,
+.lots-status,
+.procedures-status,
+.contracts-status,
+.contractors-status,
+.imports-status,
+.admin-status,
+.registry-status {
+    color: var(--ibm-text-secondary);
+}
+
+.dashboard-status--error,
+.projects-status--error,
+.lots-status--error,
+.procedures-status--error,
+.contracts-status--error,
+.contractors-status--error,
+.imports-status--error,
+.admin-status--error,
+.registry-status--error {
+    color: var(--ibm-danger);
+}
+
+.registry-table-wrap,
+.imports-table-wrap {
+    border: 1px solid var(--ibm-border-subtle);
+    border-radius: 0;
+}
+
+.registry-table,
+.imports-table {
+    background: #ffffff;
+}
+
+.registry-table th,
+.imports-table th {
+    background: #f4f4f4;
+    border-bottom: 1px solid var(--ibm-border-subtle);
+    color: #393939;
+}
+
+.registry-table td,
+.imports-table td {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.projects-grid,
+.lots-grid,
+.procedures-grid,
+.contracts-grid,
+.contractors-grid,
+.lots-history-grid,
+.procedures-history-grid,
+.procedures-shortlist-grid,
+.procedures-shortlist-adjustments-grid,
+.contracts-history-grid,
+.contracts-execution-grid,
+.contracts-monitoring-grid,
+.contractors-history-grid,
+.contractors-analytics-grid,
+.admin-users-grid,
+.admin-roles-grid,
+.admin-reference-grid {
+    border: 1px solid var(--ibm-border-subtle);
+    border-radius: 0;
+}
+
+.dx-datagrid {
+    border-color: transparent;
+}
+
+.dx-datagrid-headers .dx-header-row > td {
+    background: #f4f4f4;
+    color: #393939;
+}
+
+@media (max-width: 1024px) {
+    .app-main {
+        padding: 16px;
+    }
+
+    .shell-panel__header h1 {
+        font-size: 1.68rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .app-header__nav {
+        gap: 4px;
+    }
+
+    .app-header__nav a {
+        font-size: 0.84rem;
+        padding: 6px 10px;
+    }
+
+    .shell-panel {
+        padding: 14px;
+    }
+}

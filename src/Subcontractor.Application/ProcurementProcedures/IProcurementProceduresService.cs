@@ -10,6 +10,13 @@ public interface IProcurementProceduresService
         ProcurementProcedureStatus? status,
         Guid? lotId,
         CancellationToken cancellationToken = default);
+    Task<ProcedureListPageDto> ListPageAsync(
+        string? search,
+        ProcurementProcedureStatus? status,
+        Guid? lotId,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default);
 
     Task<ProcedureDetailsDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ProcedureDetailsDto> CreateAsync(CreateProcedureRequest request, CancellationToken cancellationToken = default);

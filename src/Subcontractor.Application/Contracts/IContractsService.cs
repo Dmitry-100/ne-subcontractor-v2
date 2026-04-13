@@ -12,6 +12,15 @@ public interface IContractsService
         Guid? procedureId,
         Guid? contractorId,
         CancellationToken cancellationToken = default);
+    Task<ContractListPageDto> ListPageAsync(
+        string? search,
+        ContractStatus? status,
+        Guid? lotId,
+        Guid? procedureId,
+        Guid? contractorId,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default);
 
     Task<ContractDetailsDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ContractDetailsDto> CreateAsync(CreateContractRequest request, CancellationToken cancellationToken = default);

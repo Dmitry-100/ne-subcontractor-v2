@@ -1,5 +1,7 @@
 # Performance Report v1
 
+> Superseded by [performance-report-v2.md](/Users/Sotnikov/Google%20Drive%20100/10%20-%20coding%20project/ne-subcontractor/ne-subcontractor/subcontractor-v2/docs/performance-report-v2.md), which includes reproducible HTTP/browser snapshots and before/after metrics.
+
 ## Scope
 
 - Sprint 10 hardening (phase: in progress).

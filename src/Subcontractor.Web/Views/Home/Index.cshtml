@@ -4,7 +4,11 @@
     var analyticsApiEndpoint = Url.Content("~/api/analytics/kpi");
 }
 
-<section class="dashboard shell-panel"
+@section Head {
+    <link rel="stylesheet" href="~/css/dashboard-ibm.css" asp-append-version="true" />
+}
+
+<section class="dashboard dashboard--ibm shell-panel"
          data-dashboard-module
          data-api-endpoint="@dashboardApiEndpoint"
          data-analytics-endpoint="@analyticsApiEndpoint">
@@ -39,45 +43,191 @@
         </article>
     </div>
 
-    <div class="dashboard-panels">
-        <section class="dashboard-panel">
-            <h2>Структура статусов</h2>
-            <div class="dashboard-status-columns">
-                <div>
-                    <h3>Лоты</h3>
-                    <ul class="dashboard-status-list" data-dashboard-status-list="lots"></ul>
+    <div class="dashboard-layout">
+        <div class="dashboard-main">
+            <section class="dashboard-panel dashboard-panel--statuses">
+                <h2>Структура статусов</h2>
+                <div class="dashboard-status-columns">
+                    <div>
+                        <h3>Лоты</h3>
+                        <ul class="dashboard-status-list" data-dashboard-status-list="lots"></ul>
+                    </div>
+                    <div>
+                        <h3>Процедуры</h3>
+                        <ul class="dashboard-status-list" data-dashboard-status-list="procedures"></ul>
+                    </div>
+                    <div>
+                        <h3>Договоры</h3>
+                        <ul class="dashboard-status-list" data-dashboard-status-list="contracts"></ul>
+                    </div>
                 </div>
-                <div>
-                    <h3>Процедуры</h3>
-                    <ul class="dashboard-status-list" data-dashboard-status-list="procedures"></ul>
+
+                <h3 class="dashboard-kpi-inline-title">Базовые показатели</h3>
+                <div class="dashboard-kpi-infographics dashboard-kpi-infographics--status">
+                    <article class="dashboard-kpi-card">
+                        <div class="dashboard-kpi-ring" data-dashboard-kpi-ring="milestoneCompletionRatePercent">
+                            <strong data-dashboard-kpi="milestoneCompletionRatePercent">н/д</strong>
+                        </div>
+                        <p>Доля завершённых этапов</p>
+                    </article>
+                    <article class="dashboard-kpi-card">
+                        <div class="dashboard-kpi-ring" data-dashboard-kpi-ring="procedureCompletionRatePercent">
+                            <strong data-dashboard-kpi="procedureCompletionRatePercent">н/д</strong>
+                        </div>
+                        <p>Доля завершённых процедур</p>
+                    </article>
+                    <article class="dashboard-kpi-card">
+                        <div class="dashboard-kpi-ring" data-dashboard-kpi-ring="contractClosureRatePercent">
+                            <strong data-dashboard-kpi="contractClosureRatePercent">н/д</strong>
+                        </div>
+                        <p>Доля закрытых договоров</p>
+                    </article>
                 </div>
-                <div>
-                    <h3>Договоры</h3>
-                    <ul class="dashboard-status-list" data-dashboard-status-list="contracts"></ul>
+            </section>
+
+            <section class="dashboard-panel dashboard-panel--analytics">
+                <h2>Аналитика показателей</h2>
+                <p class="dashboard-analytics-status" data-dashboard-analytics-status>Аналитический контур загружается...</p>
+
+                <div class="dashboard-analytics-infographics">
+                    <article class="dashboard-analytics-mini dashboard-analytics-mini--lot">
+                        <p class="dashboard-analytics-mini__label">Воронка лотов</p>
+                        <div class="dashboard-analytics-funnel">
+                            <p><span>Черновик</span><strong data-dashboard-analytics-highlight="lotDraft">0</strong></p>
+                            <p><span>В закупке</span><strong data-dashboard-analytics-highlight="lotInProcurement">0</strong></p>
+                            <p><span>Законтрактовано</span><strong data-dashboard-analytics-highlight="lotContracted">0</strong></p>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini">
+                        <p class="dashboard-analytics-mini__label">Перегрузка подрядчиков</p>
+                        <p class="dashboard-analytics-mini__value">
+                            <strong data-dashboard-analytics-highlight="overloadShare">0%</strong>
+                            <span data-dashboard-analytics-highlight="contractorLoadMeta">0 из 0</span>
+                        </p>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="overloadShare"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini">
+                        <p class="dashboard-analytics-mini__label">Средняя загрузка</p>
+                        <p class="dashboard-analytics-mini__value"><strong data-dashboard-analytics-highlight="averageLoad">н/д</strong></p>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="averageLoad"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini">
+                        <p class="dashboard-analytics-mini__label">Средний рейтинг</p>
+                        <p class="dashboard-analytics-mini__value"><strong data-dashboard-analytics-highlight="averageRating">н/д</strong></p>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="averageRating"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini">
+                        <p class="dashboard-analytics-mini__label">MDR покрытие</p>
+                        <p class="dashboard-analytics-mini__value"><strong data-dashboard-analytics-highlight="mdrCoverage">н/д</strong></p>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="mdrCoverage"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini">
+                        <p class="dashboard-analytics-mini__label">Доля субподряда</p>
+                        <p class="dashboard-analytics-mini__value"><strong data-dashboard-analytics-highlight="subcontractingShare">н/д</strong></p>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="subcontractingShare"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini dashboard-analytics-mini--split">
+                        <p class="dashboard-analytics-mini__label">SLA контур</p>
+                        <div class="dashboard-analytics-split">
+                            <p><span>Предупреждения</span><strong data-dashboard-analytics-highlight="slaWarnings">0</strong></p>
+                            <p><span>Просрочки</span><strong data-dashboard-analytics-highlight="slaOverdue">0</strong></p>
+                        </div>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="slaOverdueShare"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-analytics-mini dashboard-analytics-mini--split">
+                        <p class="dashboard-analytics-mini__label">Контрактование</p>
+                        <div class="dashboard-analytics-split dashboard-analytics-split--money">
+                            <p><span>Действует</span><strong data-dashboard-analytics-highlight="contractingActiveAmount">0</strong></p>
+                            <p><span>Закрыто</span><strong data-dashboard-analytics-highlight="contractingClosedAmount">0</strong></p>
+                        </div>
+                        <div class="dashboard-analytics-mini__bar" aria-hidden="true">
+                            <span data-dashboard-analytics-bar="contractingClosedShare"></span>
+                        </div>
+                    </article>
                 </div>
-            </div>
-        </section>
 
-        <section class="dashboard-panel">
-            <h2>Контроль просрочек</h2>
-            <ul class="dashboard-overdue-list">
-                <li><strong data-dashboard-overdue="proceduresCount">0</strong> процедур просрочено по срокам.</li>
-                <li><strong data-dashboard-overdue="contractsCount">0</strong> договоров просрочено по дате окончания.</li>
-                <li><strong data-dashboard-overdue="milestonesCount">0</strong> просроченных этапов договоров.</li>
-            </ul>
-        </section>
+                <details class="dashboard-disclosure dashboard-disclosure--analytics">
+                    <summary>
+                        <span>Рейтинг подрядчиков</span>
+                        <span class="dashboard-disclosure__hint">развернуть</span>
+                    </summary>
+                    <div class="dashboard-disclosure__content">
+                        <h3>Топ подрядчиков</h3>
+                        <ul class="dashboard-top-contractors" data-dashboard-top-contractors></ul>
+                    </div>
+                </details>
+            </section>
+        </div>
 
-        <section class="dashboard-panel">
-            <h2>Базовые показатели</h2>
-            <ul class="dashboard-kpi-list">
-                <li>Доля завершённых процедур: <strong data-dashboard-kpi="procedureCompletionRatePercent">н/д</strong></li>
-                <li>Доля закрытых договоров: <strong data-dashboard-kpi="contractClosureRatePercent">н/д</strong></li>
-                <li>Доля завершённых этапов: <strong data-dashboard-kpi="milestoneCompletionRatePercent">н/д</strong></li>
-            </ul>
-        </section>
+        <aside class="dashboard-rail">
+            <section class="dashboard-panel dashboard-panel--overdue">
+                <h2>Контроль просрочек</h2>
+                <div class="dashboard-overdue-cards">
+                    <article class="dashboard-overdue-card dashboard-overdue-card--danger">
+                        <p class="dashboard-overdue-card__label">Процедуры с просрочкой</p>
+                        <p class="dashboard-overdue-card__value">
+                            <strong data-dashboard-overdue="proceduresCount">0</strong>
+                            <span data-dashboard-overdue-rate="procedures">0%</span>
+                        </p>
+                        <p class="dashboard-overdue-card__hint" data-dashboard-overdue-context="procedures">из 0 процедур</p>
+                        <div class="dashboard-overdue-card__bar" aria-hidden="true">
+                            <span data-dashboard-overdue-bar="procedures"></span>
+                        </div>
+                    </article>
 
-        <section class="dashboard-panel">
-            <h2>Импортный конвейер</h2>
+                    <article class="dashboard-overdue-card dashboard-overdue-card--warning">
+                        <p class="dashboard-overdue-card__label">Договоры с просрочкой</p>
+                        <p class="dashboard-overdue-card__value">
+                            <strong data-dashboard-overdue="contractsCount">0</strong>
+                            <span data-dashboard-overdue-rate="contracts">0%</span>
+                        </p>
+                        <p class="dashboard-overdue-card__hint" data-dashboard-overdue-context="contracts">из 0 договоров</p>
+                        <div class="dashboard-overdue-card__bar" aria-hidden="true">
+                            <span data-dashboard-overdue-bar="contracts"></span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-overdue-card">
+                        <p class="dashboard-overdue-card__label">Просроченные этапы</p>
+                        <p class="dashboard-overdue-card__value">
+                            <strong data-dashboard-overdue="milestonesCount">0</strong>
+                            <span data-dashboard-overdue-rate="milestones">0%</span>
+                        </p>
+                        <p class="dashboard-overdue-card__hint" data-dashboard-overdue-context="milestones">доля среди всех просрочек</p>
+                        <div class="dashboard-overdue-card__bar" aria-hidden="true">
+                            <span data-dashboard-overdue-bar="milestones"></span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <details class="dashboard-disclosure dashboard-disclosure--import dashboard-panel dashboard-panel--import">
+        <summary>
+            <span>Импортный конвейер</span>
+            <span class="dashboard-disclosure__hint">развернуть</span>
+        </summary>
+        <div class="dashboard-disclosure__content">
             <ul class="dashboard-import-list">
                 <li>Исходные данные: загружено в очередь <strong data-dashboard-import="sourceUploadedCount">0</strong></li>
                 <li>Исходные данные: в обработке <strong data-dashboard-import="sourceProcessingCount">0</strong></li>
@@ -96,37 +246,27 @@
                 <li>Трассировка: пропущено групп <strong data-dashboard-import="traceSkippedGroupsCount">0</strong></li>
                 <li>Трассировка: создано уникальных лотов <strong data-dashboard-import="traceCreatedLotsCount">0</strong></li>
             </ul>
-        </section>
+        </div>
+    </details>
 
-        <section class="dashboard-panel dashboard-panel--analytics">
-            <h2>Аналитика показателей</h2>
-            <p class="dashboard-analytics-status" data-dashboard-analytics-status>Аналитический контур загружается...</p>
-            <ul class="dashboard-kpi-list">
-                <li>Лоты: Черновик / В закупке / Законтрактовано: <strong data-dashboard-analytics="lotFunnel">0 / 0 / 0</strong></li>
-                <li>Подрядчики: активных / перегруженных: <strong data-dashboard-analytics="contractorLoad">0 / 0</strong></li>
-                <li>Средняя загрузка подрядчиков: <strong data-dashboard-analytics="averageContractorLoad">н/д</strong></li>
-                <li>Средний рейтинг подрядчиков: <strong data-dashboard-analytics="averageContractorRating">н/д</strong></li>
-                <li>SLA: открытые предупреждения / просрочки: <strong data-dashboard-analytics="slaOpen">0 / 0</strong></li>
-                <li>Контрактование: действует / закрыто: <strong data-dashboard-analytics="contractingTotals">0 / 0</strong></li>
-                <li>MDR покрытие фактами: <strong data-dashboard-analytics="mdrFactCoverage">н/д</strong></li>
-                <li>Доля субподряда по человеко-часам: <strong data-dashboard-analytics="subcontractingShare">н/д</strong></li>
-            </ul>
-            <h3>Топ подрядчиков по рейтингу</h3>
-            <ul class="dashboard-top-contractors" data-dashboard-top-contractors></ul>
-        </section>
-    </div>
+    <details class="dashboard-disclosure dashboard-disclosure--tasks dashboard-panel dashboard-panel--tasks">
+        <summary>
+            <span>Мои задачи</span>
+            <span class="dashboard-disclosure__hint">развернуть</span>
+        </summary>
+        <div class="dashboard-disclosure__content">
+            <ul class="dashboard-tasks" data-dashboard-tasks></ul>
+        </div>
+    </details>
 
-    <section class="dashboard-panel dashboard-panel--tasks">
-        <h2>Мои задачи</h2>
-        <ul class="dashboard-tasks" data-dashboard-tasks></ul>
-    </section>
-
-    <header class="shell-panel__header dashboard-links-header">
-        <h2>Быстрая навигация</h2>
-        <p>Откройте нужный раздел для работы с реестрами, процессами и сервисными модулями.</p>
-    </header>
-
-    <div class="dashboard-grid">
+    <details class="dashboard-disclosure dashboard-disclosure--links dashboard-panel dashboard-panel--links">
+        <summary>
+            <span>Быстрая навигация</span>
+            <span class="dashboard-disclosure__hint">развернуть</span>
+        </summary>
+        <div class="dashboard-disclosure__content">
+            <p class="dashboard-links-intro">Откройте нужный раздел для работы с реестрами, процессами и сервисными модулями.</p>
+            <div class="dashboard-grid">
         <article class="card">
             <h2>Проекты</h2>
             <p>Реестр проектов с созданием, редактированием и просмотром ответственных лиц.</p>
@@ -167,9 +307,11 @@
             <p>Правила SLA, нарушения сроков, причины отклонений и запуск мониторинга.</p>
             <a asp-controller="Home" asp-action="Sla" class="card-link">Открыть контроль сроков</a>
         </article>
-    </div>
+            </div>
+        </div>
+    </details>
 </section>
 
 @section Scripts {
-    <script src="~/js/dashboard-page.js"></script>
+    <script src="~/js/bundles/dashboard-page.bundle.js" asp-append-version="true"></script>
 }

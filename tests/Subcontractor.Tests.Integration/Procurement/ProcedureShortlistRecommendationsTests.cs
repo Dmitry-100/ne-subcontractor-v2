@@ -79,6 +79,44 @@ public sealed class ProcedureShortlistRecommendationsTests
         Assert.Contains(logs, x => x.Reason == "Корректировка по автоподбору");
     }
 
+    [Fact]
+    public async Task ApplyShortlistRecommendationsAsync_WithZeroMaxAndEmptyReason_ShouldUseDefaultReasonAndClampLimit()
+    {
+        await using var db = TestDbContextFactory.Create("proc-user");
+        var setup = await SeedProcedureForRecommendationsAsync(db);
+
+        var contractorsService = new ContractorsService(db);
+        var service = new ProcurementProceduresService(db, new TestCurrentUserService("proc-user"), contractorsService);
+
+        await service.UpsertShortlistAsync(setup.ProcedureId, new UpdateProcedureShortlistRequest
+        {
+            Items =
+            [
+                new UpsertProcedureShortlistItemRequest
+                {
+                    ContractorId = setup.OverloadedContractorId,
+                    IsIncluded = true,
+                    SortOrder = 0
+                }
+            ]
+        });
+
+        var apply = await service.ApplyShortlistRecommendationsAsync(
+            setup.ProcedureId,
+            new ApplyProcedureShortlistRecommendationsRequest
+            {
+                MaxIncluded = 0,
+                AdjustmentReason = "  "
+            });
+
+        Assert.Equal(1, apply.IncludedCandidates);
+        Assert.Single(apply.Shortlist);
+        Assert.Equal(setup.RecommendedContractorId, apply.Shortlist[0].ContractorId);
+
+        var logs = await service.GetShortlistAdjustmentsAsync(setup.ProcedureId);
+        Assert.Contains(logs, x => x.Reason == "Auto shortlist apply");
+    }
+
     private static async Task<RecommendationSeedResult> SeedProcedureForRecommendationsAsync(
         Infrastructure.Persistence.AppDbContext db)
     {

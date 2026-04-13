@@ -4,6 +4,10 @@
         Configuration["UiAssets:DevExpress:UseLocal"],
         "true",
         StringComparison.OrdinalIgnoreCase);
+    var useLocalFallbackWhenCdnFails = !string.Equals(
+        Configuration["UiAssets:DevExpress:UseLocalFallbackWhenCdnFails"],
+        "false",
+        StringComparison.OrdinalIgnoreCase);
 
     var version = Configuration["UiAssets:DevExpress:Version"];
     if (string.IsNullOrWhiteSpace(version))
@@ -16,6 +20,11 @@
     {
         cdnBaseUrl = "https://cdn3.devexpress.com/jslib";
     }
+    var fallbackCdnBaseUrl = Configuration["UiAssets:DevExpress:FallbackCdnBaseUrl"];
+    if (string.IsNullOrWhiteSpace(fallbackCdnBaseUrl))
+    {
+        fallbackCdnBaseUrl = "https://cdn.jsdelivr.net/npm/devextreme-dist@{version}";
+    }
 
     var localBasePath = Configuration["UiAssets:DevExpress:LocalBasePath"];
     if (string.IsNullOrWhiteSpace(localBasePath))
@@ -26,23 +35,61 @@
     var normalizedCdnBaseUrl = cdnBaseUrl.Contains("{version}", StringComparison.OrdinalIgnoreCase)
         ? cdnBaseUrl.Replace("{version}", version, StringComparison.OrdinalIgnoreCase).TrimEnd('/')
         : $"{cdnBaseUrl.TrimEnd('/')}/{version}";
+    var normalizedFallbackCdnBaseUrl = fallbackCdnBaseUrl.Contains("{version}", StringComparison.OrdinalIgnoreCase)
+        ? fallbackCdnBaseUrl.Replace("{version}", version, StringComparison.OrdinalIgnoreCase).TrimEnd('/')
+        : $"{fallbackCdnBaseUrl.TrimEnd('/')}/{version}";
     var normalizedLocalBasePath = localBasePath.TrimEnd('/');
     var jqueryCdnUrl = Configuration["UiAssets:DevExpress:JqueryCdnUrl"];
     if (string.IsNullOrWhiteSpace(jqueryCdnUrl))
     {
         jqueryCdnUrl = "https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js";
     }
+    var jqueryFallbackCdnUrl = Configuration["UiAssets:DevExpress:JqueryFallbackCdnUrl"];
+    if (string.IsNullOrWhiteSpace(jqueryFallbackCdnUrl))
+    {
+        jqueryFallbackCdnUrl = "https://code.jquery.com/jquery-3.7.1.min.js";
+    }
     var jquerySource = useLocal
         ? $"{normalizedLocalBasePath}/js/jquery.min.js"
         : jqueryCdnUrl;
+    var jqueryFallbackSource = useLocal
+        ? jquerySource
+        : jqueryFallbackCdnUrl;
+    var jqueryLocalSource = $"{normalizedLocalBasePath}/js/jquery.min.js";
     var dxAllSource = useLocal
         ? $"{normalizedLocalBasePath}/js/dx.all.js"
         : $"{normalizedCdnBaseUrl}/js/dx.all.js";
+    var dxAllFallbackSource = useLocal
+        ? dxAllSource
+        : $"{normalizedFallbackCdnBaseUrl}/js/dx.all.js";
+    var dxAllLocalSource = $"{normalizedLocalBasePath}/js/dx.all.js";
     var dxRuMessagesSource = useLocal
         ? $"{normalizedLocalBasePath}/js/localization/dx.messages.ru.js"
         : $"{normalizedCdnBaseUrl}/js/localization/dx.messages.ru.js";
+    var dxRuMessagesFallbackSource = useLocal
+        ? dxRuMessagesSource
+        : $"{normalizedFallbackCdnBaseUrl}/js/localization/dx.messages.ru.js";
+    var dxRuMessagesLocalSource = $"{normalizedLocalBasePath}/js/localization/dx.messages.ru.js";
+    var jqueryOnError = useLocalFallbackWhenCdnFails
+        ? $"if(this.dataset.fallbackLevel==='2'){{return;}}if(this.dataset.fallbackLevel==='1'){{this.dataset.fallbackLevel='2';this.src='{jqueryLocalSource}';return;}}this.dataset.fallbackLevel='1';this.src='{jqueryFallbackSource}';"
+        : $"if(this.dataset.fallbackLevel==='1'){{return;}}this.dataset.fallbackLevel='1';this.src='{jqueryFallbackSource}';";
+    var dxAllOnError = useLocalFallbackWhenCdnFails
+        ? $"if(this.dataset.fallbackLevel==='2'){{return;}}if(this.dataset.fallbackLevel==='1'){{this.dataset.fallbackLevel='2';this.src='{dxAllLocalSource}';return;}}this.dataset.fallbackLevel='1';this.src='{dxAllFallbackSource}';"
+        : $"if(this.dataset.fallbackLevel==='1'){{return;}}this.dataset.fallbackLevel='1';this.src='{dxAllFallbackSource}';";
+    var dxRuOnError = useLocalFallbackWhenCdnFails
+        ? $"if(this.dataset.fallbackLevel==='2'){{return;}}if(this.dataset.fallbackLevel==='1'){{this.dataset.fallbackLevel='2';this.src='{dxRuMessagesLocalSource}';return;}}this.dataset.fallbackLevel='1';this.src='{dxRuMessagesFallbackSource}';"
+        : $"if(this.dataset.fallbackLevel==='1'){{return;}}this.dataset.fallbackLevel='1';this.src='{dxRuMessagesFallbackSource}';";
 }
-<script src="@jquerySource"></script>
-<script src="@dxAllSource"></script>
-<script src="@dxRuMessagesSource"></script>
-<script src="~/js/app-locale-ru.js"></script>
+@if (useLocal)
+{
+    <script src="@jquerySource" asp-append-version="true"></script>
+    <script src="@dxAllSource" asp-append-version="true"></script>
+    <script src="@dxRuMessagesSource" asp-append-version="true"></script>
+}
+else
+{
+    <script src="@jquerySource" onerror="@jqueryOnError"></script>
+    <script src="@dxAllSource" onerror="@dxAllOnError"></script>
+    <script src="@dxRuMessagesSource" onerror="@dxRuOnError"></script>
+}
+<script src="~/js/app-locale-ru.js" asp-append-version="true"></script>

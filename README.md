@@ -462,6 +462,43 @@ Notes:
 - `src/Subcontractor.Web/appsettings.Development.json` is preconfigured for local SQL auth (`sa` on `localhost:1433`).
 - If port `5080` is busy, stop old process first: `lsof -nP -iTCP:5080 -sTCP:LISTEN`.
 
+## SQL-backed tests (real SQL Server contour)
+
+Fast integration tests still run on `EF Core InMemory`, but SQL-backed tests are available in a dedicated project:
+
+- `tests/Subcontractor.Tests.SqlServer`.
+
+Enable SQL-backed tests:
+
+```bash
+export SUBCONTRACTOR_SQL_TESTS=1
+```
+
+Optionally override server-level SQL connection string:
+
+```bash
+export SUBCONTRACTOR_SQL_TEST_SERVER_CONNECTION='Server=localhost,1433;User Id=sa;Password=YourStr0ng!Passw0rd;TrustServerCertificate=True;Encrypt=False'
+```
+
+Run only SQL-backed contour:
+
+```bash
+dotnet test tests/Subcontractor.Tests.SqlServer/Subcontractor.Tests.SqlServer.csproj --verbosity minimal
+```
+
+Run PR/develop core subset:
+
+```bash
+dotnet test tests/Subcontractor.Tests.SqlServer/Subcontractor.Tests.SqlServer.csproj --filter "SqlSuite=Core" --verbosity minimal
+```
+
+Notes:
+
+- each test creates a temporary DB, applies EF migrations, sets compatibility level `130`, and drops DB after completion;
+- current SQL regression baseline: `17` meaningful tests (`15 core` + `2 full`) across schema + Contracts/Procurement/Imports/SLA/ContractorRatings/Analytics/Projects + DB delete behavior checks;
+- SQL suite is configured for sequential execution to reduce flakiness in early contour adoption;
+- if `SUBCONTRACTOR_SQL_TESTS` is not set, SQL-backed tests are skipped by design.
+
 ## Project layout
 
 ```text
@@ -481,9 +518,10 @@ scripts/
 
 1. Execute backup/restore drill on production-like stand and capture timings/RPO-RTO evidence.
 2. Run deployment rehearsal with CI/CD environment secrets and rollback checklist.
-3. Attach SQL Server staging performance evidence (execution plans + index usage) to `docs/performance-report-v1.md`.
+3. Run unified staging evidence contour (`BASE_URL=<stand-url> npm run perf:staging-evidence --`, full profile `BASE_URL=<stand-url> npm run perf:staging-evidence:full --`, local full profile with SQL capture via docker fallback: `BASE_URL=http://127.0.0.1:5080 npm run perf:staging-evidence:full:local-sql --`) and attach SQL Server execution plans + IO/TIME evidence to `docs/performance-report-v2.md`.
 4. Validate SMTP routing and AD/LDAP identities on pilot stand with real infrastructure accounts.
-5. Define production schedule ownership for background jobs (SLA + rating) and enable one active host role per job.
+5. Keep host-topology policy guard green (`npm run check:host-topology`) and define production schedule ownership for background jobs (SLA + rating) with one active host role per job; verify `BackgroundJobs` worker defaults (`SlaMonitoring.WorkerEnabled=true`, `ContractorRating.WorkerEnabled=true`).
+6. Keep dependency governance guardrails green (`bash scripts/ci/check-dotnet-vulnerabilities.sh` + `npm run check:dotnet-outdated-budget`) and review `nuget-outdated-summary.txt` deltas before release.
 
 ## API endpoints implemented
 
