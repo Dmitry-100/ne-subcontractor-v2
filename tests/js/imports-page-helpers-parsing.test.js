@@ -12,8 +12,13 @@ function createParsingHelpers() {
     return parsingModule.createParsingHelpers({
         fieldDefinitions: [
             { key: "projectCode", synonyms: ["projectcode", "project"] },
+            { key: "complexProjectName", synonyms: ["complexproject"] },
+            { key: "projectName", synonyms: ["projectname"] },
             { key: "objectWbs", synonyms: ["objectwbs", "wbs"] },
             { key: "disciplineCode", synonyms: ["disciplinecode", "discipline"] },
+            { key: "resourceDisciplineName", synonyms: ["resourcediscipline"] },
+            { key: "branchOfficeName", synonyms: ["branch"] },
+            { key: "gipName", synonyms: ["gip"] },
             { key: "manHours", synonyms: ["manhours", "hours"] },
             { key: "plannedStartDate", synonyms: ["plannedstartdate", "start"] },
             { key: "plannedFinishDate", synonyms: ["plannedfinishdate", "finish"] }
@@ -57,12 +62,17 @@ test("imports-page helpers parsing: derives columns and builds mapping with head
 
 test("imports-page helpers parsing: applies positional fallback mapping without header", () => {
     const helpers = createParsingHelpers();
-    const mapping = helpers.buildAutoMapping(["A", "B", "C", "D", "E", "F"], false);
+    const mapping = helpers.buildAutoMapping(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"], false);
 
     assert.equal(mapping.projectCode, 0);
-    assert.equal(mapping.objectWbs, 1);
-    assert.equal(mapping.disciplineCode, 2);
-    assert.equal(mapping.manHours, 3);
-    assert.equal(mapping.plannedStartDate, 4);
-    assert.equal(mapping.plannedFinishDate, 5);
+    assert.equal(mapping.complexProjectName, 1);
+    assert.equal(mapping.projectName, 2);
+    assert.equal(mapping.objectWbs, 3);
+    assert.equal(mapping.disciplineCode, 4);
+    assert.equal(mapping.resourceDisciplineName, 5);
+    assert.equal(mapping.branchOfficeName, 6);
+    assert.equal(mapping.gipName, 7);
+    assert.equal(mapping.manHours, 8);
+    assert.equal(mapping.plannedStartDate, 9);
+    assert.equal(mapping.plannedFinishDate, 10);
 });

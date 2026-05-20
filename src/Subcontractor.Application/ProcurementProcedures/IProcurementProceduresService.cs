@@ -20,6 +20,9 @@ public interface IProcurementProceduresService
 
     Task<ProcedureDetailsDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ProcedureDetailsDto> CreateAsync(CreateProcedureRequest request, CancellationToken cancellationToken = default);
+    Task<ProcedureFromSourceDataResultDto> CreateFromSourceDataAsync(
+        CreateProcedureFromSourceDataRequest request,
+        CancellationToken cancellationToken = default);
     Task<ProcedureDetailsDto?> UpdateAsync(Guid id, UpdateProcedureRequest request, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ProcedureStatusHistoryItemDto?> TransitionAsync(

@@ -224,3 +224,69 @@ test("projects runtime: load supports paged payload and returns data/totalCount"
         isError: false
     });
 });
+
+test("projects runtime: source-data store loads latest Express rows and reports batch", async () => {
+    const calls = [];
+    const statuses = [];
+
+    function CustomStoreStub(config) {
+        return config;
+    }
+
+    const runtime = projectsRuntimeModule.createRuntime({
+        apiClient: {
+            getProjects: async function () { return []; },
+            getLatestSourceDataRows: async function (search, paging) {
+                calls.push({ search: search, paging: paging });
+                return {
+                    batchFileName: "20260423-Модуль. Субподрядчик.xlsx",
+                    items: [
+                        {
+                            id: "row-1",
+                            projectCode: "25-089",
+                            complexProjectName: "AA",
+                            projectName: "ЦХПП",
+                            objectWbs: "1",
+                            resourceDisciplineName: "01.6 Отдел технологического проектирования (механики)",
+                            branchOfficeName: "Екатеринбург",
+                            gipName: "Иванов Иван Иванович",
+                            manHours: 635.2,
+                            plannedStartDate: "2026-03-30T00:00:00",
+                            plannedFinishDate: "2026-06-01T00:00:00"
+                        }
+                    ],
+                    totalCount: 25,
+                    skip: paging?.skip ?? 0,
+                    take: paging?.take ?? 15
+                };
+            },
+            createProject: async function () { return null; },
+            updateProject: async function () { return null; },
+            deleteProject: async function () {}
+        },
+        helpers: createHelpers(),
+        customStoreCtor: CustomStoreStub,
+        setStatus: function () {},
+        setSourceStatus: function (message, isError) {
+            statuses.push({ message: message, isError: isError });
+        }
+    });
+
+    const store = runtime.createSourceDataStore();
+    const result = await store.load({ skip: 0, take: 15 });
+
+    assert.deepEqual(calls, [{
+        search: null,
+        paging: {
+            skip: 0,
+            take: 15,
+            requireTotalCount: true
+        }
+    }]);
+    assert.equal(result.totalCount, 25);
+    assert.equal(result.data[0].projectCode, "25-089");
+    assert.deepEqual(statuses.at(-1), {
+        message: "Загружены строки Express: 1 (всего: 25). Источник: 20260423-Модуль. Субподрядчик.xlsx.",
+        isError: false
+    });
+});

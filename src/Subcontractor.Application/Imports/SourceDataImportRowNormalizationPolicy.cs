@@ -8,12 +8,22 @@ internal static class SourceDataImportRowNormalizationPolicy
     internal static NormalizedSourceDataImportRow NormalizeForValidation(
         CreateSourceDataImportRowRequest request,
         int fallbackRowNumber,
-        IReadOnlySet<string> existingProjectCodes)
+        IReadOnlySet<string> existingProjectCodes,
+        IReadOnlyDictionary<string, IReadOnlyList<string>>? mappingsByResource = null)
     {
         var rowNumber = request.RowNumber > 0 ? request.RowNumber : fallbackRowNumber;
         var projectCode = (request.ProjectCode ?? string.Empty).Trim().ToUpperInvariant();
+        var projectName = DisciplineMappingPolicy.NormalizeDisplayText(request.ProjectName);
+        var complexProjectName = DisciplineMappingPolicy.NormalizeDisplayText(request.ComplexProjectName);
         var objectWbs = (request.ObjectWbs ?? string.Empty).Trim();
-        var disciplineCode = (request.DisciplineCode ?? string.Empty).Trim().ToUpperInvariant();
+        var resourceDisciplineName = DisciplineMappingPolicy.NormalizeDisplayText(request.ResourceDisciplineName);
+        var disciplineResolution = DisciplineMappingPolicy.ResolveProjectDiscipline(
+            NormalizeDisciplineCode(request.DisciplineCode),
+            resourceDisciplineName,
+            mappingsByResource ?? EmptyDisciplineMappings);
+        var disciplineCode = NormalizeDisciplineCode(disciplineResolution.ProjectDisciplineName);
+        var branchOfficeName = DisciplineMappingPolicy.NormalizeDisplayText(request.BranchOfficeName);
+        var gipName = DisciplineMappingPolicy.NormalizeDisplayText(request.GipName);
 
         var errors = new List<string>();
 
@@ -31,7 +41,11 @@ internal static class SourceDataImportRowNormalizationPolicy
             errors.Add("objectWbs is required");
         }
 
-        if (string.IsNullOrWhiteSpace(disciplineCode))
+        if (!string.IsNullOrWhiteSpace(disciplineResolution.ErrorMessage))
+        {
+            errors.Add(disciplineResolution.ErrorMessage);
+        }
+        else if (string.IsNullOrWhiteSpace(disciplineCode))
         {
             errors.Add("disciplineCode is required");
         }
@@ -51,8 +65,13 @@ internal static class SourceDataImportRowNormalizationPolicy
         return new NormalizedSourceDataImportRow(
             rowNumber,
             projectCode,
+            projectName,
+            complexProjectName,
             objectWbs,
             disciplineCode,
+            resourceDisciplineName,
+            branchOfficeName,
+            gipName,
             request.ManHours,
             request.PlannedStartDate,
             request.PlannedFinishDate,
@@ -69,8 +88,13 @@ internal static class SourceDataImportRowNormalizationPolicy
         return new NormalizedSourceDataImportRow(
             rowNumber,
             (request.ProjectCode ?? string.Empty).Trim().ToUpperInvariant(),
+            DisciplineMappingPolicy.NormalizeDisplayText(request.ProjectName),
+            DisciplineMappingPolicy.NormalizeDisplayText(request.ComplexProjectName),
             (request.ObjectWbs ?? string.Empty).Trim(),
-            (request.DisciplineCode ?? string.Empty).Trim().ToUpperInvariant(),
+            NormalizeDisciplineCode(request.DisciplineCode),
+            DisciplineMappingPolicy.NormalizeDisplayText(request.ResourceDisciplineName),
+            DisciplineMappingPolicy.NormalizeDisplayText(request.BranchOfficeName),
+            DisciplineMappingPolicy.NormalizeDisplayText(request.GipName),
             request.ManHours,
             request.PlannedStartDate,
             request.PlannedFinishDate,
@@ -84,8 +108,13 @@ internal static class SourceDataImportRowNormalizationPolicy
         {
             RowNumber = normalized.RowNumber,
             ProjectCode = normalized.ProjectCode,
+            ProjectName = normalized.ProjectName,
+            ComplexProjectName = normalized.ComplexProjectName,
             ObjectWbs = normalized.ObjectWbs,
             DisciplineCode = normalized.DisciplineCode,
+            ResourceDisciplineName = normalized.ResourceDisciplineName,
+            BranchOfficeName = normalized.BranchOfficeName,
+            GipName = normalized.GipName,
             ManHours = normalized.ManHours,
             PlannedStartDate = normalized.PlannedStartDate,
             PlannedFinishDate = normalized.PlannedFinishDate,
@@ -98,21 +127,47 @@ internal static class SourceDataImportRowNormalizationPolicy
     {
         row.RowNumber = normalized.RowNumber;
         row.ProjectCode = normalized.ProjectCode;
+        row.ProjectName = normalized.ProjectName;
+        row.ComplexProjectName = normalized.ComplexProjectName;
         row.ObjectWbs = normalized.ObjectWbs;
         row.DisciplineCode = normalized.DisciplineCode;
+        row.ResourceDisciplineName = normalized.ResourceDisciplineName;
+        row.BranchOfficeName = normalized.BranchOfficeName;
+        row.GipName = normalized.GipName;
         row.ManHours = normalized.ManHours;
         row.PlannedStartDate = normalized.PlannedStartDate;
         row.PlannedFinishDate = normalized.PlannedFinishDate;
         row.IsValid = normalized.IsValid;
         row.ValidationMessage = normalized.ValidationMessage;
     }
+
+    private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyDisciplineMappings =
+        new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+
+    private static string NormalizeDisciplineCode(string? value)
+    {
+        var normalized = DisciplineMappingPolicy.NormalizeDisplayText(value);
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return string.Empty;
+        }
+
+        return normalized.Any(x => x > 127 || char.IsWhiteSpace(x))
+            ? normalized
+            : normalized.ToUpperInvariant();
+    }
 }
 
 internal sealed record NormalizedSourceDataImportRow(
     int RowNumber,
     string ProjectCode,
+    string ProjectName,
+    string ComplexProjectName,
     string ObjectWbs,
     string DisciplineCode,
+    string ResourceDisciplineName,
+    string BranchOfficeName,
+    string GipName,
     decimal ManHours,
     DateTime? PlannedStartDate,
     DateTime? PlannedFinishDate,

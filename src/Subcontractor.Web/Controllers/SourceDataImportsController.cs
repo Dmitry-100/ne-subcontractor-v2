@@ -41,8 +41,8 @@ public sealed class SourceDataImportsController : ApiControllerBase
     public IActionResult DownloadTemplate()
     {
         const string content =
-            "RowNumber,ProjectCode,ObjectWbs,DisciplineCode,ManHours,PlannedStartDate,PlannedFinishDate\n" +
-            "1,PRJ-001,A.01.02,PIPING,240.5,2026-09-10,2026-10-05\n";
+            "проект номер,Комплекс/проект,Проект,Объект,Проектная дисциплина,Дисциплина-ресурс,Филиал_исп,ГИП,\"Загр НИ, чел-час\",Start,Finish\n" +
+            "25-089,AA,ЦХПП,1,Технологическая компоновка и обвязка промышленных объектов,01.6 Отдел технологического проектирования (механики),Екатеринбург,Иванов Иван Иванович,635.2,2026-03-30,2026-06-01\n";
 
         return File(
             Encoding.UTF8.GetBytes(content),
@@ -94,6 +94,30 @@ public sealed class SourceDataImportsController : ApiControllerBase
         try
         {
             var result = await _sourceDataImportsService.TransitionBatchStatusAsync(id, request, cancellationToken);
+            return result is null
+                ? NotFoundProblem($"Пакет импорта '{id}' не найден.")
+                : Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ConflictProblem(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequestProblem(ex.Message);
+        }
+    }
+
+    [HttpPost("{id:guid}/discipline-resolutions")]
+    [Authorize(Policy = PolicyCodes.ImportsWrite)]
+    public async Task<ActionResult<SourceDataImportBatchDetailsDto>> ApplyDisciplineResolutions(
+        [FromRoute] Guid id,
+        [FromBody] ApplyDisciplineResolutionsRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _sourceDataImportsService.ApplyDisciplineResolutionsAsync(id, request, cancellationToken);
             return result is null
                 ? NotFoundProblem($"Пакет импорта '{id}' не найден.")
                 : Ok(result);

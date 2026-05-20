@@ -1,4 +1,5 @@
 using Subcontractor.Application.Projects;
+using Subcontractor.Domain.Imports;
 using Subcontractor.Domain.Projects;
 using Subcontractor.Domain.Users;
 using Subcontractor.Tests.Integration.TestInfrastructure;
@@ -83,6 +84,111 @@ public sealed class ProjectReadQueryServiceTests
         Assert.Collection(result.Items,
             x => Assert.Equal("PRJ-P-002", x.Code),
             x => Assert.Equal("PRJ-P-003", x.Code));
+    }
+
+    [Fact]
+    public async Task ListLatestSourceDataPageAsync_ShouldReturnLatestExpressRowsWithImportedExcelShape()
+    {
+        await using var db = TestDbContextFactory.Create();
+        var olderBatch = new SourceDataImportBatch
+        {
+            FileName = "older.xlsx",
+            Status = SourceDataImportBatchStatus.Validated,
+            TotalRows = 1,
+            ValidRows = 1,
+            InvalidRows = 0
+        };
+        olderBatch.Rows.Add(new SourceDataImportRow
+        {
+            RowNumber = 2,
+            ProjectCode = "OLD-001",
+            ProjectName = "Старый проект",
+            ComplexProjectName = "OLD",
+            ObjectWbs = "1",
+            DisciplineCode = "Old discipline",
+            ResourceDisciplineName = "Old resource",
+            BranchOfficeName = "Липецк",
+            GipName = "Старый ГИП",
+            ManHours = 1m,
+            PlannedStartDate = new DateTime(2026, 1, 1),
+            PlannedFinishDate = new DateTime(2026, 1, 2),
+            IsValid = true
+        });
+
+        var latestBatch = new SourceDataImportBatch
+        {
+            FileName = "20260423-Модуль. Субподрядчик.xlsx",
+            Status = SourceDataImportBatchStatus.ValidatedWithErrors,
+            TotalRows = 2,
+            ValidRows = 1,
+            InvalidRows = 1
+        };
+        latestBatch.Rows.Add(new SourceDataImportRow
+        {
+            RowNumber = 2,
+            ProjectCode = "25-089",
+            ProjectName = "ЦХПП",
+            ComplexProjectName = "AA",
+            ObjectWbs = "1",
+            DisciplineCode = "Технологическая компоновка и обвязка промышленных объектов",
+            ResourceDisciplineName = "01.6 Отдел технологического проектирования (механики)",
+            BranchOfficeName = "Екатеринбург",
+            GipName = "Иванов Иван Иванович",
+            ManHours = 635.2m,
+            PlannedStartDate = new DateTime(2026, 3, 30),
+            PlannedFinishDate = new DateTime(2026, 6, 1),
+            IsValid = true
+        });
+        latestBatch.Rows.Add(new SourceDataImportRow
+        {
+            RowNumber = 3,
+            ProjectCode = "24-242",
+            ProjectName = "ДЦ-1",
+            ComplexProjectName = "BB",
+            ObjectWbs = "1",
+            DisciplineCode = "Технологическая компоновка и обвязка промышленных объектов",
+            ResourceDisciplineName = "01.6 Отдел технологического проектирования (механики)",
+            BranchOfficeName = "Липецк",
+            GipName = "Иванов Иван Иванович",
+            ManHours = 10.4m,
+            PlannedStartDate = new DateTime(2026, 3, 30),
+            PlannedFinishDate = new DateTime(2026, 3, 30),
+            IsValid = false,
+            ValidationMessage = "Проверка"
+        });
+
+        await db.Set<SourceDataImportBatch>().AddAsync(olderBatch);
+        await db.SaveChangesAsync();
+        olderBatch.CreatedAtUtc = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        await db.SaveChangesAsync();
+
+        await db.Set<SourceDataImportBatch>().AddAsync(latestBatch);
+        await db.SaveChangesAsync();
+
+        var scopeResolver = new ProjectScopeResolverService(db, new TestCurrentUserService("system"));
+        var service = new ProjectReadQueryService(db, scopeResolver);
+
+        var result = await service.ListLatestSourceDataPageAsync(search: null, skip: 0, take: 10);
+
+        Assert.Equal(latestBatch.Id, result.BatchId);
+        Assert.Equal("20260423-Модуль. Субподрядчик.xlsx", result.BatchFileName);
+        Assert.Equal(SourceDataImportBatchStatus.ValidatedWithErrors, result.BatchStatus);
+        Assert.Equal(2, result.TotalCount);
+        Assert.Collection(result.Items,
+            row =>
+            {
+                Assert.Equal("25-089", row.ProjectCode);
+                Assert.Equal("AA", row.ComplexProjectName);
+                Assert.Equal("ЦХПП", row.ProjectName);
+                Assert.Equal("1", row.ObjectWbs);
+                Assert.Equal("01.6 Отдел технологического проектирования (механики)", row.ResourceDisciplineName);
+                Assert.Equal("Екатеринбург", row.BranchOfficeName);
+                Assert.Equal("Иванов Иван Иванович", row.GipName);
+                Assert.Equal(635.2m, row.ManHours);
+                Assert.Equal(new DateTime(2026, 3, 30), row.PlannedStartDate);
+                Assert.Equal(new DateTime(2026, 6, 1), row.PlannedFinishDate);
+            },
+            row => Assert.Equal("24-242", row.ProjectCode));
     }
 
     private static AppUser CreateUser(string login)

@@ -48,6 +48,13 @@ public sealed class HomeController : Controller
         return View();
     }
 
+    [HttpGet("/reference-data")]
+    [HttpGet("/Home/ReferenceData")]
+    public IActionResult ReferenceData()
+    {
+        return View();
+    }
+
     [HttpGet("/admin")]
     [HttpGet("/Home/Admin")]
     public IActionResult Admin()

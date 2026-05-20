@@ -115,3 +115,92 @@ test("imports workbook: parseWorkbookFile returns filtered non-empty rows", asyn
         ["value1", "value2"]
     ]);
 });
+
+test("imports workbook: parseWorkbookFile prefers Express source-data sheet", async () => {
+    const selectedSheets = [];
+    const warnings = [];
+
+    const parser = workbookModule.createWorkbookParser({
+        getSheetJs: function () {
+            return {
+                read: function () {
+                    return {
+                        SheetNames: ["README", "данные из экспресс", "выбр дисциплины"],
+                        Sheets: {
+                            README: { id: "readme" },
+                            "данные из экспресс": { id: "express" },
+                            "выбр дисциплины": { id: "disciplines" }
+                        }
+                    };
+                },
+                utils: {
+                    sheet_to_json: function (sheet) {
+                        selectedSheets.push(sheet.id);
+                        return [["проект номер"], ["25-089"]];
+                    }
+                }
+            };
+        },
+        isRowEmpty: function () {
+            return false;
+        },
+        preferredSheetNames: ["данные из экспресс"],
+        onSheetWarning: function (message) {
+            warnings.push(message);
+        }
+    });
+
+    const rows = await parser.parseWorkbookFile({
+        arrayBuffer: async function () {
+            return new ArrayBuffer(8);
+        }
+    });
+
+    assert.deepEqual(selectedSheets, ["express"]);
+    assert.deepEqual(rows, [["проект номер"], ["25-089"]]);
+    assert.deepEqual(warnings, []);
+});
+
+test("imports workbook: parseWorkbookFile warns and falls back when Express sheet is absent", async () => {
+    const selectedSheets = [];
+    const warnings = [];
+
+    const parser = workbookModule.createWorkbookParser({
+        getSheetJs: function () {
+            return {
+                read: function () {
+                    return {
+                        SheetNames: ["Sheet1"],
+                        Sheets: {
+                            Sheet1: { id: "sheet-1" }
+                        }
+                    };
+                },
+                utils: {
+                    sheet_to_json: function (sheet) {
+                        selectedSheets.push(sheet.id);
+                        return [["проект номер"], ["25-089"]];
+                    }
+                }
+            };
+        },
+        isRowEmpty: function () {
+            return false;
+        },
+        preferredSheetNames: ["данные из экспресс"],
+        onSheetWarning: function (message) {
+            warnings.push(message);
+        }
+    });
+
+    await parser.parseWorkbookFile({
+        arrayBuffer: async function () {
+            return new ArrayBuffer(8);
+        }
+    });
+
+    assert.deepEqual(selectedSheets, ["sheet-1"]);
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /данные из экспресс/i);
+    assert.match(warnings[0], /Sheet1/i);
+});

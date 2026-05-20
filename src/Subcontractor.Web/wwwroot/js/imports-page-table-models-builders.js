@@ -23,8 +23,11 @@
             headers: [
                 "Строка",
                 "Код проекта",
+                "Комплекс/проект",
+                "Проект",
                 "Объект WBS",
-                "Код дисциплины",
+                "Проектная дисциплина",
+                "Дисциплина-ресурс",
                 "Трудозатраты",
                 "План. начало",
                 "План. окончание",
@@ -36,8 +39,11 @@
                     cells: [
                         row.rowNumber,
                         row.projectCode,
+                        row.complexProjectName || "",
+                        row.projectName || "",
                         row.objectWbs,
                         row.disciplineCode,
+                        row.resourceDisciplineName || "",
                         row.manHours,
                         row.plannedStartDate || "",
                         row.plannedFinishDate || "",
@@ -99,8 +105,11 @@
             headers: [
                 "Строка",
                 "Код проекта",
+                "Комплекс/проект",
+                "Проект",
                 "Объект WBS",
-                "Код дисциплины",
+                "Проектная дисциплина",
+                "Дисциплина-ресурс",
                 "Трудозатраты",
                 "Сообщение валидации"
             ],
@@ -109,8 +118,11 @@
                     cells: [
                         row.rowNumber,
                         row.projectCode,
+                        row.complexProjectName || "",
+                        row.projectName || "",
                         row.objectWbs,
                         row.disciplineCode,
+                        row.resourceDisciplineName || "",
                         row.manHours,
                         row.validationMessage || ""
                     ]

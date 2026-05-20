@@ -20,14 +20,19 @@ test("imports config: createConfig returns required limits and dictionaries", ()
 test("imports config: createConfig exposes canonical field definitions", () => {
     const config = configModule.createConfig();
 
-    assert.equal(config.fieldDefinitions.length, 7);
+    assert.equal(config.fieldDefinitions.length, 12);
     assert.deepEqual(config.fieldDefinitions.map(function (field) {
         return field.key;
     }), [
         "rowNumber",
         "projectCode",
+        "complexProjectName",
+        "projectName",
         "objectWbs",
         "disciplineCode",
+        "resourceDisciplineName",
+        "branchOfficeName",
+        "gipName",
         "manHours",
         "plannedStartDate",
         "plannedFinishDate"

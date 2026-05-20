@@ -17,8 +17,13 @@ function createHelpers() {
         fieldDefinitions: [
             { key: "rowNumber", required: false, synonyms: ["row"] },
             { key: "projectCode", required: true, synonyms: ["projectcode", "project"] },
+            { key: "complexProjectName", required: false, synonyms: ["complexproject"] },
+            { key: "projectName", required: false, synonyms: ["projectname"] },
             { key: "objectWbs", required: true, synonyms: ["objectwbs", "wbs"] },
             { key: "disciplineCode", required: true, synonyms: ["disciplinecode", "discipline"] },
+            { key: "resourceDisciplineName", required: false, synonyms: ["resourcediscipline"] },
+            { key: "branchOfficeName", required: false, synonyms: ["branch"] },
+            { key: "gipName", required: false, synonyms: ["gip"] },
             { key: "manHours", required: true, synonyms: ["manhours", "hours"] },
             { key: "plannedStartDate", required: false, synonyms: ["plannedstartdate", "start"] },
             { key: "plannedFinishDate", required: false, synonyms: ["plannedfinishdate", "finish"] }
@@ -59,13 +64,51 @@ test("imports-page helpers: build auto mapping with and without header", () => {
     assert.equal(withHeader.disciplineCode, 2);
     assert.equal(withHeader.manHours, 3);
 
-    const noHeader = helpers.buildAutoMapping(["A", "B", "C", "D", "E", "F"], false);
+    const noHeader = helpers.buildAutoMapping(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"], false);
     assert.equal(noHeader.projectCode, 0);
-    assert.equal(noHeader.objectWbs, 1);
-    assert.equal(noHeader.disciplineCode, 2);
-    assert.equal(noHeader.manHours, 3);
-    assert.equal(noHeader.plannedStartDate, 4);
-    assert.equal(noHeader.plannedFinishDate, 5);
+    assert.equal(noHeader.complexProjectName, 1);
+    assert.equal(noHeader.projectName, 2);
+    assert.equal(noHeader.objectWbs, 3);
+    assert.equal(noHeader.disciplineCode, 4);
+    assert.equal(noHeader.resourceDisciplineName, 5);
+    assert.equal(noHeader.branchOfficeName, 6);
+    assert.equal(noHeader.gipName, 7);
+    assert.equal(noHeader.manHours, 8);
+    assert.equal(noHeader.plannedStartDate, 9);
+    assert.equal(noHeader.plannedFinishDate, 10);
+});
+
+test("imports-page helpers: build auto mapping recognizes Express headers with punctuation", () => {
+    const helpers = helpersModule.createHelpers({
+        importStatusLabels: {},
+        fieldDefinitions: [
+            { key: "projectCode", required: true, synonyms: ["проектномер"] },
+            { key: "complexProjectName", required: false, synonyms: ["комплекспроект"] },
+            { key: "projectName", required: false, synonyms: ["проект"] },
+            { key: "resourceDisciplineName", required: false, synonyms: ["дисциплинаресурс"] },
+            { key: "branchOfficeName", required: false, synonyms: ["филиалисп"] },
+            { key: "gipName", required: false, synonyms: ["гип"] },
+            { key: "manHours", required: true, synonyms: ["загрничелчас"] }
+        ]
+    });
+
+    const mapping = helpers.buildAutoMapping([
+        "проект номер",
+        "Комплекс/проект",
+        "Проект",
+        "Дисциплина-ресурс",
+        "Филиал_исп",
+        "ГИП",
+        "Загр НИ, чел-час"
+    ], true);
+
+    assert.equal(mapping.projectCode, 0);
+    assert.equal(mapping.complexProjectName, 1);
+    assert.equal(mapping.projectName, 2);
+    assert.equal(mapping.resourceDisciplineName, 3);
+    assert.equal(mapping.branchOfficeName, 4);
+    assert.equal(mapping.gipName, 5);
+    assert.equal(mapping.manHours, 6);
 });
 
 test("imports-page helpers: mapRawRow builds valid row payload", () => {
@@ -113,7 +156,7 @@ test("imports-page helpers: mapRawRow collects validation errors", () => {
     assert.equal(row.isLocallyValid, false);
     assert.match(row.localValidationMessage, /Код проекта обязателен/);
     assert.match(row.localValidationMessage, /Объект WBS обязателен/);
-    assert.match(row.localValidationMessage, /Код дисциплины обязателен/);
+    assert.match(row.localValidationMessage, /Нужна проектная дисциплина или дисциплина-ресурс/);
     assert.match(row.localValidationMessage, /Трудозатраты не могут быть отрицательными/);
     assert.match(row.localValidationMessage, /Плановая дата начала должна быть <= плановой дате окончания/);
 });

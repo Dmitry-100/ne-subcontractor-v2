@@ -23,15 +23,17 @@ test("imports table models: createTableModels validates dependencies", () => {
 test("imports table models: buildPreviewModel keeps headers and invalid row class", () => {
     const tableModels = createTableModels();
     const model = tableModels.buildPreviewModel([
-        { rowNumber: 1, projectCode: "P1", objectWbs: "W1", disciplineCode: "D1", manHours: 8, isLocallyValid: true },
-        { rowNumber: 2, projectCode: "P2", objectWbs: "W2", disciplineCode: "D2", manHours: 10, isLocallyValid: false, localValidationMessage: "Ошибка" }
+        { rowNumber: 1, projectCode: "P1", complexProjectName: "КП-1", objectWbs: "W1", disciplineCode: "D1", manHours: 8, isLocallyValid: true },
+        { rowNumber: 2, projectCode: "P2", complexProjectName: "КП-2", objectWbs: "W2", disciplineCode: "D2", manHours: 10, isLocallyValid: false, localValidationMessage: "Ошибка" }
     ], 200);
 
-    assert.equal(model.headers.length, 8);
+    assert.equal(model.headers.length, 11);
+    assert.equal(model.headers[2], "Комплекс/проект");
     assert.equal(model.rows.length, 2);
+    assert.equal(model.rows[0].cells[2], "КП-1");
     assert.equal(model.rows[0].rowClassName, "");
     assert.equal(model.rows[1].rowClassName, "imports-row--invalid");
-    assert.equal(model.rows[1].cells[7], "Ошибка");
+    assert.equal(model.rows[1].cells[10], "Ошибка");
 });
 
 test("imports table models: buildBatchesModel returns empty and populated states", () => {
@@ -71,6 +73,7 @@ test("imports table models: buildInvalidRowsModel and buildHistoryModel visibili
 
     assert.equal(invalidModel.visible, true);
     assert.equal(invalidModel.rows.length, 1);
+    assert.equal(invalidModel.headers[2], "Комплекс/проект");
     assert.equal(invalidModel.rows[0].cells[0], 2);
 
     const emptyHistory = tableModels.buildHistoryModel([]);

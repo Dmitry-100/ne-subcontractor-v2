@@ -492,11 +492,75 @@
             return;
         }
 
-        items.forEach(function (contractor) {
+        items.forEach(function (contractor, index) {
             const item = createElement("li");
             const rating = toFiniteNumber(contractor.rating ?? contractor.currentRating) || 0;
             const loadPercent = toFiniteNumber(contractor.currentLoadPercent ?? contractor.loadPercent) || 0;
-            item.textContent = contractor.name + " · рейтинг " + rating.toFixed(3) + " · загрузка " + loadPercent.toFixed(2) + "%";
+            const ratingPercent = Math.max(0, Math.min(100, (rating / 5) * 100));
+            const loadPercentClamped = Math.max(0, Math.min(100, loadPercent));
+            const rank = index + 1;
+
+            item.className = "dashboard-top-contractor dashboard-top-contractor--rank-" + Math.min(rank, 3);
+
+            const header = createElement("div");
+            header.className = "dashboard-top-contractor__header";
+
+            const rankBadge = createElement("span");
+            rankBadge.className = "dashboard-top-contractor__rank";
+            rankBadge.textContent = "#" + rank;
+
+            const name = createElement("strong");
+            name.className = "dashboard-top-contractor__name";
+            name.textContent = contractor.name || "Подрядчик";
+
+            const badge = createElement("span");
+            badge.className = "dashboard-top-contractor__badge";
+            badge.textContent = rank === 1
+                ? "Лидер"
+                : loadPercent > 80
+                    ? "Контроль загрузки"
+                    : rating >= 4
+                        ? "Сильный профиль"
+                        : "В пуле";
+
+            header.appendChild(rankBadge);
+            header.appendChild(name);
+            header.appendChild(badge);
+
+            const metrics = createElement("div");
+            metrics.className = "dashboard-top-contractor__metrics";
+
+            const ratingMetric = createElement("div");
+            ratingMetric.className = "dashboard-top-contractor__metric dashboard-top-contractor__metric--rating";
+            const ratingLabel = createElement("span");
+            ratingLabel.textContent = "Рейтинг";
+            const ratingValue = createElement("strong");
+            ratingValue.textContent = rating.toFixed(3);
+            const ratingBar = createElement("i");
+            ratingBar.className = "dashboard-top-contractor__bar";
+            ratingBar.style.setProperty("--value", ratingPercent.toFixed(2) + "%");
+            ratingMetric.appendChild(ratingLabel);
+            ratingMetric.appendChild(ratingValue);
+            ratingMetric.appendChild(ratingBar);
+
+            const loadMetric = createElement("div");
+            loadMetric.className = "dashboard-top-contractor__metric dashboard-top-contractor__metric--load";
+            const loadLabel = createElement("span");
+            loadLabel.textContent = "Загрузка";
+            const loadValue = createElement("strong");
+            loadValue.textContent = loadPercent.toFixed(2) + "%";
+            const loadBar = createElement("i");
+            loadBar.className = "dashboard-top-contractor__bar";
+            loadBar.style.setProperty("--value", loadPercentClamped.toFixed(2) + "%");
+            loadMetric.appendChild(loadLabel);
+            loadMetric.appendChild(loadValue);
+            loadMetric.appendChild(loadBar);
+
+            metrics.appendChild(ratingMetric);
+            metrics.appendChild(loadMetric);
+
+            item.appendChild(header);
+            item.appendChild(metrics);
             target.appendChild(item);
         });
     }

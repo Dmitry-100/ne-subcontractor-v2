@@ -2,6 +2,7 @@ using Subcontractor.Application.Imports;
 using Subcontractor.Application.Imports.Models;
 using Subcontractor.Domain.Imports;
 using Subcontractor.Domain.Projects;
+using Subcontractor.Domain.ReferenceData;
 using Subcontractor.Tests.SqlServer.TestInfrastructure;
 
 namespace Subcontractor.Tests.SqlServer.Imports;
@@ -312,5 +313,67 @@ public sealed class SourceDataImportsSqlServiceTests
 
         var processed = await service.ProcessQueuedBatchesAsync(5);
         Assert.Equal(0, processed);
+    }
+
+    [SqlFact]
+    public async Task ApplyDisciplineResolutionsAsync_ShouldUpdateRowsAndRecalculateBatch()
+    {
+        await using var database = await SqlServerTestDatabase.CreateMigratedAsync();
+        await using var db = database.CreateDbContext();
+        await db.Set<DisciplineMapping>().AddRangeAsync(
+            new DisciplineMapping
+            {
+                MappingKey = DisciplineMappingPolicy.BuildMappingKey("07.1 Отдел систем автоматизации", "АСУ ТП"),
+                ProjectDisciplineGroup = "Автоматизация",
+                ProjectDisciplineSection = "Автоматизация",
+                ProjectDisciplineName = "АСУ ТП",
+                ResourceDisciplineName = "07.1 Отдел систем автоматизации"
+            },
+            new DisciplineMapping
+            {
+                MappingKey = DisciplineMappingPolicy.BuildMappingKey("07.1 Отдел систем автоматизации", "Системы связи"),
+                ProjectDisciplineGroup = "Автоматизация",
+                ProjectDisciplineSection = "Связь",
+                ProjectDisciplineName = "Системы связи",
+                ResourceDisciplineName = "07.1 Отдел систем автоматизации"
+            });
+        await db.SaveChangesAsync();
+
+        var service = new SourceDataImportsService(db);
+        var created = await service.CreateBatchAsync(new CreateSourceDataImportBatchRequest
+        {
+            FileName = "manual-resolution.xlsx",
+            Rows =
+            [
+                new CreateSourceDataImportRowRequest
+                {
+                    ProjectCode = "24-242",
+                    ProjectName = "ДЦ-1",
+                    ObjectWbs = "1",
+                    ResourceDisciplineName = "07.1 Отдел систем автоматизации",
+                    ManHours = 10m
+                }
+            ]
+        });
+        var row = Assert.Single(created.Rows);
+        Assert.False(row.IsValid);
+
+        var resolved = await service.ApplyDisciplineResolutionsAsync(created.Id, new ApplyDisciplineResolutionsRequest
+        {
+            Items =
+            [
+                new ApplyDisciplineResolutionItemRequest
+                {
+                    RowId = row.Id,
+                    ProjectDisciplineName = "АСУ ТП"
+                }
+            ]
+        });
+
+        Assert.NotNull(resolved);
+        Assert.Equal(SourceDataImportBatchStatus.Validated, resolved!.Status);
+        Assert.Equal(1, resolved.ValidRows);
+        Assert.Equal(0, resolved.InvalidRows);
+        Assert.Equal("АСУ ТП", resolved.Rows[0].DisciplineCode);
     }
 }

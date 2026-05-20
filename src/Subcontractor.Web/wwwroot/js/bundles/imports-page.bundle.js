@@ -122,7 +122,7 @@
             return String(value ?? "")
                 .trim()
                 .toLowerCase()
-                .replace(/[\s_\-]+/g, "");
+                .replace(/[^0-9a-zа-яё]+/gi, "");
         }
 
         function isRowEmpty(values) {
@@ -216,20 +216,35 @@
                 if (mapping.projectCode < 0 && columns.length >= 1) {
                     mapping.projectCode = 0;
                 }
-                if (mapping.objectWbs < 0 && columns.length >= 2) {
-                    mapping.objectWbs = 1;
+                if (mapping.complexProjectName < 0 && columns.length >= 2) {
+                    mapping.complexProjectName = 1;
                 }
-                if (mapping.disciplineCode < 0 && columns.length >= 3) {
-                    mapping.disciplineCode = 2;
+                if (mapping.projectName < 0 && columns.length >= 3) {
+                    mapping.projectName = 2;
                 }
-                if (mapping.manHours < 0 && columns.length >= 4) {
-                    mapping.manHours = 3;
+                if (mapping.objectWbs < 0 && columns.length >= 4) {
+                    mapping.objectWbs = 3;
                 }
-                if (mapping.plannedStartDate < 0 && columns.length >= 5) {
-                    mapping.plannedStartDate = 4;
+                if (mapping.disciplineCode < 0 && columns.length >= 5) {
+                    mapping.disciplineCode = 4;
                 }
-                if (mapping.plannedFinishDate < 0 && columns.length >= 6) {
-                    mapping.plannedFinishDate = 5;
+                if (mapping.resourceDisciplineName < 0 && columns.length >= 6) {
+                    mapping.resourceDisciplineName = 5;
+                }
+                if (mapping.branchOfficeName < 0 && columns.length >= 7) {
+                    mapping.branchOfficeName = 6;
+                }
+                if (mapping.gipName < 0 && columns.length >= 8) {
+                    mapping.gipName = 7;
+                }
+                if (mapping.manHours < 0 && columns.length >= 9) {
+                    mapping.manHours = 8;
+                }
+                if (mapping.plannedStartDate < 0 && columns.length >= 10) {
+                    mapping.plannedStartDate = 9;
+                }
+                if (mapping.plannedFinishDate < 0 && columns.length >= 11) {
+                    mapping.plannedFinishDate = 10;
                 }
             }
 
@@ -311,6 +326,17 @@
             return { value: formatDateIso(parsed), error: null };
         }
 
+        function normalizeDisciplineCode(rawValue) {
+            const normalized = String(rawValue ?? "").trim();
+            if (!normalized) {
+                return "";
+            }
+
+            return /[^\x00-\x7F]|\s/.test(normalized)
+                ? normalized
+                : normalized.toUpperCase();
+        }
+
         function mapRawRow(rowValues, mapping, fallbackRowNumber) {
             function valueAt(index) {
                 if (!Number.isInteger(index) || index < 0 || index >= rowValues.length) {
@@ -329,8 +355,13 @@
             }
 
             const projectCode = valueAt(mapping.projectCode).toUpperCase();
+            const projectName = valueAt(mapping.projectName);
+            const complexProjectName = valueAt(mapping.complexProjectName);
             const objectWbs = valueAt(mapping.objectWbs);
-            const disciplineCode = valueAt(mapping.disciplineCode).toUpperCase();
+            const disciplineCode = normalizeDisciplineCode(valueAt(mapping.disciplineCode));
+            const resourceDisciplineName = valueAt(mapping.resourceDisciplineName);
+            const branchOfficeName = valueAt(mapping.branchOfficeName);
+            const gipName = valueAt(mapping.gipName);
 
             const manHoursParsed = parseNumber(valueAt(mapping.manHours));
             const manHours = Number.isFinite(manHoursParsed) ? manHoursParsed : 0;
@@ -346,8 +377,8 @@
                 errors.push("Объект WBS обязателен");
             }
 
-            if (!disciplineCode) {
-                errors.push("Код дисциплины обязателен");
+            if (!disciplineCode && !resourceDisciplineName) {
+                errors.push("Нужна проектная дисциплина или дисциплина-ресурс");
             }
 
             if (!Number.isFinite(manHoursParsed)) {
@@ -371,8 +402,13 @@
             return {
                 rowNumber: rowNumber,
                 projectCode: projectCode,
+                projectName: projectName,
+                complexProjectName: complexProjectName,
                 objectWbs: objectWbs,
                 disciplineCode: disciplineCode,
+                resourceDisciplineName: resourceDisciplineName,
+                branchOfficeName: branchOfficeName,
+                gipName: gipName,
                 manHours: manHours,
                 plannedStartDate: startDate.value,
                 plannedFinishDate: finishDate.value,
@@ -627,8 +663,11 @@
             headers: [
                 "Строка",
                 "Код проекта",
+                "Комплекс/проект",
+                "Проект",
                 "Объект WBS",
-                "Код дисциплины",
+                "Проектная дисциплина",
+                "Дисциплина-ресурс",
                 "Трудозатраты",
                 "План. начало",
                 "План. окончание",
@@ -640,8 +679,11 @@
                     cells: [
                         row.rowNumber,
                         row.projectCode,
+                        row.complexProjectName || "",
+                        row.projectName || "",
                         row.objectWbs,
                         row.disciplineCode,
+                        row.resourceDisciplineName || "",
                         row.manHours,
                         row.plannedStartDate || "",
                         row.plannedFinishDate || "",
@@ -703,8 +745,11 @@
             headers: [
                 "Строка",
                 "Код проекта",
+                "Комплекс/проект",
+                "Проект",
                 "Объект WBS",
-                "Код дисциплины",
+                "Проектная дисциплина",
+                "Дисциплина-ресурс",
                 "Трудозатраты",
                 "Сообщение валидации"
             ],
@@ -713,8 +758,11 @@
                     cells: [
                         row.rowNumber,
                         row.projectCode,
+                        row.complexProjectName || "",
+                        row.projectName || "",
                         row.objectWbs,
                         row.disciplineCode,
+                        row.resourceDisciplineName || "",
                         row.manHours,
                         row.validationMessage || ""
                     ]
@@ -1394,6 +1442,47 @@
 
         const getSheetJs = settings.getSheetJs;
         const isRowEmpty = settings.isRowEmpty;
+        const preferredSheetNames = Array.isArray(settings.preferredSheetNames)
+            ? settings.preferredSheetNames
+            : ["данные из экспресс"];
+        const onSheetWarning = typeof settings.onSheetWarning === "function"
+            ? settings.onSheetWarning
+            : function () {};
+
+        function normalizeSheetName(value) {
+            return String(value ?? "")
+                .trim()
+                .toLowerCase()
+                .replace(/[^0-9a-zа-яё]+/gi, "");
+        }
+
+        function selectSheetName(workbook) {
+            const sheetNames = workbook.SheetNames;
+            const preferred = preferredSheetNames
+                .map(normalizeSheetName)
+                .filter(function (value) {
+                    return value.length > 0;
+                });
+
+            const matched = sheetNames.find(function (name) {
+                const normalizedName = normalizeSheetName(name);
+                return preferred.some(function (preferredName) {
+                    return normalizedName === preferredName || normalizedName.includes(preferredName);
+                });
+            });
+
+            if (matched) {
+                return matched;
+            }
+
+            const fallback = sheetNames[0];
+            if (preferredSheetNames.length > 0) {
+                onSheetWarning(
+                    `В книге не найден лист «${preferredSheetNames[0]}». Использован первый лист «${fallback}».`);
+            }
+
+            return fallback;
+        }
 
         async function parseWorkbookFile(file) {
             const sheetJs = getSheetJs();
@@ -1407,8 +1496,8 @@
                 throw new Error("Книга не содержит листов.");
             }
 
-            const firstSheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[firstSheetName];
+            const sheetName = selectSheetName(workbook);
+            const sheet = workbook.Sheets[sheetName];
             const rows = sheetJs.utils.sheet_to_json(sheet, {
                 header: 1,
                 blankrows: false,
@@ -1822,8 +1911,13 @@
                     return {
                         rowNumber: row.rowNumber,
                         projectCode: row.projectCode,
+                        projectName: row.projectName,
+                        complexProjectName: row.complexProjectName,
                         objectWbs: row.objectWbs,
                         disciplineCode: row.disciplineCode,
+                        resourceDisciplineName: row.resourceDisciplineName,
+                        branchOfficeName: row.branchOfficeName,
+                        gipName: row.gipName,
                         manHours: row.manHours,
                         plannedStartDate: row.plannedStartDate,
                         plannedFinishDate: row.plannedFinishDate
@@ -5269,7 +5363,11 @@
 
         const importsPageWorkbook = roots.importsPageWorkbookRoot.createWorkbookParser({
             getSheetJs: getSheetJs,
-            isRowEmpty: importsPageHelpers.isRowEmpty
+            isRowEmpty: importsPageHelpers.isRowEmpty,
+            preferredSheetNames: ["данные из экспресс"],
+            onSheetWarning: function (message) {
+                setUploadStatus(message, false);
+            }
         });
 
         const importsPageFileParser = roots.importsPageFileParserRoot.createFileParser({
@@ -5402,6 +5500,13 @@
                 controls.detailsTitleElement.textContent = `Пакет: ${details.fileName}`;
                 controls.detailsSummaryElement.textContent = foundation.importsPageWorkflow.buildBatchDetailsSummary(details);
                 foundation.importsPageBatchTables.renderInvalidRows(details);
+                const importsSourceProcurement = typeof window !== "undefined"
+                    ? window.ImportsSourceProcurement
+                    : null;
+                if (importsSourceProcurement &&
+                    typeof importsSourceProcurement.renderBatchDetails === "function") {
+                    importsSourceProcurement.renderBatchDetails(details);
+                }
                 renderTransitionTargets(details.status);
                 setWorkflowActionsEnabled(true);
             },
@@ -6153,31 +6258,61 @@
                     key: "rowNumber",
                     label: "Номер строки",
                     required: false,
-                    synonyms: ["rownumber", "row", "linenumber", "line"]
+                    synonyms: ["rownumber", "row", "linenumber", "line", "строка", "номерстроки"]
                 },
                 {
                     key: "projectCode",
                     label: "Код проекта",
                     required: true,
-                    synonyms: ["projectcode", "project", "projectid"]
+                    synonyms: ["проектномер", "кодпроекта", "номерпроекта", "projectcode", "projectid"]
+                },
+                {
+                    key: "complexProjectName",
+                    label: "Комплекс/проект",
+                    required: false,
+                    synonyms: ["комплекспроект", "complexproject", "complexprojectname"]
+                },
+                {
+                    key: "projectName",
+                    label: "Проект",
+                    required: false,
+                    synonyms: ["проект", "projectname", "project"]
                 },
                 {
                     key: "objectWbs",
                     label: "Объект WBS",
                     required: true,
-                    synonyms: ["objectwbs", "wbs", "object"]
+                    synonyms: ["объект", "objectwbs", "wbs", "object"]
                 },
                 {
                     key: "disciplineCode",
-                    label: "Код дисциплины",
-                    required: true,
-                    synonyms: ["disciplinecode", "discipline", "disciplineid"]
+                    label: "Проектная дисциплина",
+                    required: false,
+                    synonyms: ["проектнаядисциплина", "столбец1", "disciplinecode", "discipline", "disciplineid"]
+                },
+                {
+                    key: "resourceDisciplineName",
+                    label: "Дисциплина-ресурс",
+                    required: false,
+                    synonyms: ["дисциплинаресурс", "ресурснаядисциплина", "resourcediscipline", "resourcedisciplinename"]
+                },
+                {
+                    key: "branchOfficeName",
+                    label: "Филиал-исполнитель",
+                    required: false,
+                    synonyms: ["филиалисп", "филиалисполнитель", "branch", "branchoffice"]
+                },
+                {
+                    key: "gipName",
+                    label: "ГИП",
+                    required: false,
+                    synonyms: ["гип", "gip", "chiefprojectengineer"]
                 },
                 {
                     key: "manHours",
                     label: "Трудозатраты (чел.-ч)",
                     required: true,
-                    synonyms: ["manhours", "hours", "laborhours"]
+                    synonyms: ["загрничелчас", "загрузкачелчас", "челчас", "manhours", "hours", "laborhours"]
                 },
                 {
                     key: "plannedStartDate",
@@ -6866,4 +7001,198 @@
     importsPageRuntime.initialize().catch(function (error) {
         services.setBatchesStatus(`Не удалось инициализировать модуль импорта: ${error.message}`, true);
     });
+})();
+
+/* Source: imports-discipline-mappings.js */
+"use strict";
+
+(function () {
+    const HEADERS = ["Группа", "Раздел", "Проектная дисциплина", "Дисциплина-ресурс"];
+
+    function toArray(value) {
+        return Array.isArray(value) ? value : [];
+    }
+
+    function text(value) {
+        return String(value ?? "").trim();
+    }
+
+    function createCell(hostDocument, tagName, value) {
+        const cell = hostDocument.createElement(tagName);
+        cell.textContent = text(value);
+        return cell;
+    }
+
+    function appendRow(hostDocument, section, values, cellTagName) {
+        const row = hostDocument.createElement("tr");
+        values.forEach(function (value) {
+            row.appendChild(createCell(hostDocument, cellTagName, value));
+        });
+        section.appendChild(row);
+    }
+
+    function renderDisciplineMappingsTable(options) {
+        const settings = options || {};
+        const hostDocument = settings.document || null;
+        const tableElement = settings.tableElement || null;
+        const mappings = toArray(settings.mappings);
+
+        if (!hostDocument || typeof hostDocument.createElement !== "function") {
+            throw new Error("renderDisciplineMappingsTable: document with createElement is required.");
+        }
+
+        if (!tableElement || typeof tableElement.replaceChildren !== "function") {
+            throw new Error("renderDisciplineMappingsTable: tableElement with replaceChildren is required.");
+        }
+
+        const thead = hostDocument.createElement("thead");
+        appendRow(hostDocument, thead, HEADERS, "th");
+
+        const tbody = hostDocument.createElement("tbody");
+        if (mappings.length === 0) {
+            const emptyRow = hostDocument.createElement("tr");
+            const emptyCell = createCell(hostDocument, "td", "Справочник дисциплин пока не загружен.");
+            emptyCell.setAttribute("colspan", String(HEADERS.length));
+            emptyRow.appendChild(emptyCell);
+            tbody.appendChild(emptyRow);
+        } else {
+            mappings.forEach(function (mapping) {
+                appendRow(hostDocument, tbody, [
+                    mapping.projectDisciplineGroup,
+                    mapping.projectDisciplineSection,
+                    mapping.projectDisciplineName,
+                    mapping.resourceDisciplineName
+                ], "td");
+            });
+        }
+
+        tableElement.replaceChildren(thead, tbody);
+    }
+
+    function createDisciplineMappingsRegistry(options) {
+        const settings = options || {};
+        const hostDocument = settings.document || null;
+        const endpoint = settings.endpoint || "";
+        const tableElement = settings.tableElement || null;
+        const statusElement = settings.statusElement || null;
+        const refreshButton = settings.refreshButton || null;
+        const fetchImpl = settings.fetchImpl || (typeof fetch === "function" ? fetch.bind(globalThis) : null);
+
+        if (!endpoint) {
+            throw new Error("createDisciplineMappingsRegistry: endpoint is required.");
+        }
+
+        if (typeof fetchImpl !== "function") {
+            throw new Error("createDisciplineMappingsRegistry: Fetch API is unavailable.");
+        }
+
+        function setStatus(message, isError) {
+            if (!statusElement) {
+                return;
+            }
+
+            statusElement.textContent = message;
+            if (statusElement.classList && typeof statusElement.classList.toggle === "function") {
+                statusElement.classList.toggle("imports-status--error", Boolean(isError));
+            }
+        }
+
+        async function load() {
+            try {
+                if (refreshButton) {
+                    refreshButton.disabled = true;
+                }
+                setStatus("Загрузка справочника дисциплин...", false);
+
+                const response = await fetchImpl(endpoint, {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки справочника (${response.status}).`);
+                }
+
+                const mappings = toArray(await response.json());
+                renderDisciplineMappingsTable({
+                    document: hostDocument,
+                    tableElement: tableElement,
+                    mappings: mappings
+                });
+                setStatus(`Загружено записей: ${mappings.length}.`, false);
+                return mappings;
+            } catch (error) {
+                setStatus(`Не удалось загрузить справочник дисциплин: ${error.message}`, true);
+                throw error;
+            } finally {
+                if (refreshButton) {
+                    refreshButton.disabled = false;
+                }
+            }
+        }
+
+        if (refreshButton && typeof refreshButton.addEventListener === "function") {
+            refreshButton.addEventListener("click", function () {
+                load().catch(function () {});
+            });
+        }
+
+        return {
+            load: load
+        };
+    }
+
+    function autoInitialize() {
+        if (typeof document === "undefined") {
+            return;
+        }
+
+        const moduleRoot = document.querySelector("[data-imports-module]");
+        if (!moduleRoot) {
+            return;
+        }
+
+        const tableElement = moduleRoot.querySelector("[data-imports-discipline-mappings-table]");
+        const statusElement = moduleRoot.querySelector("[data-imports-discipline-mappings-status]");
+        const refreshButton = moduleRoot.querySelector("[data-imports-discipline-mappings-refresh]");
+        const endpoint =
+            moduleRoot.getAttribute("data-discipline-mappings-api-endpoint") ||
+            "/api/imports/discipline-mappings";
+
+        if (!tableElement || !statusElement) {
+            return;
+        }
+
+        createDisciplineMappingsRegistry({
+            document: document,
+            endpoint: endpoint,
+            tableElement: tableElement,
+            statusElement: statusElement,
+            refreshButton: refreshButton
+        }).load().catch(function () {});
+    }
+
+    const exportsObject = {
+        renderDisciplineMappingsTable: renderDisciplineMappingsTable,
+        createDisciplineMappingsRegistry: createDisciplineMappingsRegistry
+    };
+
+    if (typeof window !== "undefined") {
+        window.ImportsDisciplineMappings = exportsObject;
+
+        if (typeof document !== "undefined") {
+            if (document.readyState === "loading" && typeof document.addEventListener === "function") {
+                document.addEventListener("DOMContentLoaded", autoInitialize, { once: true });
+            } else {
+                autoInitialize();
+            }
+        }
+    }
+
+    if (typeof module !== "undefined" && module.exports) {
+        module.exports = exportsObject;
+    }
 })();

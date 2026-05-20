@@ -19,8 +19,13 @@
                     return {
                         rowNumber: row.rowNumber,
                         projectCode: row.projectCode,
+                        projectName: row.projectName,
+                        complexProjectName: row.complexProjectName,
                         objectWbs: row.objectWbs,
                         disciplineCode: row.disciplineCode,
+                        resourceDisciplineName: row.resourceDisciplineName,
+                        branchOfficeName: row.branchOfficeName,
+                        gipName: row.gipName,
                         manHours: row.manHours,
                         plannedStartDate: row.plannedStartDate,
                         plannedFinishDate: row.plannedFinishDate

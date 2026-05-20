@@ -79,13 +79,15 @@ test("dashboard renderers core: renders statuses and tasks with safe defaults", 
     const analyticsStatusElement = createMockElement("p");
     const tasksElement = createMockElement("ul");
     const lotStatusesElement = createMockElement("ul");
+    const topContractorsElement = createMockElement("ul");
     const core = coreModule.createCore({
         dashboardHelpers: createHelpers(),
         createElement: createMockElement,
         statusElement: statusElement,
         analyticsStatusElement: analyticsStatusElement,
         tasksElement: tasksElement,
-        lotStatusesElement: lotStatusesElement
+        lotStatusesElement: lotStatusesElement,
+        topContractorsElement: topContractorsElement
     });
 
     core.setStatus("ok", false);
@@ -115,4 +117,20 @@ test("dashboard renderers core: renders statuses and tasks with safe defaults", 
     assert.equal(tasksElement.children.length, 1);
     assert.equal(tasksElement.children[0].children[3].children[1].href, "#");
     assert.equal(tasksElement.children[0].children[3].children[1].textContent, "Открыть");
+
+    core.renderTopContractors(
+        [{ name: "Demo Contractor", rating: 4.267, currentLoadPercent: 12.73 }],
+        function (value) {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : null;
+        });
+
+    assert.equal(topContractorsElement.children.length, 1);
+    assert.equal(
+        topContractorsElement.children[0].className,
+        "dashboard-top-contractor dashboard-top-contractor--rank-1");
+    assert.equal(topContractorsElement.children[0].children[0].children[0].textContent, "#1");
+    assert.equal(topContractorsElement.children[0].children[0].children[1].textContent, "Demo Contractor");
+    assert.equal(topContractorsElement.children[0].children[1].children[0].children[1].textContent, "4.267");
+    assert.equal(topContractorsElement.children[0].children[1].children[1].children[1].textContent, "12.73%");
 });

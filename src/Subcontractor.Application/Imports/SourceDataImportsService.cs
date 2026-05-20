@@ -59,6 +59,14 @@ public sealed class SourceDataImportsService : ISourceDataImportsService
         return await _writeWorkflowService.TransitionBatchStatusAsync(id, request, cancellationToken);
     }
 
+    public async Task<SourceDataImportBatchDetailsDto?> ApplyDisciplineResolutionsAsync(
+        Guid id,
+        ApplyDisciplineResolutionsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        return await _writeWorkflowService.ApplyDisciplineResolutionsAsync(id, request, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<SourceDataImportBatchStatusHistoryItemDto>> GetBatchHistoryAsync(
         Guid id,
         CancellationToken cancellationToken = default)

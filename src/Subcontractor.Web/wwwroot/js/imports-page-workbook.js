@@ -10,6 +10,47 @@
 
         const getSheetJs = settings.getSheetJs;
         const isRowEmpty = settings.isRowEmpty;
+        const preferredSheetNames = Array.isArray(settings.preferredSheetNames)
+            ? settings.preferredSheetNames
+            : ["данные из экспресс"];
+        const onSheetWarning = typeof settings.onSheetWarning === "function"
+            ? settings.onSheetWarning
+            : function () {};
+
+        function normalizeSheetName(value) {
+            return String(value ?? "")
+                .trim()
+                .toLowerCase()
+                .replace(/[^0-9a-zа-яё]+/gi, "");
+        }
+
+        function selectSheetName(workbook) {
+            const sheetNames = workbook.SheetNames;
+            const preferred = preferredSheetNames
+                .map(normalizeSheetName)
+                .filter(function (value) {
+                    return value.length > 0;
+                });
+
+            const matched = sheetNames.find(function (name) {
+                const normalizedName = normalizeSheetName(name);
+                return preferred.some(function (preferredName) {
+                    return normalizedName === preferredName || normalizedName.includes(preferredName);
+                });
+            });
+
+            if (matched) {
+                return matched;
+            }
+
+            const fallback = sheetNames[0];
+            if (preferredSheetNames.length > 0) {
+                onSheetWarning(
+                    `В книге не найден лист «${preferredSheetNames[0]}». Использован первый лист «${fallback}».`);
+            }
+
+            return fallback;
+        }
 
         async function parseWorkbookFile(file) {
             const sheetJs = getSheetJs();
@@ -23,8 +64,8 @@
                 throw new Error("Книга не содержит листов.");
             }
 
-            const firstSheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[firstSheetName];
+            const sheetName = selectSheetName(workbook);
+            const sheet = workbook.Sheets[sheetName];
             const rows = sheetJs.utils.sheet_to_json(sheet, {
                 header: 1,
                 blankrows: false,

@@ -92,6 +92,33 @@ test("projects api: getProjects appends paging params when provided", async () =
     assert.deepEqual(urls, ["/api/projects?search=Alpha&skip=30&take=15&requireTotalCount=true"]);
 });
 
+test("projects api: getLatestSourceDataRows uses source-data endpoint and paging params", async () => {
+    const urls = [];
+    const client = projectsApiModule.createApiClient({
+        endpoint: "/api/projects",
+        sourceDataEndpoint: "/api/projects/source-data/latest",
+        parseErrorBody: function () { return "x"; },
+        fetchImpl: async function (url) {
+            urls.push(url);
+            return {
+                ok: true,
+                status: 200,
+                text: async function () {
+                    return "{\"items\":[],\"totalCount\":0,\"skip\":0,\"take\":15}";
+                }
+            };
+        }
+    });
+
+    await client.getLatestSourceDataRows("  ЦХПП  ", {
+        skip: 15,
+        take: 15,
+        requireTotalCount: true
+    });
+
+    assert.deepEqual(urls, ["/api/projects/source-data/latest?search=%D0%A6%D0%A5%D0%9F%D0%9F&skip=15&take=15&requireTotalCount=true"]);
+});
+
 test("projects api: mutation endpoints use expected methods and body", async () => {
     const calls = [];
     const client = projectsApiModule.createApiClient({

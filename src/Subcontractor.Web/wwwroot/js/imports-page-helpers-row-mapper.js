@@ -46,6 +46,17 @@
             return { value: formatDateIso(parsed), error: null };
         }
 
+        function normalizeDisciplineCode(rawValue) {
+            const normalized = String(rawValue ?? "").trim();
+            if (!normalized) {
+                return "";
+            }
+
+            return /[^\x00-\x7F]|\s/.test(normalized)
+                ? normalized
+                : normalized.toUpperCase();
+        }
+
         function mapRawRow(rowValues, mapping, fallbackRowNumber) {
             function valueAt(index) {
                 if (!Number.isInteger(index) || index < 0 || index >= rowValues.length) {
@@ -64,8 +75,13 @@
             }
 
             const projectCode = valueAt(mapping.projectCode).toUpperCase();
+            const projectName = valueAt(mapping.projectName);
+            const complexProjectName = valueAt(mapping.complexProjectName);
             const objectWbs = valueAt(mapping.objectWbs);
-            const disciplineCode = valueAt(mapping.disciplineCode).toUpperCase();
+            const disciplineCode = normalizeDisciplineCode(valueAt(mapping.disciplineCode));
+            const resourceDisciplineName = valueAt(mapping.resourceDisciplineName);
+            const branchOfficeName = valueAt(mapping.branchOfficeName);
+            const gipName = valueAt(mapping.gipName);
 
             const manHoursParsed = parseNumber(valueAt(mapping.manHours));
             const manHours = Number.isFinite(manHoursParsed) ? manHoursParsed : 0;
@@ -81,8 +97,8 @@
                 errors.push("Объект WBS обязателен");
             }
 
-            if (!disciplineCode) {
-                errors.push("Код дисциплины обязателен");
+            if (!disciplineCode && !resourceDisciplineName) {
+                errors.push("Нужна проектная дисциплина или дисциплина-ресурс");
             }
 
             if (!Number.isFinite(manHoursParsed)) {
@@ -106,8 +122,13 @@
             return {
                 rowNumber: rowNumber,
                 projectCode: projectCode,
+                projectName: projectName,
+                complexProjectName: complexProjectName,
                 objectWbs: objectWbs,
                 disciplineCode: disciplineCode,
+                resourceDisciplineName: resourceDisciplineName,
+                branchOfficeName: branchOfficeName,
+                gipName: gipName,
                 manHours: manHours,
                 plannedStartDate: startDate.value,
                 plannedFinishDate: finishDate.value,

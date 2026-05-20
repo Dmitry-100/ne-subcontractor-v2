@@ -626,6 +626,18 @@ public sealed class ProcurementProceduresControllerBranchCoverageTests
         public Func<CreateProcedureRequest, CancellationToken, Task<ProcedureDetailsDto>> CreateAsyncHandler { get; set; } =
             static (request, _) => Task.FromResult(CreateDetails());
 
+        public Func<CreateProcedureFromSourceDataRequest, CancellationToken, Task<ProcedureFromSourceDataResultDto>> CreateFromSourceDataAsyncHandler { get; set; } =
+            static (_, _) =>
+            {
+                var details = CreateDetails();
+                return Task.FromResult(new ProcedureFromSourceDataResultDto(
+                    details.Id,
+                    details.LotId,
+                    1,
+                    10m,
+                    details));
+            };
+
         public Func<Guid, UpdateProcedureRequest, CancellationToken, Task<ProcedureDetailsDto?>> UpdateAsyncHandler { get; set; } =
             static (id, _, _) => Task.FromResult<ProcedureDetailsDto?>(CreateDetails(id));
 
@@ -704,6 +716,11 @@ public sealed class ProcurementProceduresControllerBranchCoverageTests
 
         public Task<ProcedureDetailsDto> CreateAsync(CreateProcedureRequest request, CancellationToken cancellationToken = default)
             => CreateAsyncHandler(request, cancellationToken);
+
+        public Task<ProcedureFromSourceDataResultDto> CreateFromSourceDataAsync(
+            CreateProcedureFromSourceDataRequest request,
+            CancellationToken cancellationToken = default)
+            => CreateFromSourceDataAsyncHandler(request, cancellationToken);
 
         public Task<ProcedureDetailsDto?> UpdateAsync(Guid id, UpdateProcedureRequest request, CancellationToken cancellationToken = default)
             => UpdateAsyncHandler(id, request, cancellationToken);

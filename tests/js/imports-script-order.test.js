@@ -21,3 +21,12 @@ test("imports view: uses page bundle for runtime modules", () => {
         !hasScript(content, /<script\s+src="~\/js\/imports-page-runtime\.js"[^>]*><\/script>/),
         "Legacy imports runtime script reference should be removed.");
 });
+
+test("imports view: exposes discipline dictionary as user-facing table", () => {
+    const content = fs.readFileSync(importsViewPath, "utf8");
+
+    assert.match(content, /href="#discipline-mappings-panel"/);
+    assert.match(content, /data-imports-discipline-mappings-table/);
+    assert.match(content, /data-imports-discipline-mappings-refresh/);
+    assert.match(content, /Открыть API справочника/);
+});

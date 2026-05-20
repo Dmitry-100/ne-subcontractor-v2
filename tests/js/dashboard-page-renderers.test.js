@@ -415,5 +415,6 @@ test("dashboard renderers: applyAnalytics populates highlights and top-contracto
     assert.equal(context.analyticsHighlightFields.averageRating.textContent, "3.820");
     assert.equal(context.analyticsHighlightFields.contractingActiveAmount.textContent, "2412000.00");
     assert.equal(context.topContractorsElement.children.length, 1);
-    assert.match(context.topContractorsElement.children[0].textContent, /Demo Contractor/);
+    assert.equal(context.topContractorsElement.children[0].children[0].children[1].textContent, "Demo Contractor");
+    assert.equal(context.topContractorsElement.children[0].children[1].children[0].children[1].textContent, "4.200");
 });

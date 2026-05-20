@@ -30,8 +30,13 @@ test("imports-page helpers row-mapper: maps row into validated payload", () => {
         {
             rowNumber: 0,
             projectCode: 1,
+            projectName: -1,
+            complexProjectName: -1,
             objectWbs: 2,
             disciplineCode: 3,
+            resourceDisciplineName: -1,
+            branchOfficeName: -1,
+            gipName: -1,
             manHours: 4,
             plannedStartDate: 5,
             plannedFinishDate: 6
@@ -57,8 +62,13 @@ test("imports-page helpers row-mapper: returns validation errors", () => {
         {
             rowNumber: 0,
             projectCode: 1,
+            projectName: -1,
+            complexProjectName: -1,
             objectWbs: 2,
             disciplineCode: 3,
+            resourceDisciplineName: -1,
+            branchOfficeName: -1,
+            gipName: -1,
             manHours: 4,
             plannedStartDate: 5,
             plannedFinishDate: 6
@@ -69,7 +79,7 @@ test("imports-page helpers row-mapper: returns validation errors", () => {
     assert.equal(mapped.isLocallyValid, false);
     assert.match(mapped.localValidationMessage, /Код проекта обязателен/);
     assert.match(mapped.localValidationMessage, /Объект WBS обязателен/);
-    assert.match(mapped.localValidationMessage, /Код дисциплины обязателен/);
+    assert.match(mapped.localValidationMessage, /Нужна проектная дисциплина или дисциплина-ресурс/);
     assert.match(mapped.localValidationMessage, /Трудозатраты не могут быть отрицательными/);
     assert.match(mapped.localValidationMessage, /Плановая дата начала должна быть <= плановой дате окончания/);
 });

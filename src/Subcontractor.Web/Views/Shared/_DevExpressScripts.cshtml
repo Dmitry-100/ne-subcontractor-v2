@@ -90,6 +90,50 @@ else
 {
     <script src="@jquerySource" onerror="@jqueryOnError"></script>
     <script src="@dxAllSource" onerror="@dxAllOnError"></script>
-    <script src="@dxRuMessagesSource" onerror="@dxRuOnError"></script>
+    <script>
+        (function () {
+            var sources = [
+                "@dxRuMessagesSource",
+                "@dxRuMessagesFallbackSource",
+                "@dxRuMessagesLocalSource"
+            ];
+            var maxWaitAttempts = 50;
+            var waitDelayMs = 100;
+
+            function applyRussianLocale() {
+                if (window.DevExpress &&
+                    window.DevExpress.localization &&
+                    typeof window.DevExpress.localization.locale === "function") {
+                    window.DevExpress.localization.locale("ru");
+                }
+            }
+
+            function loadMessages(sourceIndex, waitAttempt) {
+                if (!(window.DevExpress && window.DevExpress.localization)) {
+                    if (waitAttempt < maxWaitAttempts) {
+                        window.setTimeout(function () {
+                            loadMessages(sourceIndex, waitAttempt + 1);
+                        }, waitDelayMs);
+                    }
+                    return;
+                }
+
+                if (sourceIndex >= sources.length) {
+                    applyRussianLocale();
+                    return;
+                }
+
+                var script = document.createElement("script");
+                script.src = sources[sourceIndex];
+                script.onload = applyRussianLocale;
+                script.onerror = function () {
+                    loadMessages(sourceIndex + 1, 0);
+                };
+                document.head.appendChild(script);
+            }
+
+            loadMessages(0, 0);
+        })();
+    </script>
 }
 <script src="~/js/app-locale-ru.js" asp-append-version="true"></script>

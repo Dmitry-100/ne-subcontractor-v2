@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Subcontractor.Application.Projects;
 using Subcontractor.Application.Projects.Models;
+using Subcontractor.Domain.Imports;
 using Subcontractor.Domain.Projects;
 using Subcontractor.Domain.Users;
 using Subcontractor.Tests.Integration.TestInfrastructure;
@@ -56,6 +57,57 @@ public sealed class ProjectsControllerTests
         Assert.Equal(4, payload.Count);
         Assert.Equal("PRJ-C-001", payload[0].Code);
         Assert.Equal("PRJ-C-004", payload[3].Code);
+    }
+
+    [Fact]
+    public async Task ListLatestSourceData_WithPagingParameters_ShouldReturnSourceDataPageEnvelope()
+    {
+        var expected = new ProjectSourceDataPageDto(
+            BatchId: Guid.NewGuid(),
+            BatchFileName: "20260423-Модуль. Субподрядчик.xlsx",
+            BatchStatus: SourceDataImportBatchStatus.Validated,
+            BatchCreatedAtUtc: DateTimeOffset.UtcNow,
+            Items:
+            [
+                new ProjectSourceDataRowDto(
+                    Guid.NewGuid(),
+                    2,
+                    "25-089",
+                    "AA",
+                    "ЦХПП",
+                    "1",
+                    "Технологическая компоновка и обвязка промышленных объектов",
+                    "01.6 Отдел технологического проектирования (механики)",
+                    "Екатеринбург",
+                    "Иванов Иван Иванович",
+                    635.2m,
+                    new DateTime(2026, 3, 30),
+                    new DateTime(2026, 6, 1),
+                    true,
+                    null)
+            ],
+            TotalCount: 1,
+            Skip: 0,
+            Take: 15);
+        var service = new StubProjectsService
+        {
+            ListLatestSourceDataPageAsyncHandler = (_, skip, take, _) =>
+                Task.FromResult(expected with { Skip = skip, Take = take })
+        };
+        var controller = new ProjectsController(service);
+
+        var result = await controller.ListLatestSourceData(
+            search: null,
+            skip: 0,
+            take: 15,
+            cancellationToken: CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var payload = Assert.IsType<ProjectSourceDataPageDto>(ok.Value);
+        Assert.Equal(expected.BatchId, payload.BatchId);
+        Assert.Equal("25-089", Assert.Single(payload.Items).ProjectCode);
+        Assert.Equal(0, payload.Skip);
+        Assert.Equal(15, payload.Take);
     }
 
     [Fact]
@@ -252,6 +304,17 @@ public sealed class ProjectsControllerTests
         public Func<string?, int, int, CancellationToken, Task<ProjectListPageDto>> ListPageAsyncHandler { get; set; } =
             static (_, skip, take, _) => Task.FromResult(new ProjectListPageDto(Array.Empty<ProjectListItemDto>(), 0, skip, take));
 
+        public Func<string?, int, int, CancellationToken, Task<ProjectSourceDataPageDto>> ListLatestSourceDataPageAsyncHandler { get; set; } =
+            static (_, skip, take, _) => Task.FromResult(new ProjectSourceDataPageDto(
+                null,
+                null,
+                null,
+                null,
+                Array.Empty<ProjectSourceDataRowDto>(),
+                0,
+                skip,
+                take));
+
         public Func<Guid, CancellationToken, Task<ProjectDetailsDto?>> GetByIdAsyncHandler { get; set; } =
             static (_, _) => Task.FromResult<ProjectDetailsDto?>(null);
 
@@ -269,6 +332,13 @@ public sealed class ProjectsControllerTests
 
         public Task<ProjectListPageDto> ListPageAsync(string? search, int skip, int take, CancellationToken cancellationToken = default)
             => ListPageAsyncHandler(search, skip, take, cancellationToken);
+
+        public Task<ProjectSourceDataPageDto> ListLatestSourceDataPageAsync(
+            string? search,
+            int skip,
+            int take,
+            CancellationToken cancellationToken = default)
+            => ListLatestSourceDataPageAsyncHandler(search, skip, take, cancellationToken);
 
         public Task<ProjectDetailsDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
             => GetByIdAsyncHandler(id, cancellationToken);

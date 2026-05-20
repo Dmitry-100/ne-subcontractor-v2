@@ -17,7 +17,7 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "8.0.25")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -324,8 +324,8 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DisciplineCode")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("ContractorId", "DisciplineCode");
 
@@ -948,6 +948,16 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BatchId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("BranchOfficeName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ComplexProjectName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -957,8 +967,13 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("DisciplineCode")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("GipName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("IsValid")
                         .HasColumnType("bit");
@@ -987,6 +1002,16 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ProjectName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("ResourceDisciplineName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<int>("RowNumber")
                         .HasColumnType("int");
@@ -1222,8 +1247,8 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("DisciplineCode")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<Guid>("LotId")
                         .HasColumnType("uniqueidentifier");
@@ -1781,6 +1806,41 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
                     b.ToTable("ProceduresSet");
                 });
 
+            modelBuilder.Entity("Subcontractor.Domain.Procurement.ProcurementProcedureSourceDataRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProcedureId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SourceDataImportRowId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceDataImportRowId");
+
+                    b.HasIndex("ProcedureId", "SourceDataImportRowId")
+                        .IsUnique();
+
+                    b.ToTable("ProcedureSourceDataRowsSet");
+                });
+
             modelBuilder.Entity("Subcontractor.Domain.Procurement.ProcurementProcedureStatusHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1870,6 +1930,69 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
                     b.HasIndex("GipUserId");
 
                     b.ToTable("ProjectsSet");
+                });
+
+            modelBuilder.Entity("Subcontractor.Domain.ReferenceData.DisciplineMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MappingKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ProjectDisciplineGroup")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ProjectDisciplineName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("ProjectDisciplineSection")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ResourceDisciplineName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MappingKey")
+                        .IsUnique();
+
+                    b.HasIndex("ResourceDisciplineName");
+
+                    b.ToTable("DisciplineMappingsSet");
                 });
 
             modelBuilder.Entity("Subcontractor.Domain.ReferenceData.ReferenceDataEntry", b =>
@@ -2499,6 +2622,25 @@ namespace Subcontractor.Infrastructure.Persistence.Migrations
                     b.Navigation("Contractor");
 
                     b.Navigation("Procedure");
+                });
+
+            modelBuilder.Entity("Subcontractor.Domain.Procurement.ProcurementProcedureSourceDataRow", b =>
+                {
+                    b.HasOne("Subcontractor.Domain.Procurement.ProcurementProcedure", "Procedure")
+                        .WithMany()
+                        .HasForeignKey("ProcedureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Subcontractor.Domain.Imports.SourceDataImportRow", "SourceDataImportRow")
+                        .WithMany()
+                        .HasForeignKey("SourceDataImportRowId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Procedure");
+
+                    b.Navigation("SourceDataImportRow");
                 });
 
             modelBuilder.Entity("Subcontractor.Domain.Procurement.ProcurementProcedureStatusHistory", b =>

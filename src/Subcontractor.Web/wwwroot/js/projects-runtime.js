@@ -38,6 +38,7 @@
         const helpers = settings.helpers;
         const customStoreCtor = settings.customStoreCtor;
         const setStatus = settings.setStatus;
+        const setSourceStatus = settings.setSourceStatus || setStatus;
 
         if (!apiClient) {
             throw new Error("ProjectsRuntime requires apiClient.");
@@ -55,8 +56,10 @@
         requireFunction(helpers.toTrimmedString, "helpers.toTrimmedString");
         requireFunction(customStoreCtor, "customStoreCtor");
         requireFunction(setStatus, "setStatus callback");
+        requireFunction(setSourceStatus, "setSourceStatus callback");
 
         let cache = [];
+        let sourceDataCache = [];
 
         function findProjectById(projectId) {
             return cache.find(function (item) {
@@ -146,10 +149,62 @@
             });
         }
 
+        function createSourceDataStore() {
+            requireFunction(apiClient.getLatestSourceDataRows, "apiClient.getLatestSourceDataRows");
+
+            return new customStoreCtor({
+                key: "id",
+                load: async function (loadOptions) {
+                    const options = loadOptions || {};
+                    const skip = toFiniteInteger(options.skip);
+                    const take = toFiniteInteger(options.take);
+                    const hasPagingQuery = (skip !== null && skip >= 0) || (take !== null && take > 0);
+                    const paging = hasPagingQuery
+                        ? {
+                            skip: skip !== null && skip >= 0 ? skip : 0,
+                            take: take !== null && take > 0 ? take : 15,
+                            requireTotalCount: true
+                        }
+                        : {
+                            skip: 0,
+                            take: 15,
+                            requireTotalCount: true
+                        };
+
+                    const payload = await apiClient.getLatestSourceDataRows(null, paging);
+                    const pagedPayload = tryReadPagedPayload(payload);
+                    if (!pagedPayload) {
+                        sourceDataCache = [];
+                        setSourceStatus("Импортированные строки Express не найдены.", false);
+                        return {
+                            data: [],
+                            totalCount: 0
+                        };
+                    }
+
+                    sourceDataCache = pagedPayload.items.slice();
+                    const batchFileName = String(payload.batchFileName || "").trim();
+                    const sourceSuffix = batchFileName ? ` Источник: ${batchFileName}.` : "";
+                    setSourceStatus(
+                        `Загружены строки Express: ${pagedPayload.items.length} (всего: ${pagedPayload.totalCount}).${sourceSuffix}`,
+                        false);
+
+                    return {
+                        data: pagedPayload.items,
+                        totalCount: pagedPayload.totalCount
+                    };
+                }
+            });
+        }
+
         return {
             createStore: createStore,
+            createSourceDataStore: createSourceDataStore,
             getCache: function () {
                 return cache.slice();
+            },
+            getSourceDataCache: function () {
+                return sourceDataCache.slice();
             }
         };
     }

@@ -7,6 +7,7 @@ using Subcontractor.Application.Lots;
 using Subcontractor.Application.Lots.Models;
 using Subcontractor.Domain.Imports;
 using Subcontractor.Domain.Projects;
+using Subcontractor.Domain.ReferenceData;
 using Subcontractor.Tests.Integration.TestInfrastructure;
 using Subcontractor.Web.Controllers;
 
@@ -135,8 +136,9 @@ public sealed class SourceDataImportsControllerTests
         Assert.Equal("text/csv", file.ContentType);
         Assert.Equal("source-data-template.csv", file.FileDownloadName);
         var content = Encoding.UTF8.GetString(file.FileContents);
-        Assert.Contains("ProjectCode", content, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("PlannedFinishDate", content, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("проект номер", content, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Дисциплина-ресурс", content, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Finish", content, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -338,6 +340,70 @@ public sealed class SourceDataImportsControllerTests
         var content = Encoding.UTF8.GetString(file.FileContents);
         Assert.Contains("ApplyOperationId", content, StringComparison.Ordinal);
         Assert.Contains("Created", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ApplyDisciplineResolutions_ValidSelection_ShouldReturnUpdatedBatch()
+    {
+        await using var db = TestDbContextFactory.Create();
+        await db.Set<DisciplineMapping>().AddRangeAsync(
+            new DisciplineMapping
+            {
+                MappingKey = DisciplineMappingPolicy.BuildMappingKey("07.1 Отдел систем автоматизации", "АСУ ТП"),
+                ProjectDisciplineGroup = "Автоматизация",
+                ProjectDisciplineSection = "Автоматизация",
+                ProjectDisciplineName = "АСУ ТП",
+                ResourceDisciplineName = "07.1 Отдел систем автоматизации"
+            },
+            new DisciplineMapping
+            {
+                MappingKey = DisciplineMappingPolicy.BuildMappingKey("07.1 Отдел систем автоматизации", "Системы связи"),
+                ProjectDisciplineGroup = "Автоматизация",
+                ProjectDisciplineSection = "Связь",
+                ProjectDisciplineName = "Системы связи",
+                ResourceDisciplineName = "07.1 Отдел систем автоматизации"
+            });
+        await db.SaveChangesAsync();
+
+        var service = new SourceDataImportsService(db);
+        var created = await service.CreateBatchAsync(new CreateSourceDataImportBatchRequest
+        {
+            FileName = "manual-resolution.xlsx",
+            Rows =
+            [
+                new CreateSourceDataImportRowRequest
+                {
+                    ProjectCode = "24-242",
+                    ProjectName = "ДЦ-1",
+                    ObjectWbs = "1",
+                    ResourceDisciplineName = "07.1 Отдел систем автоматизации",
+                    ManHours = 10m
+                }
+            ]
+        });
+        var row = Assert.Single(created.Rows);
+        var controller = new SourceDataImportsController(service);
+
+        var result = await controller.ApplyDisciplineResolutions(
+            created.Id,
+            new ApplyDisciplineResolutionsRequest
+            {
+                Items =
+                [
+                    new ApplyDisciplineResolutionItemRequest
+                    {
+                        RowId = row.Id,
+                        ProjectDisciplineName = "Системы связи"
+                    }
+                ]
+            },
+            CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var payload = Assert.IsType<SourceDataImportBatchDetailsDto>(ok.Value);
+        Assert.Equal(SourceDataImportBatchStatus.Validated, payload.Status);
+        Assert.Equal(1, payload.ValidRows);
+        Assert.Equal("Системы связи", payload.Rows[0].DisciplineCode);
     }
 
     [Fact]

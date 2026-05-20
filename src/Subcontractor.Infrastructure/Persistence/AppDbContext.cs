@@ -51,6 +51,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
     public DbSet<ProcedureShortlistAdjustmentLog> ProcedureShortlistAdjustmentLogsSet => Set<ProcedureShortlistAdjustmentLog>();
     public DbSet<ProcedureOffer> ProcedureOffersSet => Set<ProcedureOffer>();
     public DbSet<ProcedureOutcome> ProcedureOutcomesSet => Set<ProcedureOutcome>();
+    public DbSet<ProcurementProcedureSourceDataRow> ProcedureSourceDataRowsSet => Set<ProcurementProcedureSourceDataRow>();
     public DbSet<Contract> ContractsSet => Set<Contract>();
     public DbSet<ContractStatusHistory> ContractStatusHistorySet => Set<ContractStatusHistory>();
     public DbSet<ContractMilestone> ContractMilestonesSet => Set<ContractMilestone>();
@@ -60,6 +61,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
     public DbSet<ContractMdrRow> ContractMdrRowsSet => Set<ContractMdrRow>();
     public DbSet<StoredFile> FilesSet => Set<StoredFile>();
     public DbSet<ReferenceDataEntry> ReferenceDataEntriesSet => Set<ReferenceDataEntry>();
+    public DbSet<DisciplineMapping> DisciplineMappingsSet => Set<DisciplineMapping>();
     public DbSet<SourceDataImportBatch> SourceDataImportBatchesSet => Set<SourceDataImportBatch>();
     public DbSet<SourceDataImportRow> SourceDataImportRowsSet => Set<SourceDataImportRow>();
     public DbSet<SourceDataImportBatchStatusHistory> SourceDataImportBatchStatusHistorySet => Set<SourceDataImportBatchStatusHistory>();
@@ -86,6 +88,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
     public IQueryable<ProcedureShortlistAdjustmentLog> ProcedureShortlistAdjustmentLogs => ProcedureShortlistAdjustmentLogsSet.AsQueryable();
     public IQueryable<ProcedureOffer> ProcedureOffers => ProcedureOffersSet.AsQueryable();
     public IQueryable<ProcedureOutcome> ProcedureOutcomes => ProcedureOutcomesSet.AsQueryable();
+    public IQueryable<ProcurementProcedureSourceDataRow> ProcedureSourceDataRows => ProcedureSourceDataRowsSet.AsQueryable();
     public IQueryable<Contract> Contracts => ContractsSet.AsQueryable();
     public IQueryable<ContractStatusHistory> ContractStatusHistory => ContractStatusHistorySet.AsQueryable();
     public IQueryable<ContractMilestone> ContractMilestones => ContractMilestonesSet.AsQueryable();
@@ -95,6 +98,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
     public IQueryable<ContractMdrRow> ContractMdrRows => ContractMdrRowsSet.AsQueryable();
     public IQueryable<StoredFile> Files => FilesSet.AsQueryable();
     public IQueryable<ReferenceDataEntry> ReferenceDataEntries => ReferenceDataEntriesSet.AsQueryable();
+    public IQueryable<DisciplineMapping> DisciplineMappings => DisciplineMappingsSet.AsQueryable();
     public IQueryable<SourceDataImportBatch> SourceDataImportBatches => SourceDataImportBatchesSet.AsQueryable();
     public IQueryable<SourceDataImportRow> SourceDataImportRows => SourceDataImportRowsSet.AsQueryable();
     public IQueryable<SourceDataImportBatchStatusHistory> SourceDataImportBatchStatusHistory => SourceDataImportBatchStatusHistorySet.AsQueryable();
@@ -164,7 +168,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
         {
             entity.HasQueryFilter(x => !x.Contractor.IsDeleted);
             entity.HasKey(x => new { x.ContractorId, x.DisciplineCode });
-            entity.Property(x => x.DisciplineCode).HasMaxLength(64).IsRequired();
+            entity.Property(x => x.DisciplineCode).HasMaxLength(512).IsRequired();
             entity.HasOne(x => x.Contractor).WithMany(x => x.Qualifications).HasForeignKey(x => x.ContractorId);
         });
 
@@ -253,7 +257,7 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
             entity.HasQueryFilter(x => !x.Lot.IsDeleted);
             entity.HasKey(x => x.Id);
             entity.Property(x => x.ObjectWbs).HasMaxLength(128).IsRequired();
-            entity.Property(x => x.DisciplineCode).HasMaxLength(64).IsRequired();
+            entity.Property(x => x.DisciplineCode).HasMaxLength(512).IsRequired();
             entity.Property(x => x.ManHours).HasColumnType("decimal(18,2)");
             entity.HasOne(x => x.Lot).WithMany(x => x.Items).HasForeignKey(x => x.LotId);
         });
@@ -297,6 +301,21 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
             entity.HasIndex(x => x.ProcedureId);
             entity.Property(x => x.Reason).HasMaxLength(1024);
             entity.HasOne(x => x.Procedure).WithMany().HasForeignKey(x => x.ProcedureId);
+        });
+
+        modelBuilder.Entity<ProcurementProcedureSourceDataRow>(entity =>
+        {
+            entity.HasQueryFilter(x => !x.Procedure.IsDeleted && !x.SourceDataImportRow.Batch.IsDeleted);
+            entity.HasIndex(x => new { x.ProcedureId, x.SourceDataImportRowId }).IsUnique();
+            entity.HasIndex(x => x.SourceDataImportRowId);
+            entity.HasOne(x => x.Procedure)
+                .WithMany()
+                .HasForeignKey(x => x.ProcedureId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.SourceDataImportRow)
+                .WithMany()
+                .HasForeignKey(x => x.SourceDataImportRowId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<ProcedureApprovalStep>(entity =>
@@ -493,6 +512,18 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
             entity.Property(x => x.DisplayName).HasMaxLength(512).IsRequired();
         });
 
+        modelBuilder.Entity<DisciplineMapping>(entity =>
+        {
+            entity.HasQueryFilter(x => !x.IsDeleted);
+            entity.HasIndex(x => x.MappingKey).IsUnique();
+            entity.HasIndex(x => x.ResourceDisciplineName);
+            entity.Property(x => x.MappingKey).HasMaxLength(64).IsRequired();
+            entity.Property(x => x.ProjectDisciplineGroup).HasMaxLength(256).IsRequired();
+            entity.Property(x => x.ProjectDisciplineSection).HasMaxLength(256).IsRequired();
+            entity.Property(x => x.ProjectDisciplineName).HasMaxLength(512).IsRequired();
+            entity.Property(x => x.ResourceDisciplineName).HasMaxLength(512).IsRequired();
+        });
+
         modelBuilder.Entity<SourceDataImportBatch>(entity =>
         {
             entity.HasQueryFilter(x => !x.IsDeleted);
@@ -514,8 +545,13 @@ public sealed class AppDbContext : DbContext, IApplicationDbContext
         {
             entity.HasIndex(x => new { x.BatchId, x.RowNumber }).IsUnique();
             entity.Property(x => x.ProjectCode).HasMaxLength(64).IsRequired();
+            entity.Property(x => x.ProjectName).HasMaxLength(512);
+            entity.Property(x => x.ComplexProjectName).HasMaxLength(256);
             entity.Property(x => x.ObjectWbs).HasMaxLength(128).IsRequired();
-            entity.Property(x => x.DisciplineCode).HasMaxLength(64).IsRequired();
+            entity.Property(x => x.DisciplineCode).HasMaxLength(512).IsRequired();
+            entity.Property(x => x.ResourceDisciplineName).HasMaxLength(512);
+            entity.Property(x => x.BranchOfficeName).HasMaxLength(256);
+            entity.Property(x => x.GipName).HasMaxLength(256);
             entity.Property(x => x.ManHours).HasColumnType("decimal(18,2)");
             entity.Property(x => x.ValidationMessage).HasMaxLength(2000);
         });

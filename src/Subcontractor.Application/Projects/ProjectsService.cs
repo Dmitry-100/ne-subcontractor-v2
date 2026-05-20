@@ -37,6 +37,15 @@ public sealed class ProjectsService : IProjectsService
         return await _readQueryService.ListPageAsync(search, skip, take, cancellationToken);
     }
 
+    public async Task<ProjectSourceDataPageDto> ListLatestSourceDataPageAsync(
+        string? search,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        return await _readQueryService.ListLatestSourceDataPageAsync(search, skip, take, cancellationToken);
+    }
+
     public async Task<ProjectDetailsDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _readQueryService.GetByIdAsync(id, cancellationToken);

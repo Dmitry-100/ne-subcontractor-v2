@@ -91,7 +91,11 @@
 
         const importsPageWorkbook = roots.importsPageWorkbookRoot.createWorkbookParser({
             getSheetJs: getSheetJs,
-            isRowEmpty: importsPageHelpers.isRowEmpty
+            isRowEmpty: importsPageHelpers.isRowEmpty,
+            preferredSheetNames: ["данные из экспресс"],
+            onSheetWarning: function (message) {
+                setUploadStatus(message, false);
+            }
         });
 
         const importsPageFileParser = roots.importsPageFileParserRoot.createFileParser({

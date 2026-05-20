@@ -101,6 +101,9 @@
     function createApiClient(options) {
         const settings = options || {};
         const endpoint = settings.endpoint;
+        const sourceDataEndpoint = settings.sourceDataEndpoint || `${endpoint}/source-data/latest`;
+        const proceduresFromSourceDataEndpoint = settings.proceduresFromSourceDataEndpoint || "/api/procedures/from-source-data";
+        const filesEndpoint = settings.filesEndpoint || "/api/files";
         const parseErrorBody = settings.parseErrorBody;
         const fetchImpl = settings.fetchImpl || (typeof fetch === "function" ? fetch.bind(globalThis) : null);
 
@@ -145,7 +148,7 @@
             return null;
         }
 
-        function buildProjectsUrl(search, paging) {
+        function buildProjectsUrl(baseEndpoint, search, paging) {
             const searchText = String(search ?? "").trim();
             const queryParts = [];
 
@@ -172,15 +175,32 @@
             }
 
             if (queryParts.length === 0) {
-                return endpoint;
+                return baseEndpoint;
             }
 
-            return `${endpoint}?${queryParts.join("&")}`;
+            return `${baseEndpoint}?${queryParts.join("&")}`;
         }
 
         return {
             getProjects: function (search, paging) {
-                return request(buildProjectsUrl(search, paging), { method: "GET" });
+                return request(buildProjectsUrl(endpoint, search, paging), { method: "GET" });
+            },
+            getLatestSourceDataRows: function (search, paging) {
+                return request(buildProjectsUrl(sourceDataEndpoint, search, paging), { method: "GET" });
+            },
+            uploadTechnicalAssignment: async function (file) {
+                const form = new FormData();
+                form.append("file", file);
+                return request(filesEndpoint, {
+                    method: "POST",
+                    body: form
+                });
+            },
+            createProcedureFromSourceData: function (payload) {
+                return request(proceduresFromSourceDataEndpoint, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
             },
             createProject: function (payload) {
                 return request(endpoint, {
@@ -256,6 +276,7 @@
         const helpers = settings.helpers;
         const customStoreCtor = settings.customStoreCtor;
         const setStatus = settings.setStatus;
+        const setSourceStatus = settings.setSourceStatus || setStatus;
 
         if (!apiClient) {
             throw new Error("ProjectsRuntime requires apiClient.");
@@ -273,8 +294,10 @@
         requireFunction(helpers.toTrimmedString, "helpers.toTrimmedString");
         requireFunction(customStoreCtor, "customStoreCtor");
         requireFunction(setStatus, "setStatus callback");
+        requireFunction(setSourceStatus, "setSourceStatus callback");
 
         let cache = [];
+        let sourceDataCache = [];
 
         function findProjectById(projectId) {
             return cache.find(function (item) {
@@ -364,10 +387,62 @@
             });
         }
 
+        function createSourceDataStore() {
+            requireFunction(apiClient.getLatestSourceDataRows, "apiClient.getLatestSourceDataRows");
+
+            return new customStoreCtor({
+                key: "id",
+                load: async function (loadOptions) {
+                    const options = loadOptions || {};
+                    const skip = toFiniteInteger(options.skip);
+                    const take = toFiniteInteger(options.take);
+                    const hasPagingQuery = (skip !== null && skip >= 0) || (take !== null && take > 0);
+                    const paging = hasPagingQuery
+                        ? {
+                            skip: skip !== null && skip >= 0 ? skip : 0,
+                            take: take !== null && take > 0 ? take : 15,
+                            requireTotalCount: true
+                        }
+                        : {
+                            skip: 0,
+                            take: 15,
+                            requireTotalCount: true
+                        };
+
+                    const payload = await apiClient.getLatestSourceDataRows(null, paging);
+                    const pagedPayload = tryReadPagedPayload(payload);
+                    if (!pagedPayload) {
+                        sourceDataCache = [];
+                        setSourceStatus("Импортированные строки Express не найдены.", false);
+                        return {
+                            data: [],
+                            totalCount: 0
+                        };
+                    }
+
+                    sourceDataCache = pagedPayload.items.slice();
+                    const batchFileName = String(payload.batchFileName || "").trim();
+                    const sourceSuffix = batchFileName ? ` Источник: ${batchFileName}.` : "";
+                    setSourceStatus(
+                        `Загружены строки Express: ${pagedPayload.items.length} (всего: ${pagedPayload.totalCount}).${sourceSuffix}`,
+                        false);
+
+                    return {
+                        data: pagedPayload.items,
+                        totalCount: pagedPayload.totalCount
+                    };
+                }
+            });
+        }
+
         return {
             createStore: createStore,
+            createSourceDataStore: createSourceDataStore,
             getCache: function () {
                 return cache.slice();
+            },
+            getSourceDataCache: function () {
+                return sourceDataCache.slice();
             }
         };
     }
@@ -526,8 +601,191 @@
         return gridInstance;
     }
 
+    function createSourceDataGrid(options) {
+        const settings = options || {};
+        const jQueryImpl = settings.jQueryImpl;
+        const gridElement = settings.gridElement;
+        const store = settings.store;
+        const setStatus = settings.setStatus;
+        const onCreateProcurementRequest = typeof settings.onCreateProcurementRequest === "function"
+            ? settings.onCreateProcurementRequest
+            : null;
+
+        requireFunction(jQueryImpl, "jQueryImpl");
+        requireFunction(setStatus, "setStatus callback");
+
+        if (!gridElement) {
+            throw new Error("ProjectsGrids requires source data gridElement.");
+        }
+
+        if (!store) {
+            throw new Error("ProjectsGrids requires source data store.");
+        }
+
+        let gridInstance = null;
+        gridInstance = jQueryImpl(gridElement).dxDataGrid({
+            dataSource: store,
+            keyExpr: "id",
+            height: 620,
+            showBorders: true,
+            rowAlternationEnabled: true,
+            hoverStateEnabled: true,
+            renderAsync: true,
+            columnAutoWidth: true,
+            columnHidingEnabled: false,
+            wordWrapEnabled: true,
+            repaintChangesOnly: true,
+            remoteOperations: {
+                paging: true
+            },
+            selection: {
+                mode: "multiple",
+                showCheckBoxesMode: "always",
+                selectAllMode: "page"
+            },
+            sorting: {
+                mode: "multiple"
+            },
+            searchPanel: {
+                visible: true,
+                width: 320,
+                placeholder: "Поиск по данным Express..."
+            },
+            filterRow: {
+                visible: true
+            },
+            headerFilter: {
+                visible: true
+            },
+            paging: {
+                pageSize: 15
+            },
+            pager: {
+                showInfo: true,
+                showPageSizeSelector: true,
+                allowedPageSizes: [15, 30, 50, 100]
+            },
+            editing: {
+                allowAdding: false,
+                allowUpdating: false,
+                allowDeleting: false
+            },
+            columns: [
+                {
+                    dataField: "projectCode",
+                    caption: "проект номер",
+                    width: 120
+                },
+                {
+                    dataField: "complexProjectName",
+                    caption: "Комплекс/проект",
+                    width: 150
+                },
+                {
+                    dataField: "projectName",
+                    caption: "Проект",
+                    width: 180
+                },
+                {
+                    dataField: "objectWbs",
+                    caption: "Объект",
+                    width: 100
+                },
+                {
+                    dataField: "disciplineCode",
+                    caption: "Проектная дисциплина",
+                    minWidth: 220
+                },
+                {
+                    dataField: "resourceDisciplineName",
+                    caption: "Дисциплина-ресурс",
+                    minWidth: 280
+                },
+                {
+                    dataField: "branchOfficeName",
+                    caption: "Филиал_исп",
+                    width: 150
+                },
+                {
+                    dataField: "gipName",
+                    caption: "ГИП",
+                    width: 220
+                },
+                {
+                    dataField: "manHours",
+                    caption: "Загр НИ, чел-час",
+                    dataType: "number",
+                    format: {
+                        type: "fixedPoint",
+                        precision: 2
+                    },
+                    width: 160
+                },
+                {
+                    dataField: "plannedStartDate",
+                    caption: "Start",
+                    dataType: "date",
+                    format: "dd.MM.yyyy",
+                    width: 130
+                },
+                {
+                    dataField: "plannedFinishDate",
+                    caption: "Finish",
+                    dataType: "date",
+                    format: "dd.MM.yyyy",
+                    width: 130
+                },
+                {
+                    dataField: "isValid",
+                    caption: "Статус валидации",
+                    width: 160,
+                    calculateCellValue: function (row) {
+                        return row && row.isValid ? "Валидна" : "Требует проверки";
+                    }
+                }
+            ],
+            onToolbarPreparing: function (e) {
+                e.toolbarOptions.items.push({
+                    location: "after",
+                    widget: "dxButton",
+                    options: {
+                        icon: "plus",
+                        text: "Сформировать заявку на закупку",
+                        onClick: function () {
+                            const selectedRows = gridInstance && typeof gridInstance.getSelectedRowsData === "function"
+                                ? gridInstance.getSelectedRowsData()
+                                : [];
+                            if (onCreateProcurementRequest) {
+                                onCreateProcurementRequest(selectedRows);
+                            }
+                        }
+                    }
+                });
+                e.toolbarOptions.items.push({
+                    location: "after",
+                    widget: "dxButton",
+                    options: {
+                        icon: "refresh",
+                        text: "Обновить",
+                        onClick: function () {
+                            if (gridInstance) {
+                                gridInstance.refresh();
+                            }
+                        }
+                    }
+                });
+            },
+            onDataErrorOccurred: function (e) {
+                setStatus(e.error?.message ?? "Ошибка загрузки данных Express.", true);
+            }
+        }).dxDataGrid("instance");
+
+        return gridInstance;
+    }
+
     const exportsObject = {
-        createGrid: createGrid
+        createGrid: createGrid,
+        createSourceDataGrid: createSourceDataGrid
     };
 
     if (typeof window !== "undefined") {
@@ -546,6 +804,19 @@
     const REQUIRED_CONTROLS = {
         gridElement: "[data-projects-grid]",
         statusElement: "[data-projects-status]"
+    };
+    const OPTIONAL_CONTROLS = {
+        sourceGridElement: "[data-projects-source-grid]",
+        sourceStatusElement: "[data-projects-source-status]",
+        procurementSection: "[data-projects-procurement-request]",
+        procurementSummary: "[data-projects-procurement-summary]",
+        procurementTitle: "[data-projects-procurement-title]",
+        procurementFile: "[data-projects-procurement-file]",
+        procurementCreate: "[data-projects-procurement-create]",
+        procurementCancel: "[data-projects-procurement-cancel]",
+        procurementStatus: "[data-projects-procurement-status]",
+        procurementResult: "[data-projects-procurement-result]",
+        procurementTable: "[data-projects-procurement-table]"
     };
 
     const REQUIRED_MODULES = [
@@ -597,6 +868,12 @@
             }
 
             controls[controlKey] = control;
+        }
+
+        const optionalEntries = Object.entries(OPTIONAL_CONTROLS);
+        for (let index = 0; index < optionalEntries.length; index += 1) {
+            const entry = optionalEntries[index];
+            controls[entry[0]] = moduleRoot.querySelector(entry[1]);
         }
 
         return controls;
@@ -654,6 +931,9 @@
 
         return {
             endpoint: moduleRoot.getAttribute("data-api-endpoint") || "/api/projects",
+            sourceDataEndpoint: moduleRoot.getAttribute("data-source-data-api-endpoint") || "/api/projects/source-data/latest",
+            proceduresFromSourceDataEndpoint: moduleRoot.getAttribute("data-procedures-from-source-data-api-endpoint") || "/api/procedures/from-source-data",
+            filesEndpoint: moduleRoot.getAttribute("data-files-api-endpoint") || "/api/files",
             controls: controls,
             moduleRoots: moduleRoots
         };
@@ -681,57 +961,296 @@
         return;
     }
 
-    const context = bootstrapRoot.createBootstrapContext({
-        document: document,
-        window: window,
-        logError: function (message) {
-            if (window.console && typeof window.console.error === "function") {
-                window.console.error(message);
+    const maxAssetWaitAttempts = 50;
+    const assetWaitDelayMs = 100;
+    let initialized = false;
+
+    function hasDevExpressAssets() {
+        return Boolean(window.jQuery && window.DevExpress && window.DevExpress.data);
+    }
+
+    function logError(message) {
+        if (window.console && typeof window.console.error === "function") {
+            window.console.error(message);
+        }
+    }
+
+    function reportAssetLoadFailure() {
+        const moduleRoot = document.querySelector("[data-projects-module]");
+        const statusElement = moduleRoot ? moduleRoot.querySelector("[data-projects-status]") : null;
+        const message = "Скрипты DevExpress не загружены. Проверьте доступ к UI-ассетам (CDN или локальный режим).";
+
+        if (statusElement) {
+            statusElement.textContent = message;
+            statusElement.classList.add("projects-status--error");
+        }
+
+        logError(message);
+    }
+
+    function initialize(attempt) {
+        if (initialized) {
+            return;
+        }
+
+        if (!hasDevExpressAssets()) {
+            if (attempt < maxAssetWaitAttempts) {
+                window.setTimeout(function () {
+                    initialize(attempt + 1);
+                }, assetWaitDelayMs);
+                return;
+            }
+
+            reportAssetLoadFailure();
+            return;
+        }
+
+        initialized = true;
+
+        const context = bootstrapRoot.createBootstrapContext({
+            document: document,
+            window: window,
+            logError: logError
+        });
+
+        if (!context) {
+            return;
+        }
+
+        const endpoint = context.endpoint;
+        const sourceDataEndpoint = context.sourceDataEndpoint;
+        const proceduresFromSourceDataEndpoint = context.proceduresFromSourceDataEndpoint;
+        const filesEndpoint = context.filesEndpoint;
+        const controls = context.controls;
+        const moduleRoots = context.moduleRoots;
+        const statusElement = controls.statusElement;
+        const sourceStatusElement = controls.sourceStatusElement || statusElement;
+        let selectedProcurementRows = [];
+        let apiClient = null;
+
+        function setStatus(message, isError) {
+            statusElement.textContent = message;
+            statusElement.classList.toggle("projects-status--error", Boolean(isError));
+        }
+
+        function setSourceStatus(message, isError) {
+            sourceStatusElement.textContent = message;
+            sourceStatusElement.classList.toggle("projects-status--error", Boolean(isError));
+        }
+
+        function setProcurementStatus(message, isError) {
+            const element = controls.procurementStatus || sourceStatusElement;
+            element.textContent = message;
+            element.classList.toggle("projects-status--error", Boolean(isError));
+        }
+
+        function createCell(value) {
+            const td = document.createElement("td");
+            td.textContent = String(value ?? "");
+            return td;
+        }
+
+        function formatNumber(value) {
+            const number = Number(value);
+            if (!Number.isFinite(number)) {
+                return String(value ?? "");
+            }
+
+            return number.toLocaleString("ru-RU", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatDate(value) {
+            if (!value) {
+                return "";
+            }
+
+            return new Date(value).toLocaleDateString("ru-RU");
+        }
+
+        function renderSelectedRows(rows) {
+            const table = controls.procurementTable;
+            const head = table?.querySelector("thead");
+            const body = table?.querySelector("tbody");
+            if (!head || !body) {
+                return;
+            }
+
+            head.innerHTML = "";
+            body.innerHTML = "";
+            const header = document.createElement("tr");
+            ["Строка", "Проект", "Комплекс/проект", "Объект", "Проектная дисциплина", "Чел.-ч", "Период"].forEach(function (label) {
+                const th = document.createElement("th");
+                th.textContent = label;
+                header.appendChild(th);
+            });
+            head.appendChild(header);
+
+            rows.forEach(function (row) {
+                const tr = document.createElement("tr");
+                tr.appendChild(createCell(row.rowNumber));
+                tr.appendChild(createCell(`${row.projectCode}${row.projectName ? " / " + row.projectName : ""}`));
+                tr.appendChild(createCell(row.complexProjectName || ""));
+                tr.appendChild(createCell(row.objectWbs));
+                tr.appendChild(createCell(row.disciplineCode));
+                tr.appendChild(createCell(formatNumber(row.manHours)));
+                tr.appendChild(createCell(`${formatDate(row.plannedStartDate)} - ${formatDate(row.plannedFinishDate)}`));
+                body.appendChild(tr);
+            });
+        }
+
+        function openProcurementRequest(rows) {
+            const selectedRows = Array.isArray(rows) ? rows : [];
+            const invalidRows = selectedRows.filter(function (row) {
+                return !row.isValid;
+            });
+            const validRows = selectedRows.filter(function (row) {
+                return row.isValid;
+            });
+
+            if (selectedRows.length === 0) {
+                setSourceStatus("Выберите одну или несколько валидных работ из Express.", true);
+                return;
+            }
+
+            if (invalidRows.length > 0) {
+                setSourceStatus("В заявке можно использовать только валидные строки. Сначала исправьте сопоставление дисциплин в разделе Импорт.", true);
+                return;
+            }
+
+            selectedProcurementRows = validRows;
+            const totalManHours = validRows.reduce(function (sum, row) {
+                return sum + (Number(row.manHours) || 0);
+            }, 0);
+
+            if (controls.procurementSection) {
+                controls.procurementSection.hidden = false;
+            }
+            if (controls.procurementSummary) {
+                controls.procurementSummary.textContent = `Выбрано работ: ${validRows.length}, суммарно ${formatNumber(totalManHours)} чел.-ч. Прикрепите ТЗ и создайте закупочную заявку.`;
+            }
+            if (controls.procurementResult) {
+                controls.procurementResult.hidden = true;
+                controls.procurementResult.innerHTML = "";
+            }
+
+            renderSelectedRows(validRows);
+            setProcurementStatus("Готово к созданию заявки.", false);
+            controls.procurementSection?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+
+        async function createProcurementRequest() {
+            try {
+                if (selectedProcurementRows.length === 0) {
+                    throw new Error("Выберите валидные работы в таблице Express.");
+                }
+
+                const file = controls.procurementFile?.files?.[0];
+                if (!file) {
+                    throw new Error("Прикрепите файл технического задания.");
+                }
+
+                setProcurementStatus("Загружаю ТЗ и создаю закупочную процедуру...", false);
+                const uploaded = await apiClient.uploadTechnicalAssignment(file);
+                const result = await apiClient.createProcedureFromSourceData({
+                    sourceDataRowIds: selectedProcurementRows.map(function (row) {
+                        return row.id;
+                    }),
+                    technicalAssignmentFileId: uploaded.id,
+                    requestTitle: controls.procurementTitle?.value || null,
+                    purchaseTypeCode: "SUBCONTRACT"
+                });
+
+                setProcurementStatus(
+                    `Заявка создана: работ ${result.sourceRowsCount}, объём ${formatNumber(result.totalManHours)} чел.-ч.`,
+                    false);
+                if (controls.procurementResult) {
+                    controls.procurementResult.hidden = false;
+                    controls.procurementResult.innerHTML = "";
+
+                    const procedureLink = document.createElement("a");
+                    procedureLink.className = "registry-api-link";
+                    procedureLink.href = `/procedures?search=${encodeURIComponent(result.procedureId)}`;
+                    procedureLink.textContent = "Открыть процедуру";
+
+                    const lotLink = document.createElement("a");
+                    lotLink.className = "registry-api-link";
+                    lotLink.href = `/lots?search=${encodeURIComponent(result.lotId)}`;
+                    lotLink.textContent = "Открыть лот";
+
+                    controls.procurementResult.appendChild(procedureLink);
+                    controls.procurementResult.appendChild(lotLink);
+                }
+            } catch (error) {
+                const message = error && error.message ? error.message : "Не удалось создать заявку.";
+                setProcurementStatus(message, true);
             }
         }
-    });
 
-    if (!context) {
-        return;
+        function closeProcurementRequest() {
+            selectedProcurementRows = [];
+            if (controls.procurementSection) {
+                controls.procurementSection.hidden = true;
+            }
+            if (controls.procurementFile) {
+                controls.procurementFile.value = "";
+            }
+            if (controls.procurementResult) {
+                controls.procurementResult.hidden = true;
+                controls.procurementResult.innerHTML = "";
+            }
+        }
+
+        const projectsHelpersRoot = moduleRoots.projectsHelpersRoot;
+        const projectsApiRoot = moduleRoots.projectsApiRoot;
+        const projectsRuntimeRoot = moduleRoots.projectsRuntimeRoot;
+        const projectsGridsRoot = moduleRoots.projectsGridsRoot;
+
+        try {
+            const helpers = projectsHelpersRoot.createHelpers();
+            apiClient = projectsApiRoot.createApiClient({
+                endpoint: endpoint,
+                sourceDataEndpoint: sourceDataEndpoint,
+                proceduresFromSourceDataEndpoint: proceduresFromSourceDataEndpoint,
+                filesEndpoint: filesEndpoint,
+                parseErrorBody: helpers.parseErrorBody
+            });
+            const runtime = projectsRuntimeRoot.createRuntime({
+                apiClient: apiClient,
+                helpers: helpers,
+                customStoreCtor: window.DevExpress.data.CustomStore,
+                setStatus: setStatus,
+                setSourceStatus: setSourceStatus
+            });
+
+            if (controls.sourceGridElement && typeof projectsGridsRoot.createSourceDataGrid === "function") {
+                const sourceDataStore = runtime.createSourceDataStore();
+                projectsGridsRoot.createSourceDataGrid({
+                    jQueryImpl: window.jQuery,
+                    gridElement: controls.sourceGridElement,
+                    store: sourceDataStore,
+                    setStatus: setSourceStatus,
+                    onCreateProcurementRequest: openProcurementRequest
+                });
+            }
+
+            const store = runtime.createStore();
+            projectsGridsRoot.createGrid({
+                jQueryImpl: window.jQuery,
+                gridElement: controls.gridElement,
+                store: store,
+                setStatus: setStatus
+            });
+
+            controls.procurementCreate?.addEventListener("click", createProcurementRequest);
+            controls.procurementCancel?.addEventListener("click", closeProcurementRequest);
+        } catch (error) {
+            const message = error && error.message ? error.message : "Не удалось инициализировать модуль проектов.";
+            setStatus(message, true);
+        }
     }
 
-    const endpoint = context.endpoint;
-    const controls = context.controls;
-    const moduleRoots = context.moduleRoots;
-    const statusElement = controls.statusElement;
-
-    function setStatus(message, isError) {
-        statusElement.textContent = message;
-        statusElement.classList.toggle("projects-status--error", Boolean(isError));
-    }
-
-    const projectsHelpersRoot = moduleRoots.projectsHelpersRoot;
-    const projectsApiRoot = moduleRoots.projectsApiRoot;
-    const projectsRuntimeRoot = moduleRoots.projectsRuntimeRoot;
-    const projectsGridsRoot = moduleRoots.projectsGridsRoot;
-
-    try {
-        const helpers = projectsHelpersRoot.createHelpers();
-        const apiClient = projectsApiRoot.createApiClient({
-            endpoint: endpoint,
-            parseErrorBody: helpers.parseErrorBody
-        });
-        const runtime = projectsRuntimeRoot.createRuntime({
-            apiClient: apiClient,
-            helpers: helpers,
-            customStoreCtor: window.DevExpress.data.CustomStore,
-            setStatus: setStatus
-        });
-
-        const store = runtime.createStore();
-        projectsGridsRoot.createGrid({
-            jQueryImpl: window.jQuery,
-            gridElement: controls.gridElement,
-            store: store,
-            setStatus: setStatus
-        });
-    } catch (error) {
-        const message = error && error.message ? error.message : "Не удалось инициализировать модуль проектов.";
-        setStatus(message, true);
-    }
+    initialize(0);
 })();

@@ -42,6 +42,8 @@ test("projects grid entrypoint: returns early when bootstrap context is null", (
     };
 
     loadProjectsGrid({
+        jQuery: function () {},
+        DevExpress: { data: {} },
         ProjectsBootstrap: {
             createBootstrapContext: function () {
                 events.bootstrapCalls += 1;

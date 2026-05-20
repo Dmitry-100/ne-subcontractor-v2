@@ -5,6 +5,19 @@
         gridElement: "[data-projects-grid]",
         statusElement: "[data-projects-status]"
     };
+    const OPTIONAL_CONTROLS = {
+        sourceGridElement: "[data-projects-source-grid]",
+        sourceStatusElement: "[data-projects-source-status]",
+        procurementSection: "[data-projects-procurement-request]",
+        procurementSummary: "[data-projects-procurement-summary]",
+        procurementTitle: "[data-projects-procurement-title]",
+        procurementFile: "[data-projects-procurement-file]",
+        procurementCreate: "[data-projects-procurement-create]",
+        procurementCancel: "[data-projects-procurement-cancel]",
+        procurementStatus: "[data-projects-procurement-status]",
+        procurementResult: "[data-projects-procurement-result]",
+        procurementTable: "[data-projects-procurement-table]"
+    };
 
     const REQUIRED_MODULES = [
         {
@@ -55,6 +68,12 @@
             }
 
             controls[controlKey] = control;
+        }
+
+        const optionalEntries = Object.entries(OPTIONAL_CONTROLS);
+        for (let index = 0; index < optionalEntries.length; index += 1) {
+            const entry = optionalEntries[index];
+            controls[entry[0]] = moduleRoot.querySelector(entry[1]);
         }
 
         return controls;
@@ -112,6 +131,9 @@
 
         return {
             endpoint: moduleRoot.getAttribute("data-api-endpoint") || "/api/projects",
+            sourceDataEndpoint: moduleRoot.getAttribute("data-source-data-api-endpoint") || "/api/projects/source-data/latest",
+            proceduresFromSourceDataEndpoint: moduleRoot.getAttribute("data-procedures-from-source-data-api-endpoint") || "/api/procedures/from-source-data",
+            filesEndpoint: moduleRoot.getAttribute("data-files-api-endpoint") || "/api/files",
             controls: controls,
             moduleRoots: moduleRoots
         };

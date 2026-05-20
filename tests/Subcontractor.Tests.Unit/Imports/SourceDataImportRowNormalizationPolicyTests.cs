@@ -95,8 +95,13 @@ public sealed class SourceDataImportRowNormalizationPolicyTests
         var normalized = new NormalizedSourceDataImportRow(
             RowNumber: 8,
             ProjectCode: "PRJ-42",
+            ProjectName: "Project 42",
+            ComplexProjectName: "Complex",
             ObjectWbs: "OBJ-42",
             DisciplineCode: "KM",
+            ResourceDisciplineName: "Resource",
+            BranchOfficeName: "Office",
+            GipName: "GIP",
             ManHours: 100m,
             PlannedStartDate: new DateTime(2026, 1, 1),
             PlannedFinishDate: new DateTime(2026, 1, 31),
@@ -107,8 +112,13 @@ public sealed class SourceDataImportRowNormalizationPolicyTests
 
         Assert.Equal(8, entity.RowNumber);
         Assert.Equal("PRJ-42", entity.ProjectCode);
+        Assert.Equal("Project 42", entity.ProjectName);
+        Assert.Equal("Complex", entity.ComplexProjectName);
         Assert.Equal("OBJ-42", entity.ObjectWbs);
         Assert.Equal("KM", entity.DisciplineCode);
+        Assert.Equal("Resource", entity.ResourceDisciplineName);
+        Assert.Equal("Office", entity.BranchOfficeName);
+        Assert.Equal("GIP", entity.GipName);
         Assert.Equal(100m, entity.ManHours);
         Assert.Equal(new DateTime(2026, 1, 1), entity.PlannedStartDate);
         Assert.Equal(new DateTime(2026, 1, 31), entity.PlannedFinishDate);

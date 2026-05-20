@@ -181,7 +181,8 @@
         "imports-page-bootstrap-validation.js",
         "imports-page-bootstrap-composition.js",
         "imports-page-bootstrap.js",
-        "imports-page.js"
+        "imports-page.js",
+        "imports-discipline-mappings.js"
       ]
     },
     {

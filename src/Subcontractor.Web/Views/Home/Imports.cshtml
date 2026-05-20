@@ -4,6 +4,9 @@
     var templateEndpoint = Url.Content("~/api/imports/source-data/batches/template");
     var xmlInboxApiEndpoint = Url.Content("~/api/imports/source-data/xml/inbox");
     var lotRecommendationsApiEndpoint = Url.Content("~/api/lots/recommendations/import-batches");
+    var disciplineMappingsApiEndpoint = Url.Content("~/api/imports/discipline-mappings");
+    var proceduresFromSourceDataApiEndpoint = Url.Content("~/api/procedures/from-source-data");
+    var filesApiEndpoint = Url.Content("~/api/files");
 }
 
 <section class="imports shell-panel"
@@ -11,7 +14,10 @@
          data-batches-api-endpoint="@batchesApiEndpoint"
          data-template-api-endpoint="@templateEndpoint"
          data-xml-inbox-api-endpoint="@xmlInboxApiEndpoint"
-         data-lot-recommendations-api-endpoint="@lotRecommendationsApiEndpoint">
+         data-lot-recommendations-api-endpoint="@lotRecommendationsApiEndpoint"
+         data-discipline-mappings-api-endpoint="@disciplineMappingsApiEndpoint"
+         data-procedures-from-source-data-api-endpoint="@proceduresFromSourceDataApiEndpoint"
+         data-files-api-endpoint="@filesApiEndpoint">
     <header class="shell-panel__header">
         <h1>Импорт исходных данных</h1>
         <p>Рабочее место оператора для загрузки файлов, проверки данных и отслеживания импортных пакетов.</p>
@@ -20,6 +26,7 @@
 
     <div class="imports-toolbar">
         <a class="registry-api-link" href="@batchesApiEndpoint" target="_blank" rel="noopener">Открыть API пакетов</a>
+        <a class="registry-api-link" href="#discipline-mappings-panel">Справочник дисциплин</a>
         <a class="registry-api-link" href="@templateEndpoint" target="_blank" rel="noopener">Скачать шаблон CSV</a>
     </div>
 
@@ -45,12 +52,14 @@
                 </label>
                 <div class="imports-actions">
                     <button type="button" class="imports-button" data-imports-parse>Разобрать файл</button>
+                    <button type="button" class="imports-button imports-button--secondary" data-imports-discipline-upload>Загрузить справочник дисциплин</button>
                     <button type="button" class="imports-button imports-button--secondary" data-imports-reset>Сбросить</button>
                     <button type="button" class="imports-button" data-imports-upload disabled>Загрузить пакет</button>
                 </div>
             </div>
 
             <p class="imports-status" data-imports-upload-status>Выберите файл источника и нажмите «Разобрать файл».</p>
+            <p class="imports-status" data-imports-discipline-status>Справочник дисциплин ещё не загружался.</p>
             <section class="imports-mapping" data-imports-mapping hidden>
                 <h3>Сопоставление колонок</h3>
                 <label class="imports-checkbox">
@@ -200,6 +209,65 @@
                     </div>
                 </section>
 
+                <section class="imports-workflow" data-imports-procurement-request hidden>
+                    <h3>
+                        <span class="field-label">
+                            Формирование заявки на закупку
+                            <partial name="_FieldHelp" model='"Выберите одну или несколько валидных работ из импортного пакета, приложите файл технического задания и создайте закупочную процедуру. Система автоматически создаст лот и свяжет процедуру с исходными строками."' />
+                        </span>
+                    </h3>
+                    <div class="imports-form">
+                        <label class="imports-field">
+                            <span class="field-label">
+                                Название заявки
+                                <partial name="_FieldHelp" model='"Краткое название закупочной заявки. Если оставить пустым, система сформирует название по проекту и количеству выбранных работ."' />
+                            </span>
+                            <input type="text" data-imports-procurement-title placeholder="Например: Закупка технологических работ ЦХПП" />
+                        </label>
+                        <label class="imports-field">
+                            <span class="field-label">
+                                Файл технического задания
+                                <partial name="_FieldHelp" model='"Файл ТЗ будет загружен в систему и прикреплён к созданной закупочной процедуре как документ заявки."' />
+                            </span>
+                            <input type="file" data-imports-procurement-file />
+                        </label>
+                        <div class="imports-actions">
+                            <label class="imports-checkbox">
+                                <input type="checkbox" data-imports-procurement-select-all />
+                                <span>Выбрать все валидные работы</span>
+                            </label>
+                            <button type="button" class="imports-button" data-imports-procurement-create>Создать заявку на закупку</button>
+                        </div>
+                        <p class="imports-status" data-imports-procurement-status>Выберите валидные работы из пакета и приложите ТЗ.</p>
+                    </div>
+                    <div class="imports-table-wrap">
+                        <table class="imports-table imports-table--compact" data-imports-procurement-rows-table>
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="imports-workflow" data-imports-discipline-resolution hidden>
+                    <h3>
+                        <span class="field-label">
+                            Сопоставление дисциплин
+                            <partial name="_FieldHelp" model='"Если для дисциплины-ресурса из Express найдено несколько проектных дисциплин или соответствие не найдено, выберите допустимую проектную дисциплину вручную и примените сопоставление."' />
+                        </span>
+                    </h3>
+                    <p class="registry-hint">Неоднозначные дисциплины нужно разрешить до формирования заявки на закупку.</p>
+                    <div class="imports-actions">
+                        <button type="button" class="imports-button" data-imports-discipline-resolution-apply>Применить сопоставление</button>
+                    </div>
+                    <p class="imports-status" data-imports-discipline-resolution-status>Выберите пакет импорта для сопоставления дисциплин.</p>
+                    <div class="imports-table-wrap">
+                        <table class="imports-table imports-table--compact" data-imports-discipline-resolution-table>
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
                 <div class="imports-table-wrap" data-imports-invalid-wrap hidden>
                     <table class="imports-table imports-table--compact" data-imports-invalid-table>
                         <thead></thead>
@@ -216,9 +284,34 @@
             </article>
         </section>
     </div>
+
+    <section id="discipline-mappings-panel" class="imports-panel imports-discipline-panel">
+        <div class="imports-discipline-panel__header">
+            <div>
+                <h2>Справочник дисциплин</h2>
+                <p class="registry-hint">
+                    Таблица соответствий между дисциплинами-ресурсами из Express и проектными дисциплинами.
+                    Если для одной ресурсной дисциплины есть несколько вариантов, система попросит выбрать проектную дисциплину при валидации.
+                </p>
+            </div>
+            <div class="imports-actions">
+                <button type="button" class="imports-button imports-button--secondary" data-imports-discipline-mappings-refresh>Обновить справочник</button>
+                <a class="registry-api-link" href="@disciplineMappingsApiEndpoint" target="_blank" rel="noopener">Открыть API справочника</a>
+            </div>
+        </div>
+
+        <p class="imports-status" data-imports-discipline-mappings-status>Загрузка справочника дисциплин...</p>
+        <div class="imports-table-wrap imports-discipline-panel__table">
+            <table class="imports-table imports-table--compact" data-imports-discipline-mappings-table>
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
 </section>
 
 @section Scripts {
     <partial name="_SheetJsScript" />
     <script src="~/js/bundles/imports-page.bundle.js" asp-append-version="true"></script>
+    <script src="~/js/imports-source-procurement.js" asp-append-version="true"></script>
 }

@@ -26,8 +26,13 @@ test("imports upload: request payload normalizes defaults and maps rows", () => 
             {
                 rowNumber: 7,
                 projectCode: "PRJ-7",
+                projectName: "Project 7",
+                complexProjectName: "AA",
                 objectWbs: "OBJ-7",
                 disciplineCode: "DISC-7",
+                resourceDisciplineName: "Resource 7",
+                branchOfficeName: "Office",
+                gipName: "GIP",
                 manHours: 11.5,
                 plannedStartDate: "2026-04-01",
                 plannedFinishDate: "2026-04-03"
@@ -44,8 +49,13 @@ test("imports upload: request payload normalizes defaults and maps rows", () => 
             {
                 rowNumber: 7,
                 projectCode: "PRJ-7",
+                projectName: "Project 7",
+                complexProjectName: "AA",
                 objectWbs: "OBJ-7",
                 disciplineCode: "DISC-7",
+                resourceDisciplineName: "Resource 7",
+                branchOfficeName: "Office",
+                gipName: "GIP",
                 manHours: 11.5,
                 plannedStartDate: "2026-04-01",
                 plannedFinishDate: "2026-04-03"

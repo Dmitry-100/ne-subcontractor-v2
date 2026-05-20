@@ -216,8 +216,13 @@ public sealed class SourceDataImportsControllerBranchCoverageTests
                     Guid.NewGuid(),
                     1,
                     "PRJ-001",
+                    "Pilot project",
+                    "AA",
                     "A.01.01",
                     "PIPING",
+                    "01.6 Resource",
+                    "Екатеринбург",
+                    "Иванов Иван Иванович",
                     10m,
                     null,
                     null,
@@ -256,6 +261,9 @@ public sealed class SourceDataImportsControllerBranchCoverageTests
         public Func<Guid, SourceDataImportBatchStatusTransitionRequest, CancellationToken, Task<SourceDataImportBatchStatusHistoryItemDto?>> TransitionBatchStatusAsyncHandler { get; set; } =
             static (_, _, _) => Task.FromResult<SourceDataImportBatchStatusHistoryItemDto?>(CreateHistoryItem());
 
+        public Func<Guid, ApplyDisciplineResolutionsRequest, CancellationToken, Task<SourceDataImportBatchDetailsDto?>> ApplyDisciplineResolutionsAsyncHandler { get; set; } =
+            static (id, _, _) => Task.FromResult<SourceDataImportBatchDetailsDto?>(CreateBatchDetails(id));
+
         public Func<Guid, CancellationToken, Task<IReadOnlyList<SourceDataImportBatchStatusHistoryItemDto>>> GetBatchHistoryAsyncHandler { get; set; } =
             static (_, _) => Task.FromResult<IReadOnlyList<SourceDataImportBatchStatusHistoryItemDto>>(new[] { CreateHistoryItem() });
 
@@ -288,6 +296,12 @@ public sealed class SourceDataImportsControllerBranchCoverageTests
             SourceDataImportBatchStatusTransitionRequest request,
             CancellationToken cancellationToken = default)
             => TransitionBatchStatusAsyncHandler(id, request, cancellationToken);
+
+        public Task<SourceDataImportBatchDetailsDto?> ApplyDisciplineResolutionsAsync(
+            Guid id,
+            ApplyDisciplineResolutionsRequest request,
+            CancellationToken cancellationToken = default)
+            => ApplyDisciplineResolutionsAsyncHandler(id, request, cancellationToken);
 
         public Task<IReadOnlyList<SourceDataImportBatchStatusHistoryItemDto>> GetBatchHistoryAsync(
             Guid id,

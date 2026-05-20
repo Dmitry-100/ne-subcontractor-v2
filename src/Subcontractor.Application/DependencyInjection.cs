@@ -14,6 +14,7 @@ public static class DependencyInjection
             .AddContractorRatingsModule()
             .AddDashboardModule()
             .AddExportsModule()
+            .AddFilesModule()
             .AddImportsModule()
             .AddXmlInboxImportsModule()
             .AddLotsModule()

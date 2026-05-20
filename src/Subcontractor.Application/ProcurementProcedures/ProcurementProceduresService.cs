@@ -18,6 +18,7 @@ public sealed class ProcurementProceduresService : IProcurementProceduresService
     private readonly ProcedureOutcomeWorkflowService _outcomeWorkflowService;
     private readonly ProcedureAttachmentBindingService _attachmentBindingService;
     private readonly ProcedureLotWorkflowService _lotWorkflowService;
+    private readonly ProcedureFromSourceDataWorkflowService _fromSourceDataWorkflowService;
 
     internal ProcurementProceduresService(
         ProcedureLifecycleService lifecycleService,
@@ -30,7 +31,8 @@ public sealed class ProcurementProceduresService : IProcurementProceduresService
         ProcedureOffersWorkflowService offersWorkflowService,
         ProcedureOutcomeWorkflowService outcomeWorkflowService,
         ProcedureAttachmentBindingService attachmentBindingService,
-        ProcedureLotWorkflowService lotWorkflowService)
+        ProcedureLotWorkflowService lotWorkflowService,
+        ProcedureFromSourceDataWorkflowService fromSourceDataWorkflowService)
     {
         _lifecycleService = lifecycleService ?? throw new ArgumentNullException(nameof(lifecycleService));
         _statusMutationService = statusMutationService ?? throw new ArgumentNullException(nameof(statusMutationService));
@@ -43,6 +45,7 @@ public sealed class ProcurementProceduresService : IProcurementProceduresService
         _outcomeWorkflowService = outcomeWorkflowService ?? throw new ArgumentNullException(nameof(outcomeWorkflowService));
         _attachmentBindingService = attachmentBindingService ?? throw new ArgumentNullException(nameof(attachmentBindingService));
         _lotWorkflowService = lotWorkflowService ?? throw new ArgumentNullException(nameof(lotWorkflowService));
+        _fromSourceDataWorkflowService = fromSourceDataWorkflowService ?? throw new ArgumentNullException(nameof(fromSourceDataWorkflowService));
     }
 
     public ProcurementProceduresService(
@@ -60,6 +63,7 @@ public sealed class ProcurementProceduresService : IProcurementProceduresService
         _offersWorkflowService = new ProcedureOffersWorkflowService(dbContext);
         _outcomeWorkflowService = new ProcedureOutcomeWorkflowService(dbContext);
         _lotWorkflowService = new ProcedureLotWorkflowService(dbContext);
+        _fromSourceDataWorkflowService = new ProcedureFromSourceDataWorkflowService(dbContext, _attachmentBindingService);
         _transitionWorkflowService = new ProcedureTransitionWorkflowService(
             dbContext,
             _approvalWorkflowService,
@@ -101,6 +105,13 @@ public sealed class ProcurementProceduresService : IProcurementProceduresService
     public async Task<ProcedureDetailsDto> CreateAsync(CreateProcedureRequest request, CancellationToken cancellationToken = default)
     {
         return await _lifecycleService.CreateAsync(request, cancellationToken);
+    }
+
+    public async Task<ProcedureFromSourceDataResultDto> CreateFromSourceDataAsync(
+        CreateProcedureFromSourceDataRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        return await _fromSourceDataWorkflowService.CreateFromSourceDataAsync(request, cancellationToken);
     }
 
     public async Task<ProcedureDetailsDto?> UpdateAsync(Guid id, UpdateProcedureRequest request, CancellationToken cancellationToken = default)

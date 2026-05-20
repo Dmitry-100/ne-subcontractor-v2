@@ -13,6 +13,7 @@ public sealed class HomeControllerTests
         { nameof(HomeController.Procedures), controller => controller.Procedures() },
         { nameof(HomeController.Contracts), controller => controller.Contracts() },
         { nameof(HomeController.Contractors), controller => controller.Contractors() },
+        { nameof(HomeController.ReferenceData), controller => controller.ReferenceData() },
         { nameof(HomeController.Admin), controller => controller.Admin() },
         { nameof(HomeController.Imports), controller => controller.Imports() },
         { nameof(HomeController.Sla), controller => controller.Sla() }
@@ -26,6 +27,7 @@ public sealed class HomeControllerTests
         { nameof(HomeController.Procedures), ["/procedures", "/Home/Procedures"] },
         { nameof(HomeController.Contracts), ["/contracts", "/Home/Contracts"] },
         { nameof(HomeController.Contractors), ["/contractors", "/Home/Contractors"] },
+        { nameof(HomeController.ReferenceData), ["/reference-data", "/Home/ReferenceData"] },
         { nameof(HomeController.Admin), ["/admin", "/Home/Admin"] },
         { nameof(HomeController.Imports), ["/imports", "/Home/Imports"] },
         { nameof(HomeController.Sla), ["/sla", "/Home/Sla"] }

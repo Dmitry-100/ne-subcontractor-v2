@@ -86,6 +86,13 @@
                 controls.detailsTitleElement.textContent = `Пакет: ${details.fileName}`;
                 controls.detailsSummaryElement.textContent = foundation.importsPageWorkflow.buildBatchDetailsSummary(details);
                 foundation.importsPageBatchTables.renderInvalidRows(details);
+                const importsSourceProcurement = typeof window !== "undefined"
+                    ? window.ImportsSourceProcurement
+                    : null;
+                if (importsSourceProcurement &&
+                    typeof importsSourceProcurement.renderBatchDetails === "function") {
+                    importsSourceProcurement.renderBatchDetails(details);
+                }
                 renderTransitionTargets(details.status);
                 setWorkflowActionsEnabled(true);
             },

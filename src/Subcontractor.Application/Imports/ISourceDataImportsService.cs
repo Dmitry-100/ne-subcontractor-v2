@@ -16,6 +16,10 @@ public interface ISourceDataImportsService
         Guid id,
         SourceDataImportBatchStatusTransitionRequest request,
         CancellationToken cancellationToken = default);
+    Task<SourceDataImportBatchDetailsDto?> ApplyDisciplineResolutionsAsync(
+        Guid id,
+        ApplyDisciplineResolutionsRequest request,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<SourceDataImportBatchStatusHistoryItemDto>> GetBatchHistoryAsync(
         Guid id,
         CancellationToken cancellationToken = default);

@@ -26,8 +26,13 @@ internal static class SourceDataImportReadProjectionPolicy
                     x.Id,
                     x.RowNumber,
                     x.ProjectCode,
+                    x.ProjectName,
+                    x.ComplexProjectName,
                     x.ObjectWbs,
                     x.DisciplineCode,
+                    x.ResourceDisciplineName,
+                    x.BranchOfficeName,
+                    x.GipName,
                     x.ManHours,
                     x.PlannedStartDate,
                     x.PlannedFinishDate,
@@ -56,7 +61,7 @@ internal static class SourceDataImportReadProjectionPolicy
             : batch.Rows.Where(x => !x.IsValid).OrderBy(x => x.RowNumber).ThenBy(x => x.Id);
 
         var builder = new StringBuilder();
-        builder.AppendLine("BatchId,FileName,Status,RowNumber,ProjectCode,ObjectWbs,DisciplineCode,ManHours,PlannedStartDate,PlannedFinishDate,IsValid,ValidationMessage");
+        builder.AppendLine("BatchId,FileName,Status,RowNumber,ProjectCode,ProjectName,ComplexProjectName,ObjectWbs,DisciplineCode,ResourceDisciplineName,BranchOfficeName,GipName,ManHours,PlannedStartDate,PlannedFinishDate,IsValid,ValidationMessage");
 
         foreach (var row in rows)
         {
@@ -66,8 +71,13 @@ internal static class SourceDataImportReadProjectionPolicy
                 .Append(EscapeCsv(batch.Status.ToString())).Append(',')
                 .Append(EscapeCsv(row.RowNumber)).Append(',')
                 .Append(EscapeCsv(row.ProjectCode)).Append(',')
+                .Append(EscapeCsv(row.ProjectName)).Append(',')
+                .Append(EscapeCsv(row.ComplexProjectName)).Append(',')
                 .Append(EscapeCsv(row.ObjectWbs)).Append(',')
                 .Append(EscapeCsv(row.DisciplineCode)).Append(',')
+                .Append(EscapeCsv(row.ResourceDisciplineName)).Append(',')
+                .Append(EscapeCsv(row.BranchOfficeName)).Append(',')
+                .Append(EscapeCsv(row.GipName)).Append(',')
                 .Append(EscapeCsv(row.ManHours)).Append(',')
                 .Append(EscapeCsv(row.PlannedStartDate?.ToString("yyyy-MM-dd"))).Append(',')
                 .Append(EscapeCsv(row.PlannedFinishDate?.ToString("yyyy-MM-dd"))).Append(',')

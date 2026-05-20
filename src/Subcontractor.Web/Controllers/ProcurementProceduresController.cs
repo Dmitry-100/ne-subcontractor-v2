@@ -76,6 +76,27 @@ public sealed class ProcurementProceduresController : ApiControllerBase
         }
     }
 
+    [HttpPost("from-source-data")]
+    [Authorize(Policy = PolicyCodes.ProceduresCreate)]
+    public async Task<ActionResult<ProcedureFromSourceDataResultDto>> CreateFromSourceData(
+        [FromBody] CreateProcedureFromSourceDataRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var created = await _service.CreateFromSourceDataAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = created.ProcedureId }, created);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ConflictProblem(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequestProblem(ex.Message);
+        }
+    }
+
     [HttpPut("{id:guid}")]
     [Authorize(Policy = PolicyCodes.ProceduresUpdate)]
     public async Task<ActionResult<ProcedureDetailsDto>> Update(

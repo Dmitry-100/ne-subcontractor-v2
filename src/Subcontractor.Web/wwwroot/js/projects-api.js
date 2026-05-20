@@ -33,6 +33,9 @@
     function createApiClient(options) {
         const settings = options || {};
         const endpoint = settings.endpoint;
+        const sourceDataEndpoint = settings.sourceDataEndpoint || `${endpoint}/source-data/latest`;
+        const proceduresFromSourceDataEndpoint = settings.proceduresFromSourceDataEndpoint || "/api/procedures/from-source-data";
+        const filesEndpoint = settings.filesEndpoint || "/api/files";
         const parseErrorBody = settings.parseErrorBody;
         const fetchImpl = settings.fetchImpl || (typeof fetch === "function" ? fetch.bind(globalThis) : null);
 
@@ -77,7 +80,7 @@
             return null;
         }
 
-        function buildProjectsUrl(search, paging) {
+        function buildProjectsUrl(baseEndpoint, search, paging) {
             const searchText = String(search ?? "").trim();
             const queryParts = [];
 
@@ -104,15 +107,32 @@
             }
 
             if (queryParts.length === 0) {
-                return endpoint;
+                return baseEndpoint;
             }
 
-            return `${endpoint}?${queryParts.join("&")}`;
+            return `${baseEndpoint}?${queryParts.join("&")}`;
         }
 
         return {
             getProjects: function (search, paging) {
-                return request(buildProjectsUrl(search, paging), { method: "GET" });
+                return request(buildProjectsUrl(endpoint, search, paging), { method: "GET" });
+            },
+            getLatestSourceDataRows: function (search, paging) {
+                return request(buildProjectsUrl(sourceDataEndpoint, search, paging), { method: "GET" });
+            },
+            uploadTechnicalAssignment: async function (file) {
+                const form = new FormData();
+                form.append("file", file);
+                return request(filesEndpoint, {
+                    method: "POST",
+                    body: form
+                });
+            },
+            createProcedureFromSourceData: function (payload) {
+                return request(proceduresFromSourceDataEndpoint, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
             },
             createProject: function (payload) {
                 return request(endpoint, {

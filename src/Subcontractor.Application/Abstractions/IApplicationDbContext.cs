@@ -33,6 +33,7 @@ public interface IApplicationDbContext
     IQueryable<ProcedureShortlistAdjustmentLog> ProcedureShortlistAdjustmentLogs { get; }
     IQueryable<ProcedureOffer> ProcedureOffers { get; }
     IQueryable<ProcedureOutcome> ProcedureOutcomes { get; }
+    IQueryable<ProcurementProcedureSourceDataRow> ProcedureSourceDataRows { get; }
     IQueryable<Contract> Contracts { get; }
     IQueryable<ContractStatusHistory> ContractStatusHistory { get; }
     IQueryable<ContractMilestone> ContractMilestones { get; }
@@ -42,6 +43,7 @@ public interface IApplicationDbContext
     IQueryable<ContractMdrRow> ContractMdrRows { get; }
     IQueryable<StoredFile> Files { get; }
     IQueryable<ReferenceDataEntry> ReferenceDataEntries { get; }
+    IQueryable<DisciplineMapping> DisciplineMappings { get; }
     IQueryable<SourceDataImportBatch> SourceDataImportBatches { get; }
     IQueryable<SourceDataImportRow> SourceDataImportRows { get; }
     IQueryable<SourceDataImportBatchStatusHistory> SourceDataImportBatchStatusHistory { get; }

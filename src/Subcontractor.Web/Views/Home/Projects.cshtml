@@ -1,27 +1,79 @@
 @{
     ViewData["Title"] = "Проекты";
     var projectsApiEndpoint = Url.Content("~/api/projects");
+    var projectsSourceDataApiEndpoint = Url.Content("~/api/projects/source-data/latest");
     var projectsExportEndpoint = Url.Content("~/api/exports/projects");
+    var proceduresFromSourceDataApiEndpoint = Url.Content("~/api/procedures/from-source-data");
+    var filesApiEndpoint = Url.Content("~/api/files");
 }
 
 @section Head {
     <partial name="_DevExpressHead" />
 }
 
-<section class="projects shell-panel" data-projects-module data-api-endpoint="@projectsApiEndpoint">
+<section class="projects shell-panel"
+         data-projects-module
+         data-api-endpoint="@projectsApiEndpoint"
+         data-source-data-api-endpoint="@projectsSourceDataApiEndpoint"
+         data-procedures-from-source-data-api-endpoint="@proceduresFromSourceDataApiEndpoint"
+         data-files-api-endpoint="@filesApiEndpoint">
     <header class="shell-panel__header">
         <h1>Проекты</h1>
-        <p>Реестр проектов с возможностью создания, изменения и удаления записей.</p>
-        <p class="registry-hint">Состав доступных записей зависит от роли текущего пользователя и его прав доступа.</p>
+        <p>Импортированные данные из Express по проектам, объектам, дисциплинам, филиалам, ГИПам, трудозатратам и плановым датам.</p>
+        <p class="registry-hint">Основная таблица повторяет структуру листа «данные из экспресс»: каждая строка — отдельная работа из импортированной таблицы.</p>
     </header>
 
     <div class="projects-toolbar">
+        <a class="registry-api-link" href="@projectsSourceDataApiEndpoint" target="_blank" rel="noopener">Открыть API данных Express</a>
         <a class="registry-api-link" href="@projectsExportEndpoint" target="_blank" rel="noopener">Экспорт CSV</a>
         <a class="registry-api-link" href="@projectsApiEndpoint" target="_blank" rel="noopener">Открыть API</a>
     </div>
 
-    <p class="projects-status" data-projects-status>Загрузка...</p>
-    <div id="projects-grid" class="projects-grid" data-projects-grid></div>
+    <section class="projects-source-data">
+        <h2>Данные из Express</h2>
+        <p class="registry-hint">Путь работы: Проекты → выбрать работы → Сформировать заявку. Колонки соответствуют импортированной таблице: проект номер, Комплекс/проект, Проект, Объект, Проектная дисциплина, Дисциплина-ресурс, Филиал_исп, ГИП, Загр НИ, чел-час, Start, Finish, статус валидации.</p>
+        <p class="projects-status" data-projects-source-status>Загрузка данных Express...</p>
+        <section class="projects-procurement-request" data-projects-procurement-request hidden>
+            <h3>Формирование заявки на закупку</h3>
+            <p class="registry-hint" data-projects-procurement-summary>Выберите валидные работы в таблице и нажмите «Сформировать заявку на закупку».</p>
+            <div class="imports-form">
+                <label class="imports-field">
+                    <span class="field-label">
+                        Название заявки
+                        <partial name="_FieldHelp" model='"Краткое название будущей закупочной процедуры. Если оставить пустым, система сформирует название автоматически."' />
+                    </span>
+                    <input type="text" data-projects-procurement-title placeholder="Например: Закупка работ по проекту 25-089" />
+                </label>
+                <label class="imports-field">
+                    <span class="field-label">
+                        Файл технического задания
+                        <partial name="_FieldHelp" model='"Файл будет загружен и прикреплён к созданной закупочной процедуре."' />
+                    </span>
+                    <input type="file" data-projects-procurement-file />
+                </label>
+                <div class="imports-actions">
+                    <button type="button" class="imports-button" data-projects-procurement-create>Создать заявку</button>
+                    <button type="button" class="imports-button imports-button--secondary" data-projects-procurement-cancel>Отменить</button>
+                </div>
+                <p class="projects-status" data-projects-procurement-status>Готово к созданию заявки.</p>
+                <div class="imports-actions" data-projects-procurement-result hidden></div>
+            </div>
+            <div class="imports-table-wrap">
+                <table class="imports-table imports-table--compact" data-projects-procurement-table>
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+        <div id="projects-source-grid" class="projects-grid" data-projects-source-grid></div>
+    </section>
+
+    <details class="projects-registry-details">
+        <summary>Служебный реестр уникальных проектов</summary>
+        <p class="registry-hint">Этот блок нужен системе для прав доступа и связей с лотами/закупками. Он агрегирует импортированные строки до уникальных кодов проектов.</p>
+        <p class="projects-status" data-projects-status>Загрузка реестра проектов...</p>
+        <div id="projects-grid" class="projects-grid" data-projects-grid></div>
+    </details>
 </section>
 
 @section Scripts {

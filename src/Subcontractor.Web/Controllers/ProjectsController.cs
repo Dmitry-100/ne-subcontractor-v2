@@ -42,6 +42,23 @@ public sealed class ProjectsController : ApiControllerBase
         return Ok(page);
     }
 
+    [HttpGet("source-data/latest")]
+    [Authorize(Policy = PolicyCodes.ProjectsRead)]
+    public async Task<ActionResult<ProjectSourceDataPageDto>> ListLatestSourceData(
+        [FromQuery] string? search,
+        [FromQuery] int? skip,
+        [FromQuery] int? take,
+        CancellationToken cancellationToken)
+    {
+        var page = await _projectsService.ListLatestSourceDataPageAsync(
+            search,
+            skip ?? 0,
+            take ?? 15,
+            cancellationToken);
+
+        return Ok(page);
+    }
+
     [HttpGet("{id:guid}")]
     [Authorize(Policy = PolicyCodes.ProjectsRead)]
     public async Task<ActionResult<ProjectDetailsDto>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)

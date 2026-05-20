@@ -506,7 +506,8 @@ test("core pages render in Russian and navigation between sections works", async
     await expect(page).toHaveURL(/\/Home\/Projects$/);
     await expect(page.getByRole("heading", { level: 1, name: "Проекты" })).toBeVisible();
     await expect(page.locator("[data-projects-module]")).toBeVisible();
-    await expect(page.locator("[data-projects-grid]")).toBeVisible();
+    await expect(page.locator("[data-projects-source-grid]")).toBeVisible();
+    await expect(page.locator(".projects-registry-details")).toBeVisible();
 
     const importsLink = page.locator("header.app-header").getByRole("link", { name: "Импорт" });
     await expect(importsLink).toBeVisible();
@@ -628,6 +629,10 @@ test("projects page renders core widgets for projects registry", async ({ page }
     expect(response && response.ok()).toBeTruthy();
 
     await expect(page.locator("[data-projects-module]")).toBeVisible();
+    await expect(page.locator("[data-projects-source-grid]")).toBeVisible();
+    await expect(page.locator("[data-projects-source-status]")).toBeVisible();
+    await expect(page.locator(".projects-registry-details")).toBeVisible();
+    await page.locator(".projects-registry-details > summary").click();
     await expect(page.locator("[data-projects-grid]")).toBeVisible();
     await expect(page.locator("[data-projects-status]")).toBeVisible();
 });

@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Справочники";
+    var disciplineMappingsApiEndpoint = Url.Content("~/api/imports/discipline-mappings");
+}
+
+<section class="reference-data shell-panel"
+         data-reference-data-module
+         data-discipline-mappings-api-endpoint="@disciplineMappingsApiEndpoint">
+    <header class="shell-panel__header">
+        <h1>Справочники</h1>
+        <p>Единое место для проверки и загрузки справочных данных, которые используются при импорте работ из Express.</p>
+        <p class="registry-hint">Для дисциплин используйте лист «выбр дисциплины»: ресурсная дисциплина из Express сопоставляется с одной или несколькими проектными дисциплинами.</p>
+    </header>
+
+    <div class="imports-toolbar">
+        <a class="registry-api-link" href="@disciplineMappingsApiEndpoint" target="_blank" rel="noopener">Открыть API справочника дисциплин</a>
+        <a class="registry-api-link" asp-controller="Home" asp-action="Imports">Перейти к импорту</a>
+    </div>
+
+    <section class="imports-panel">
+        <div class="imports-discipline-panel__header">
+            <div>
+                <h2>Справочник дисциплин</h2>
+                <p class="registry-hint">Загрузите Excel-файл, проверьте предпросмотр и сохраните сопоставления. После этого импорт Express сможет автоматически или вручную разрешать проектные дисциплины.</p>
+            </div>
+            <div class="imports-actions">
+                <button type="button" class="imports-button imports-button--secondary" data-reference-data-refresh>Обновить</button>
+            </div>
+        </div>
+
+        <div class="imports-form">
+            <label class="imports-field">
+                <span class="field-label">
+                    Excel-файл со справочником
+                    <partial name="_FieldHelp" model='"Файл должен содержать лист «выбр дисциплины» с колонками: группа, раздел, проектная дисциплина, дисциплина-ресурс."' />
+                </span>
+                <input type="file"
+                       data-reference-data-file
+                       accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel" />
+            </label>
+            <label class="imports-field">
+                <span class="field-label">
+                    Поиск и фильтр
+                    <partial name="_FieldHelp" model='"Фильтрует текущий справочник и предпросмотр по группе, разделу, проектной или ресурсной дисциплине."' />
+                </span>
+                <input type="search" data-reference-data-search placeholder="Введите дисциплину, ресурс или раздел..." />
+            </label>
+            <div class="imports-actions">
+                <button type="button" class="imports-button imports-button--secondary" data-reference-data-parse>Разобрать лист «выбр дисциплины»</button>
+                <button type="button" class="imports-button" data-reference-data-save disabled>Сохранить справочник</button>
+            </div>
+            <p class="imports-status" data-reference-data-status>Загрузка текущего справочника...</p>
+        </div>
+
+        <div class="imports-table-wrap">
+            <table class="imports-table imports-table--compact" data-reference-data-table>
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_SheetJsScript" />
+    <script src="~/js/reference-data-page.js" asp-append-version="true"></script>
+}

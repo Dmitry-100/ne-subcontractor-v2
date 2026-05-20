@@ -7,6 +7,7 @@ using Subcontractor.Application.Contracts;
 using Subcontractor.Application.Contractors;
 using Subcontractor.Application.Dashboard;
 using Subcontractor.Application.Exports;
+using Subcontractor.Application.Files;
 using Subcontractor.Application.Imports;
 using Subcontractor.Application.Lots;
 using Subcontractor.Application.ProcurementProcedures;
@@ -119,17 +120,26 @@ internal static class ApplicationModuleServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddFilesModule(this IServiceCollection services)
+    {
+        services.AddScoped<StoredFilesService>();
+        services.AddScoped<IStoredFilesService>(sp => sp.GetRequiredService<StoredFilesService>());
+        return services;
+    }
+
     public static IServiceCollection AddImportsModule(this IServiceCollection services)
     {
         services.AddScoped<SourceDataImportReadQueryService>();
         services.AddScoped<SourceDataImportBatchProcessingWorkflowService>();
         services.AddScoped<SourceDataImportWriteWorkflowService>();
+        services.AddScoped<DisciplineMappingsService>();
         services.AddScoped<SourceDataImportsService>(sp =>
             new SourceDataImportsService(
                 sp.GetRequiredService<SourceDataImportReadQueryService>(),
                 sp.GetRequiredService<SourceDataImportBatchProcessingWorkflowService>(),
                 sp.GetRequiredService<SourceDataImportWriteWorkflowService>()));
         services.AddScoped<ISourceDataImportsService>(sp => sp.GetRequiredService<SourceDataImportsService>());
+        services.AddScoped<IDisciplineMappingsService>(sp => sp.GetRequiredService<DisciplineMappingsService>());
         return services;
     }
 
@@ -184,6 +194,7 @@ internal static class ApplicationModuleServiceCollectionExtensions
         services.AddScoped<ProcedureOffersWorkflowService>();
         services.AddScoped<ProcedureOutcomeWorkflowService>();
         services.AddScoped<ProcedureLotWorkflowService>();
+        services.AddScoped<ProcedureFromSourceDataWorkflowService>();
         services.AddScoped<ProcedureTransitionWorkflowService>();
         services.AddScoped<ProcurementProceduresService>(sp =>
             new ProcurementProceduresService(
@@ -197,7 +208,8 @@ internal static class ApplicationModuleServiceCollectionExtensions
                 sp.GetRequiredService<ProcedureOffersWorkflowService>(),
                 sp.GetRequiredService<ProcedureOutcomeWorkflowService>(),
                 sp.GetRequiredService<ProcedureAttachmentBindingService>(),
-                sp.GetRequiredService<ProcedureLotWorkflowService>()));
+                sp.GetRequiredService<ProcedureLotWorkflowService>(),
+                sp.GetRequiredService<ProcedureFromSourceDataWorkflowService>()));
         services.AddScoped<IProcurementProceduresService>(sp => sp.GetRequiredService<ProcurementProceduresService>());
         return services;
     }

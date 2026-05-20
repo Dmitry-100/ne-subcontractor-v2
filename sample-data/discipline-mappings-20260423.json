@@ -1,0 +1,782 @@
+[
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Внутриплощадочные работы, в т.ч. авто- и ж/д дороги",
+    "resourceDisciplineName": "06.1 Отдел проектирования генпланов и транспортной логистики"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Технологическая компоновка и обвязка промышленных объектов",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Трубопроводы для агрессивных сред (кислоты, щелочи и пр.)",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Трубопроводы для абразивных сред",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Трубопроводы ЛВЖ и ГЖ",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Трубопроводы криогенные",
+    "resourceDisciplineName": "05.2 Газовый отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Газоходы больших диаметров",
+    "resourceDisciplineName": "05.2 Газовый отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Промышленное архитектурно-строительное проектирование",
+    "resourceDisciplineName": "02.1 Строительный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Гражданское архитектурно-строительное проектирование",
+    "resourceDisciplineName": "02.1 Строительный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Газоснабжение. Системы и трубопроводы",
+    "resourceDisciplineName": "05.2 Газовый отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Системы водоснабжения и водоотведения",
+    "resourceDisciplineName": "05.3 Отдел водоснабжения и канализации"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Инженерные сети (тепло, пар и другие)",
+    "resourceDisciplineName": "05.4 Теплоэнергетический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "HVAC (отопление, вентиляция и кондиуионирование)",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Аспирация и газоочистка",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Проектирование чистых помещений",
+    "resourceDisciplineName": "02.1 Строительный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Электроснабжение и освещение до 10 кВ",
+    "resourceDisciplineName": "03.1 Электротехнический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Электроснабжение до 35кВ (объекты и сети)",
+    "resourceDisciplineName": "03.1 Электротехнический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Электроснабжение до 110кВ (объекты и сети)",
+    "resourceDisciplineName": "03.1 Электротехнический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Электроснабжение более 110кВ (объекты и сети)",
+    "resourceDisciplineName": "03.1 Электротехнический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Системы связи, наблюдения и контроля доступа",
+    "resourceDisciplineName": "04. Отдел АСУ"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Диспетчеризация, автоматизация и управление инженерными системами",
+    "resourceDisciplineName": "04. Отдел АСУ"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Программирование",
+    "resourceDisciplineName": "04. Отдел АСУ"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Разработка бизнес и информационных систем",
+    "resourceDisciplineName": "04. Отдел АСУ"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Корозионная защита оборудования и конструций",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Тепловая и криогенная защита оборудования и трубопроводов",
+    "resourceDisciplineName": "05.2 Газовый отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Системы обнаружения и тушения пожаров",
+    "resourceDisciplineName": "13.1 ОСР пожаротушение"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Системы СМИК и СМИС",
+    "resourceDisciplineName": "02.1 Строительный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Общеинженерное проектирование",
+    "projectDisciplineSection": "Общеинженерное проектирование",
+    "projectDisciplineName": "Анализ рисков HAZARD\\HAZID\\HAZOP",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Разрабтка мероприятий по охране окружающей среды",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Расчет СЗЗ",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Расчет ущерба",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Декларации промышленной безопасности",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Перечень мероприятий по гражданской обороне",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Перечень мероприятий по предупреждению чрезвычайных ситуаций природного и техногенного характера",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Перечень мероприятий по противодействию терроризму",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Мероприятия по обеспечению пожарной безопасности",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Декларация пожарной безопасности",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Расчет пожарного риска",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Расчет величины риска аварии ОПО",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Расчет показателей риска взрыва",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Проект организации строительства (ПОС)",
+    "resourceDisciplineName": "09.1 Отдел проектирования организации строительства"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Проекты сноса и демонтажа",
+    "resourceDisciplineName": "09.1 Отдел проектирования организации строительства"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Требования к обеспечению безопасной эксплуатации объектов",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Лицензирование и декларирование оборудования",
+    "resourceDisciplineName": "07.1 Отдел специальных разделов"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Моделирование и расчеты процессов и конструкций",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Моделирование и расчеты процессов и конструкций",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Моделирование и расчеты процессов и конструкций",
+    "resourceDisciplineName": "01.3 Отдел сталеплавильного производства"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Моделирование и расчеты процессов и конструкций",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Моделирование и расчеты процессов и конструкций",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Специальные виды услуг",
+    "projectDisciplineSection": "Специальные виды услуг",
+    "projectDisciplineName": "Моделирование и расчеты процессов и конструкций",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Баковое и емкостное оборудование",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Оборудование работающее под давлением",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Транспортное и грузоподъемное оборудование",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Технологическое оборудование и его элементы",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Технологические приспособления",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Гидравлические системы",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineSection": "Проектирование нестандартного оборудования и систем",
+    "projectDisciplineName": "Пневматические системы в т.ч. Пневмотранспорт",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Открытые горные работы",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Подземные горные работы",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Проекты водоотлива",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Внутрикарьерная вентиляция",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Внутришахтная вентиляция",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Расчет устойчивости бортов",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Расчет взрыва",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Горные работы",
+    "projectDisciplineName": "Горно-механическое проектирование (Дробильно-конвейерные комплексы)",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Обогащение, получение концентрата и окатышей",
+    "projectDisciplineName": "Лабораторные испытания подготовка регламентов",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Обогащение, получение концентрата и окатышей",
+    "projectDisciplineName": "Схемы обогащения железной руды",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Обогащение, получение концентрата и окатышей",
+    "projectDisciplineName": "Проектирование прочих схем обогащения",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Обогащение, получение концентрата и окатышей",
+    "projectDisciplineName": "Производство окатышей",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство чугуна и стали",
+    "projectDisciplineName": "Коксохимическое производство и его элементы",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство чугуна и стали",
+    "projectDisciplineName": "Газосбросные системы и факелы",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство чугуна и стали",
+    "projectDisciplineName": "Агломерационное производство",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство чугуна и стали",
+    "projectDisciplineName": "Доменное производство",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство чугуна и стали",
+    "projectDisciplineName": "Сталеплавильное производство",
+    "resourceDisciplineName": "01.3 Отдел сталеплавильного производства"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Проектирование печей",
+    "projectDisciplineName": "Нагрева",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Проектирование печей",
+    "projectDisciplineName": "Вращательных",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Проектирование печей",
+    "projectDisciplineName": "Плавильных",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Проектирование печей",
+    "projectDisciplineName": "Руднотермических",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство изделий из стали",
+    "projectDisciplineName": "Разливочные машины",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Производство изделий из стали",
+    "projectDisciplineName": "Прокатные станы и их элементы",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Системы разгрузки и хранения сыпучих",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Конвейерный транспорт",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Трубопроводный транспорт гидравлический",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Шламопроводы",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Пневмотранспорт",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Рельсовый",
+    "resourceDisciplineName": "06.1 Отдел проектирования генпланов и транспортной логистики"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Промышленный транспорт (проектирование)",
+    "projectDisciplineName": "Автомобильный",
+    "resourceDisciplineName": "06.1 Отдел проектирования генпланов и транспортной логистики"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Газоочистка",
+    "projectDisciplineName": "Мокрая газоочистка",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Газоочистка",
+    "projectDisciplineName": "Полусухая газоочистка",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Газоочистка",
+    "projectDisciplineName": "Сухая газоочистка",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Хвостохранилища",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Отвалы и полигоны",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Высокоавтоматизированные склады",
+    "resourceDisciplineName": "04. Отдел АСУ"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Очистные сооружения",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Компрессорные",
+    "resourceDisciplineName": "05.2 Газовый отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Газоразделительные установки",
+    "resourceDisciplineName": "05.2 Газовый отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Котельные",
+    "resourceDisciplineName": "05.4 Теплоэнергетический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "ТЭЦ",
+    "resourceDisciplineName": "05.4 Теплоэнергетический отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "РМЦ",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "Мосты, тунели, путепроводы",
+    "resourceDisciplineName": "01.6 Отдел технологического проектирования (механики)"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Объекты вспомогательного производства",
+    "projectDisciplineName": "СЦБ (Сигнализация, централизация, блокировка на ЖД транспорте)",
+    "resourceDisciplineName": "06.1 Отдел проектирования генпланов и транспортной логистики"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моделирование процессов обогащения",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моделирование процессов плавки и разливки",
+    "resourceDisciplineName": "01.3 Отдел сталеплавильного производства"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моделирование прокатки",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моеделирование физических процессов",
+    "resourceDisciplineName": "01.1 Коксоаглодоменный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моеделирование физических процессов",
+    "resourceDisciplineName": "01.2 Прокатный отдел"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моеделирование физических процессов",
+    "resourceDisciplineName": "01.3 Отдел сталеплавильного производства"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моеделирование физических процессов",
+    "resourceDisciplineName": "01.4 Отдел обогащения"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моеделирование физических процессов",
+    "resourceDisciplineName": "01.5 Отдел по горным работам и транспорту"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моеделирование физических процессов",
+    "resourceDisciplineName": "05.1 Отдел АТУ, отопления и промвентиляции"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моделирование автомобильной сети",
+    "resourceDisciplineName": "06.1 Отдел проектирования генпланов и транспортной логистики"
+  },
+  {
+    "projectDisciplineGroup": "Технологические направления проектирования",
+    "projectDisciplineSection": "Моделирование",
+    "projectDisciplineName": "Моделирование жлезнодорожной сети",
+    "resourceDisciplineName": "06.1 Отдел проектирования генпланов и транспортной логистики"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Обследование и оценка состояния ЗиС",
+    "projectDisciplineName": "Неразрушающие методы",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Обследование и оценка состояния ЗиС",
+    "projectDisciplineName": "Разрушающие методы",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Обследование и оценка состояния ЗиС",
+    "projectDisciplineName": "Обследованию состояния грунтов оснований зданий и сооружений их строительных конструкций",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Обследование и оценка состояния ЗиС",
+    "projectDisciplineName": "Разработка проектов усиления",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (стандартные)",
+    "projectDisciplineName": "Инженерно-геодезические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (стандартные)",
+    "projectDisciplineName": "Инженерно-геологические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (стандартные)",
+    "projectDisciplineName": "Инженерно-гидрометеорологические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (стандартные)",
+    "projectDisciplineName": "Инженерно-экологические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (специальные)",
+    "projectDisciplineName": "Инженерно- Геотехнические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (специальные)",
+    "projectDisciplineName": "Инженерно-Геофизические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (специальные)",
+    "projectDisciplineName": "Инженерно-Гидрологические",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (специальные)",
+    "projectDisciplineName": "Разведка строительных материалов",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Инженерные изыскания (специальные)",
+    "projectDisciplineName": "Разведка подземных источников",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Специальные виды работ",
+    "projectDisciplineName": "СМР и отбор образцов",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Специальные виды работ",
+    "projectDisciplineName": "Наземное лазерное сканирование",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Специальные виды работ",
+    "projectDisciplineName": "Воздушное лазерное сканирование",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Специальные виды работ",
+    "projectDisciplineName": "Мобильное лазерное сканирование",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  },
+  {
+    "projectDisciplineGroup": "Обследования и изыскания",
+    "projectDisciplineSection": "Специальные виды работ",
+    "projectDisciplineName": "Георадары",
+    "resourceDisciplineName": "10.1 Отдел по организации ОСК"
+  }
+]

@@ -28,31 +28,61 @@
                     key: "rowNumber",
                     label: "Номер строки",
                     required: false,
-                    synonyms: ["rownumber", "row", "linenumber", "line"]
+                    synonyms: ["rownumber", "row", "linenumber", "line", "строка", "номерстроки"]
                 },
                 {
                     key: "projectCode",
                     label: "Код проекта",
                     required: true,
-                    synonyms: ["projectcode", "project", "projectid"]
+                    synonyms: ["проектномер", "кодпроекта", "номерпроекта", "projectcode", "projectid"]
+                },
+                {
+                    key: "complexProjectName",
+                    label: "Комплекс/проект",
+                    required: false,
+                    synonyms: ["комплекспроект", "complexproject", "complexprojectname"]
+                },
+                {
+                    key: "projectName",
+                    label: "Проект",
+                    required: false,
+                    synonyms: ["проект", "projectname", "project"]
                 },
                 {
                     key: "objectWbs",
                     label: "Объект WBS",
                     required: true,
-                    synonyms: ["objectwbs", "wbs", "object"]
+                    synonyms: ["объект", "objectwbs", "wbs", "object"]
                 },
                 {
                     key: "disciplineCode",
-                    label: "Код дисциплины",
-                    required: true,
-                    synonyms: ["disciplinecode", "discipline", "disciplineid"]
+                    label: "Проектная дисциплина",
+                    required: false,
+                    synonyms: ["проектнаядисциплина", "столбец1", "disciplinecode", "discipline", "disciplineid"]
+                },
+                {
+                    key: "resourceDisciplineName",
+                    label: "Дисциплина-ресурс",
+                    required: false,
+                    synonyms: ["дисциплинаресурс", "ресурснаядисциплина", "resourcediscipline", "resourcedisciplinename"]
+                },
+                {
+                    key: "branchOfficeName",
+                    label: "Филиал-исполнитель",
+                    required: false,
+                    synonyms: ["филиалисп", "филиалисполнитель", "branch", "branchoffice"]
+                },
+                {
+                    key: "gipName",
+                    label: "ГИП",
+                    required: false,
+                    synonyms: ["гип", "gip", "chiefprojectengineer"]
                 },
                 {
                     key: "manHours",
                     label: "Трудозатраты (чел.-ч)",
                     required: true,
-                    synonyms: ["manhours", "hours", "laborhours"]
+                    synonyms: ["загрничелчас", "загрузкачелчас", "челчас", "manhours", "hours", "laborhours"]
                 },
                 {
                     key: "plannedStartDate",

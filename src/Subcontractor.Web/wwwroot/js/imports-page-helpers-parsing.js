@@ -23,7 +23,7 @@
             return String(value ?? "")
                 .trim()
                 .toLowerCase()
-                .replace(/[\s_\-]+/g, "");
+                .replace(/[^0-9a-zа-яё]+/gi, "");
         }
 
         function isRowEmpty(values) {
@@ -117,20 +117,35 @@
                 if (mapping.projectCode < 0 && columns.length >= 1) {
                     mapping.projectCode = 0;
                 }
-                if (mapping.objectWbs < 0 && columns.length >= 2) {
-                    mapping.objectWbs = 1;
+                if (mapping.complexProjectName < 0 && columns.length >= 2) {
+                    mapping.complexProjectName = 1;
                 }
-                if (mapping.disciplineCode < 0 && columns.length >= 3) {
-                    mapping.disciplineCode = 2;
+                if (mapping.projectName < 0 && columns.length >= 3) {
+                    mapping.projectName = 2;
                 }
-                if (mapping.manHours < 0 && columns.length >= 4) {
-                    mapping.manHours = 3;
+                if (mapping.objectWbs < 0 && columns.length >= 4) {
+                    mapping.objectWbs = 3;
                 }
-                if (mapping.plannedStartDate < 0 && columns.length >= 5) {
-                    mapping.plannedStartDate = 4;
+                if (mapping.disciplineCode < 0 && columns.length >= 5) {
+                    mapping.disciplineCode = 4;
                 }
-                if (mapping.plannedFinishDate < 0 && columns.length >= 6) {
-                    mapping.plannedFinishDate = 5;
+                if (mapping.resourceDisciplineName < 0 && columns.length >= 6) {
+                    mapping.resourceDisciplineName = 5;
+                }
+                if (mapping.branchOfficeName < 0 && columns.length >= 7) {
+                    mapping.branchOfficeName = 6;
+                }
+                if (mapping.gipName < 0 && columns.length >= 8) {
+                    mapping.gipName = 7;
+                }
+                if (mapping.manHours < 0 && columns.length >= 9) {
+                    mapping.manHours = 8;
+                }
+                if (mapping.plannedStartDate < 0 && columns.length >= 10) {
+                    mapping.plannedStartDate = 9;
+                }
+                if (mapping.plannedFinishDate < 0 && columns.length >= 11) {
+                    mapping.plannedFinishDate = 10;
                 }
             }
 

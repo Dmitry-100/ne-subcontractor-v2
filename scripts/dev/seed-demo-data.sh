@@ -4,6 +4,7 @@ set -euo pipefail
 API_BASE_URL="${API_BASE_URL:-http://localhost:5080}"
 POLL_INTERVAL_SECONDS="${POLL_INTERVAL_SECONDS:-2}"
 POLL_ATTEMPTS="${POLL_ATTEMPTS:-30}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 require_cmd() {
   local cmd="$1"
@@ -2083,6 +2084,8 @@ echo "Seeding contractor ratings..."
 seed_ratings_if_needed
 
 echo "Seeding import scenarios..."
+"${SCRIPT_DIR}/seed-express-source-data.sh"
+
 VALIDATED_BATCH_ID="$(ensure_direct_batch \
   "seed-demo-validated.csv" \
   "Валидный импорт для демонстрации" \
